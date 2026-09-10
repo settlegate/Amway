@@ -1,0 +1,154 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  kakaoId             String?              @unique
+  name                String?
+  phone               String?
+  role                String               @default("MEMBER")
+  sponsorId           String?
+  isAgreed            Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  consents            Consent[]
+  bodyRecords         BodyRecord[]
+  reminders           Reminder[]
+  seminarApplications SeminarApplication[]
+  leads               Lead[]
+  chatLogs            ChatLog[]
+}
+
+model Consent {
+  id        String    @id @default(cuid())
+  userId    String
+  channel   String
+  isAgreed  Boolean   @default(false)
+  agreedAt  DateTime?
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+}
+
+model BodyRecord {
+  id               String   @id @default(cuid())
+  userId           String
+  skeletalMuscleKg Float?
+  bodyFatPercent   Float?
+  visceralFatLevel Float?
+  bodyType         String?
+  imageUrl         String?
+  recordedAt       DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  category    String
+  description String?
+  benefits    String?
+  dosage      String?
+  price       Int      @default(0)
+  pv          Int?
+  bv          Int?
+  promotion   String?
+  salesVolume Int      @default(0)
+  imageUrl    String?
+  aClicUrl    String?
+  isActive    Boolean  @default(true)
+  lastSyncedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  promotions  Promotion[]
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  startAt     DateTime?
+  endAt       DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Reminder {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String?
+  productName String
+  dosage      String?
+  intakeTime  String
+  cycleDays   Int      @default(30)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Seminar {
+  id            String               @id @default(cuid())
+  title         String
+  description   String?
+  date          DateTime
+  location      String?
+  maxAttendees  Int                  @default(20)
+  createdAt     DateTime             @default(now())
+  applications  SeminarApplication[]
+}
+
+model SeminarApplication {
+  id        String   @id @default(cuid())
+  userId    String?
+  seminarId String
+  name      String
+  phone     String
+  status    String   @default("PENDING")
+  appliedAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  seminar   Seminar  @relation(fields: [seminarId], references: [id], onDelete: Cascade)
+}
+
+model Lead {
+  id         String    @id @default(cuid())
+  userId     String?
+  source     String?
+  category   String?
+  status     String    @default("NEW")
+  notes      String?
+  followUpAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model ChatLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  role      String
+  content   String
+  metadata  String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model NewsletterSubscriber {
+  id         String    @id @default(cuid())
+  userId     String?   @unique
+  isActive   Boolean   @default(true)
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+}

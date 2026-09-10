@@ -1,0 +1,37 @@
+{
+  "name": "amway-abo-wellness-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "암웨이 ABO 전용 웰니스 AI 비즈니스 & 웰니스 컨설턴트",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others --prefix-colors cyan,magenta \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "start": "npm run start -w backend",
+    "db:setup": "npm run db:setup -w backend",
+    "db:studio": "npm run db:studio -w backend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "test": "npm run test -w backend --if-present && npm run test -w frontend --if-present",
+    "prepare": "npx simple-git-hooks || true"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "node scripts/pre-commit.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "simple-git-hooks": "^2.11.1",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "esbuild@0.28.2": true,
+    "prisma@5.22.0": true
+  }
+}

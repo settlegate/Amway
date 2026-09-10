@@ -1,0 +1,39 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# build
+backend/dist
+frontend/dist
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# prisma / database
+*.db
+*.db-journal
+
+# logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# misc
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

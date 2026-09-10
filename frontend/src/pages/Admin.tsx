@@ -52,17 +52,28 @@ export default function Admin() {
   const [promoSaving, setPromoSaving] = useState(false)
   const [promoMessage, setPromoMessage] = useState('')
 
+  const [homePromoFile, setHomePromoFile] = useState<File | null>(null)
+  const [homePromoTargetUrl, setHomePromoTargetUrl] = useState('')
+  const [homePromoAlt, setHomePromoAlt] = useState('')
+  const [homePromoActive, setHomePromoActive] = useState(true)
+  const [homePromotions, setHomePromotions] = useState<any[]>([])
+  const [homePromoMessage, setHomePromoMessage] = useState('')
+  const [homePromoSaving, setHomePromoSaving] = useState(false)
+
   const loadDashboard = () =>
     api.get('/api/admin/dashboard').then((res) => setData(res.data))
   const loadProducts = () =>
     api.get('/api/admin/products').then((res) => setProducts(res.data))
   const loadPromotions = () =>
     api.get('/api/admin/promotions').then((res) => setPromotions(res.data))
+  const loadHomePromotions = () =>
+    api.get('/api/admin/home-promotions').then((res) => setHomePromotions(res.data))
 
   useEffect(() => {
     loadDashboard()
     loadProducts()
     loadPromotions()
+    loadHomePromotions()
   }, [])
 
   const syncSingle = async () => {
@@ -161,6 +172,50 @@ export default function Admin() {
   const togglePromotion = async (p: Promotion) => {
     await api.put(`/api/admin/promotions/${p.id}`, { isActive: !p.isActive })
     await loadPromotions()
+  }
+
+  const saveHomePromo = async () => {
+    if (!homePromoFile) {
+      setHomePromoMessage('프로모션 이미지를 선택해주세요.')
+      return
+    }
+    if (!homePromoTargetUrl) {
+      setHomePromoMessage('프로모션 링크 URL을 입력해주세요.')
+      return
+    }
+    setHomePromoSaving(true)
+    setHomePromoMessage('')
+    const form = new FormData()
+    form.append('image', homePromoFile)
+    form.append('targetUrl', homePromoTargetUrl)
+    form.append('alt', homePromoAlt)
+    form.append('isActive', homePromoActive ? 'true' : 'false')
+    try {
+      await api.post('/api/admin/home-promotions', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      setHomePromoMessage('홈 프로모션 배너가 등록되었습니다.')
+      setHomePromoFile(null)
+      setHomePromoTargetUrl('')
+      setHomePromoAlt('')
+      setHomePromoActive(true)
+      await loadHomePromotions()
+    } catch (err: any) {
+      setHomePromoMessage(err?.response?.data?.error || '홈 프로모션 배너 등록에 실패했습니다.')
+    } finally {
+      setHomePromoSaving(false)
+    }
+  }
+
+  const toggleHomePromo = async (p: any) => {
+    await api.put(`/api/admin/home-promotions/${p.id}`, { isActive: !p.isActive })
+    await loadHomePromotions()
+  }
+
+  const deleteHomePromo = async (id: string) => {
+    await api.delete(`/api/admin/home-promotions/${id}`)
+    setHomePromoMessage('홈 프로모션 배너가 삭제되었습니다.')
+    await loadHomePromotions()
   }
 
   const fmtDate = (v?: string | null) =>
@@ -431,6 +486,144 @@ export default function Admin() {
           </div>
         </div>
       ))}
+
+      <section className="card" aria-labelledby="home-promo-title">
+        <h3 id="home-promo-title" style={{ marginTop: 0 }}>
+          홈 프로모션 배너
+        </h3>
+        <p style={{ fontSize: 13, color: 'var(--text-soft)', marginTop: 0 }}>
+          캡처 이미지와 프로모션 링크 URL을 입력하면 메인 페이지 프로모션 영역에 즉시 적용됩니다.
+        </p>
+        <input
+          type="file"
+          accept="image/png, image/jpeg, image/webp, image/gif"
+          onChange={(e) => setHomePromoFile(e.target.files?.[0] || null)}
+          style={{ marginBottom: 8 }}
+        />
+        {homePromoFile && (
+          <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+            선택 파일: {homePromoFile.name}
+          </p>
+        )}
+        <input
+          value={homePromoTargetUrl}
+          onChange={(e) => setHomePromoTargetUrl(e.target.value)}
+          placeholder="프로모션 링크 URL"
+        />
+        <input
+          value={homePromoAlt}
+          onChange={(e) => setHomePromoAlt(e.target.value)}
+          placeholder="이미지 설명 (alt, 선택 사항)"
+        />
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+          <input
+            type="checkbox"
+            checked={homePromoActive}
+            onChange={(e) => setHomePromoActive(e.target.checked)}
+            style={{ width: 'auto', margin: 0 }}
+          />
+          활성화
+        </label>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            type="button"
+            onClick={saveHomePromo}
+            disabled={homePromoSaving}
+            style={{ width: 'auto', margin: 0, padding: '10px 18px' }}
+          >
+            {homePromoSaving ? '등록 중...' : '배너 등록'}
+          </button>
+        </div>
+        {homePromoMessage && (
+          <p
+            role="status"
+            style={{
+              margin: '10px 0 0',
+              fontSize: 13,
+              color:
+                homePromoMessage.includes('실패') || homePromoMessage.includes('입력')
+                  ? '#b91c1c'
+                  : 'var(--brand)',
+            }}
+          >
+            {homePromoMessage}
+          </p>
+        )}
+
+        <h4 style={{ margin: '24px 0 12px' }}>등록된 홈 배너</h4>
+        {homePromotions.length === 0 && (
+          <div className="card">등록된 홈 배너가 없습니다.</div>
+        )}
+        {homePromotions.map((p) => (
+          <div key={p.id} className="card">
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
+              }}
+            >
+              {p.imageUrl && (
+                <img
+                  src={p.imageUrl}
+                  alt={p.alt || '배너 이미지'}
+                  style={{
+                    width: 120,
+                    height: 80,
+                    objectFit: 'cover',
+                    borderRadius: 10,
+                    background: 'var(--surface-soft)',
+                  }}
+                />
+              )}
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <p style={{ margin: '0 0 4px', fontSize: 13 }}>
+                  <strong>링크:</strong>{' '}
+                  <a href={p.targetUrl} target="_blank" rel="noopener noreferrer">
+                    {p.targetUrl}
+                  </a>
+                </p>
+                <p style={{ margin: '4px 0', fontSize: 13, color: 'var(--text-soft)' }}>
+                  상태: {p.isActive ? '활성' : '비활성'}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => toggleHomePromo(p)}
+                  style={{
+                    width: 'auto',
+                    margin: 0,
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    background: p.isActive ? 'var(--accent)' : 'var(--surface-soft)',
+                    color: p.isActive ? 'var(--accent-text)' : 'var(--text)',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  {p.isActive ? '활성' : '비활성'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteHomePromo(p.id)}
+                  style={{
+                    width: 'auto',
+                    margin: 0,
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    background: '#fee2e2',
+                    color: '#b91c1c',
+                    border: '1px solid #fecaca',
+                  }}
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
 
       <h3>제품 목록</h3>
       {products.map((p) => (

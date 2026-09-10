@@ -3,7 +3,7 @@ import { api } from '../lib/api'
 import { openProductWindow } from '../lib/open'
 import LeafIcon from './LeafIcon'
 
-interface ChatProduct {
+export interface ChatProduct {
   id: string
   name: string
   description?: string
@@ -13,11 +13,11 @@ interface ChatProduct {
   aClicUrl?: string
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   role: 'user' | 'ai'
   text: string
   products?: ChatProduct[]
-  createdAt: Date
+  createdAt: Date | string
 }
 
 const QUICK_PROMPTS = [
@@ -32,22 +32,32 @@ function formatWon(price?: number) {
   return `${price.toLocaleString('ko-KR')}원`
 }
 
-function formatTime(date: Date) {
-  return date.toLocaleTimeString('ko-KR', {
+function toDate(date: Date | string) {
+  return date instanceof Date ? date : new Date(date)
+}
+
+function formatTime(date: Date | string) {
+  return toDate(date).toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   })
 }
 
-export default function ChatPanel() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'ai',
-      text: '안녕하세요. 암웨이 웰니스 AI 컨설턴트입니다. 궁금한 점을 물어보세요.',
-      createdAt: new Date(),
-    },
-  ])
+const DEFAULT_MESSAGE: ChatMessage = {
+  role: 'ai',
+  text: '안녕하세요. 암웨이 웰니스 AI 컨설턴트입니다. 궁금한 점을 물어보세요.',
+  createdAt: new Date(),
+}
+
+interface ChatPanelProps {
+  initialMessages?: ChatMessage[]
+}
+
+export default function ChatPanel({ initialMessages }: ChatPanelProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    initialMessages && initialMessages.length ? initialMessages : [DEFAULT_MESSAGE],
+  )
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)

@@ -1,3 +1,8 @@
+# 한국 암웨이 영양건강(뉴트리라이트) 상품 URL 목록
+# 수집일: 2026-09-10, 총 134개 (SKU 중복 제거, www 호스트 정규화)
+
+
+# 기초영양 > 비타민/미네랄
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/105058K
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/120844K
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/110608K
@@ -21,11 +26,15 @@ https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/A4450K
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/109745K
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/308137K
 https://www.amway.co.kr/shop/nutrition/basic/vitamins-minerals/p/308153K
+
+# 기초영양 > 단백질
 https://www.amway.co.kr/shop/nutrition/basic/proteins/p/122594K
 https://www.amway.co.kr/shop/nutrition/basic/proteins/p/110415K
 https://www.amway.co.kr/shop/nutrition/basic/proteins/p/126567K
 https://www.amway.co.kr/shop/nutrition/basic/proteins/p/102578K
 https://www.amway.co.kr/shop/nutrition/basic/proteins/p/111861K
+
+# 기초영양 > 유산균/식이섬유
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/342337
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/102736K
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/118719K
@@ -42,6 +51,8 @@ https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/342528
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/342525
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/342527
 https://www.amway.co.kr/shop/nutrition/basic/probiotic-fibers/p/342526
+
+# 기초영양 > 마이크로바이옴
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313202K
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/305507K
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313201K
@@ -56,6 +67,8 @@ https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313225L
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313223L
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313221L
 https://www.amway.co.kr/shop/nutrition/basic/mylab-microbiome/p/313224L
+
+# 기능성
 https://www.amway.co.kr/shop/nutrition/functional/p/126138K
 https://www.amway.co.kr/shop/nutrition/functional/p/105684K
 https://www.amway.co.kr/shop/nutrition/functional/p/100829K
@@ -84,6 +97,8 @@ https://www.amway.co.kr/shop/nutrition/functional/p/319317K
 https://www.amway.co.kr/shop/nutrition/functional/p/319041K
 https://www.amway.co.kr/shop/nutrition/functional/p/305963K
 https://www.amway.co.kr/shop/nutrition/functional/p/305962K
+
+# 어린이
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/305482K
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/300920K
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/100325K
@@ -91,18 +106,28 @@ https://www.amway.co.kr/shop/nutrition/nutrikids/p/123046K
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/319893
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/316604K
 https://www.amway.co.kr/shop/nutrition/nutrikids/p/316605K
+
+# 식품/음료
 https://www.amway.co.kr/shop/nutrition/food-beverage/p/305056K
 https://www.amway.co.kr/shop/nutrition/food-beverage/p/321305K
 https://www.amway.co.kr/shop/nutrition/food-beverage/p/308136K
 https://www.amway.co.kr/shop/nutrition/food-beverage/p/319922K
 https://www.amway.co.kr/shop/nutrition/food-beverage/p/124896K
+
+# 바디키
 https://www.amway.co.kr/shop/nutrition/bodykey/p/128185K
 https://www.amway.co.kr/shop/nutrition/bodykey/p/128189K
 https://www.amway.co.kr/shop/nutrition/bodykey/p/128190K
+
+# 보조용품
 https://www.amway.co.kr/shop/nutrition/nutrition-sales-aid/p/303742K
+
+# 바디키
 https://www.amway.co.kr/shop/nutrition/bodykey/p/313097K
 https://www.amway.co.kr/shop/nutrition/bodykey/p/315512
 https://www.amway.co.kr/shop/nutrition/bodykey/p/300752K
+
+# n by Nutrilite
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/321593K
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/301833K
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/295116K
@@ -110,6 +135,8 @@ https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/305353K
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/305352K
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/315340K
 https://www.amway.co.kr/shop/nutrition/n-by-nutrilite/p/314050K
+
+# XS 에너지
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/342140
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/342138K
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/342139K
@@ -125,6 +152,8 @@ https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/313098K
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/327910K
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/320105K
 https://www.amway.co.kr/shop/nutrition/xs-energy-drink/p/322074K
+
+# 뉴트리라이트 선물세트
 https://www.amway.co.kr/shop/nutrition/nutrition-gift-set/p/319600K
 https://www.amway.co.kr/shop/nutrition/nutrition-gift-set/p/340102K
 https://www.amway.co.kr/shop/nutrition/nutrition-gift-set/p/329987K

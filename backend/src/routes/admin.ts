@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { syncProductFromUrl, syncAllProducts } from '../lib/amwayProduct';
+import homePromotionAdmin from './homePromotionAdmin';
 
 const router = Router();
 
@@ -153,5 +154,10 @@ router.delete('/promotions/:id', async (req, res) => {
     res.status(500).json({ error: '프로모션 삭제 중 오류가 발생했습니다.' });
   }
 });
+
+// ----------------------
+// 홈 프로모션 배너
+// ----------------------
+router.use('/home-promotions', homePromotionAdmin);
 
 export default router;

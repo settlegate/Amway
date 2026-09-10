@@ -1,0 +1,868 @@
+{
+  "collectedAt": "2026-09-10T10:30:27.650Z",
+  "siteTotal": 542,
+  "dbTotal": 544,
+  "categories": [
+    {
+      "name": "비타민 무기질",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/basic/vitamins-minerals/c/vitamins-minerals",
+      "siteCount": 23,
+      "dbCount": 23,
+      "diff": 0
+    },
+    {
+      "name": "단백질",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/basic/proteins/c/proteins",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "유산균 식이섬유 외",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/basic/probiotic-fibers/c/probiotic-fibers",
+      "siteCount": 16,
+      "dbCount": 17,
+      "diff": -1
+    },
+    {
+      "name": "마이크로바이옴",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/basic/mylab-microbiome/c/mylab-microbiome",
+      "siteCount": 14,
+      "dbCount": 14,
+      "diff": 0
+    },
+    {
+      "name": "기능성",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/functional/c/functional",
+      "siteCount": 28,
+      "dbCount": 28,
+      "diff": 0
+    },
+    {
+      "name": "어린이",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/nutrikids/c/nutrikids",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "식품/음료",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/food-beverage/c/food-beverage",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "바디키",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/bodykey/c/bodykey",
+      "siteCount": 6,
+      "dbCount": 6,
+      "diff": 0
+    },
+    {
+      "name": "n by Nutrilite",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/n-by-nutrilite/c/n-by-nutrilite",
+      "siteCount": 7,
+      "dbCount": 8,
+      "diff": -1
+    },
+    {
+      "name": "XS 에너지",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/xs-energy-drink/c/xs-energy-drink",
+      "siteCount": 15,
+      "dbCount": 15,
+      "diff": 0
+    },
+    {
+      "name": "보조용품",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/nutrition-sales-aid/c/nutrition-sales-aid",
+      "siteCount": 10,
+      "dbCount": 10,
+      "diff": 0
+    },
+    {
+      "name": "뉴트리라이트 선물세트",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/nutrition-gift-set/c/nutrition-gift-set",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "클렌징폼/젤",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/cleansing/cleansing-foam-gel/c/cleansing-foam-gel",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "오일/크림",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/cleansing/cleansing-oil-cream/c/cleansing-oil-cream",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "워터/클로스",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/cleansing/cleansing-water-cloths/c/cleansing-water-cloths",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "립&아이 리무버",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/cleansing/cleansing-lip-eye-remover/c/cleansing-lip-eye-remover",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "토너/미스트",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-toner-mist/c/skin-care-toner-mist",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "세럼/앰플",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-serum-ample/c/skin-care-serum-ample",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "에멀젼",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-emulsion/c/skin-care-emulsion",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "크림",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-cream/c/skin-care-cream",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "아이케어",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-eye/c/skin-care-eye",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "선케어",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-sun/c/skin-care-sun",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "마스크/팩",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/skin-care-mask-pack/c/skin-care-mask-pack",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "디바이스",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/beauty-device/c/beauty-device",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "베이스",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/base-makeup/c/base-makeup",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "파우더",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/powders/c/powders",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "립",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/lip/c/lip",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "아이",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/eyes/c/eyes",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "블러쉬/쉐이딩",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/blush-shading/c/blush-shading",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "도구류",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/beauty-accessories/c/beauty-accessories",
+      "siteCount": 12,
+      "dbCount": 12,
+      "diff": 0
+    },
+    {
+      "name": "에센셜 오일",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/essential-oil/c/essential-oil",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "아티스트리 선물세트",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/beauty-gift-set/c/beauty-gift-set",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "치약",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/toothpastes/c/toothpastes",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "칫솔",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/brushes/c/brushes",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "애프터 구강케어",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/breath-sprays-floss/c/breath-sprays-floss",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "건강기능식품",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/healthfood/c/healthfood",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "디바이스 부속품",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/oral-care-device-parts/c/oral-care-device-parts",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "샴푸",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/shampoos/c/shampoos",
+      "siteCount": 10,
+      "dbCount": 10,
+      "diff": 0
+    },
+    {
+      "name": "트리트먼트",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/treatment/c/treatment",
+      "siteCount": 8,
+      "dbCount": 8,
+      "diff": 0
+    },
+    {
+      "name": "두피 세럼",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/scalp-serum/c/scalp-serum",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "헤어 세럼",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/hair-serums/c/hair-serums",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "염색약",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/hair-color/c/hair-color",
+      "siteCount": 4,
+      "dbCount": 4,
+      "diff": 0
+    },
+    {
+      "name": "디바이스",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/hair-care/hair-device/c/hair-device",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "워시",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/body-care/body-wash/c/body-wash",
+      "siteCount": 8,
+      "dbCount": 8,
+      "diff": 0
+    },
+    {
+      "name": "보습",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/body-care/body-moisturizer/c/body-moisturizer",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "선케어",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/body-care/body-sun-care/c/body-sun-care",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "퍼스널케어 선물세트",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/personal-care-gift-set/c/personal-care-gift-set",
+      "siteCount": 6,
+      "dbCount": 6,
+      "diff": 0
+    },
+    {
+      "name": "이스프링",
+      "siteUrl": "https://api.amway.co.kr/shop/home/water-treatment/espring/c/espring",
+      "siteCount": 11,
+      "dbCount": 11,
+      "diff": 0
+    },
+    {
+      "name": "이스프링 서비스",
+      "siteUrl": "https://api.amway.co.kr/shop/home/water-treatment/espring-service/c/espring-service",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "엣모스피어 스카이",
+      "siteUrl": "https://api.amway.co.kr/shop/home/air-treatment/atmosphere-sky/c/atmosphere-sky",
+      "siteCount": 6,
+      "dbCount": 6,
+      "diff": 0
+    },
+    {
+      "name": "엣모스피어 블루",
+      "siteUrl": "https://api.amway.co.kr/shop/home/air-treatment/atmosphere-blue/c/atmosphere-blue",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "엣모스피어 드라이브",
+      "siteUrl": "https://api.amway.co.kr/shop/home/air-treatment/atmosphere-drive/c/atmosphere-drive",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "엣모스피어",
+      "siteUrl": "https://api.amway.co.kr/shop/home/air-treatment/atmosphere/c/atmosphere",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "암웨이 퀸 Ti",
+      "siteUrl": "https://api.amway.co.kr/shop/home/cookware/amway-queen-ti/c/amway-queen-ti",
+      "siteCount": 25,
+      "dbCount": 25,
+      "diff": 0
+    },
+    {
+      "name": "암웨이 퀸",
+      "siteUrl": "https://api.amway.co.kr/shop/home/cookware/amway-queen/c/amway-queen",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "나이프웨어",
+      "siteUrl": "https://api.amway.co.kr/shop/home/cookware/knife-ware/c/knife-ware",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "보조용품",
+      "siteUrl": "https://api.amway.co.kr/shop/home/cookware/cookware-mate/c/cookware-mate",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "퀸 부속품",
+      "siteUrl": "https://api.amway.co.kr/shop/home/cookware/amway-queen-parts/c/amway-queen-parts",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "세탁용",
+      "siteUrl": "https://api.amway.co.kr/shop/home/detergent/laundry-care/c/laundry-care",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "표면 세정용",
+      "siteUrl": "https://api.amway.co.kr/shop/home/detergent/surface-care/c/surface-care",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "주방 세정용",
+      "siteUrl": "https://api.amway.co.kr/shop/home/detergent/kitchen-care/c/kitchen-care",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "보조용품",
+      "siteUrl": "https://api.amway.co.kr/shop/home/detergent/detergent-mate/c/detergent-mate",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "비데",
+      "siteUrl": "https://api.amway.co.kr/shop/home/others/bidet/c/bidet",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "홈리빙 선물세트",
+      "siteUrl": "https://api.amway.co.kr/shop/home/home-gift-set/c/home-gift-set",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "까페드다몬",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/drink/cafe-de-damon/c/cafe-de-damon",
+      "siteCount": 13,
+      "dbCount": 13,
+      "diff": 0
+    },
+    {
+      "name": "라임트리",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/drink/limetree/c/limetree",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "정기품",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/food/junggipoom/c/junggipoom",
+      "siteCount": 34,
+      "dbCount": 34,
+      "diff": 0
+    },
+    {
+      "name": "노브스갈라",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/food/nobsgala/c/nobsgala",
+      "siteCount": 10,
+      "dbCount": 10,
+      "diff": 0
+    },
+    {
+      "name": "뉴트리라면",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/food/nutri/c/nutri",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "종가",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/food/jongga/c/jongga",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "본작",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/ginger/bonjak/c/bonjak",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "행복한아름",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/hygiene/hangbokhanarum/c/hangbokhanarum",
+      "siteCount": 7,
+      "dbCount": 7,
+      "diff": 0
+    },
+    {
+      "name": "웰로스",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/hygiene/wellros/c/wellros",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "디펜드",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/hygiene/depend/c/depend",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "후아",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/women/hua/c/hua",
+      "siteCount": 9,
+      "dbCount": 9,
+      "diff": 0
+    },
+    {
+      "name": "LAB224",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/living/lab224/c/lab224",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "반려동물",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/pets/c/pets",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "프라임펫",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/primepet/c/primepet",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "기타",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/etc/c/etc",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "재사용 쇼핑백",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/shoppingbag/c/shoppingbag",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "스마트 바이크",
+      "siteUrl": "https://api.amway.co.kr/shop/wellness/25cent-ride/smart-bike/c/smart-bike",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "보조용품",
+      "siteUrl": "https://api.amway.co.kr/shop/wellness/25cent-ride/25cent-ride-accessories/c/25cent-ride-accessories",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "의류",
+      "siteUrl": "https://api.amway.co.kr/shop/wellness/25cent-ride/25cent-ride-apparel/c/25cent-ride-apparel",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    },
+    {
+      "name": "리플렉서 1699",
+      "siteUrl": "https://api.amway.co.kr/shop/wellness/reflexer1699/c/reflexer1699",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "옵티미스트",
+      "siteUrl": "https://api.amway.co.kr/shop/wellness/optimist/c/optimist",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "매거진/가이드북",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/sales-kit/magazin-guide-book/c/magazin-guide-book",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "판매보조키트",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/sales-kit/other-sales-kits/c/other-sales-kits",
+      "siteCount": 9,
+      "dbCount": 9,
+      "diff": 0
+    },
+    {
+      "name": "기타(sop-customized-pack)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/sop-cat-nutrilite/sop-customized-pack/c/sop-customized-pack",
+      "siteCount": 4,
+      "dbCount": 4,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-special-care)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-special-care/c/artistry-special-care",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "기타(smart-order-program)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/c/smart-order-program",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(sop-doublex)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/sop-cat-nutrilite/sop-doublex/c/sop-doublex",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-nutrition)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-nutrition/c/skin-nutrition",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-sun-care)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-sun-care/c/artistry-sun-care",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(sop-vitamins)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/sop-cat-artistry/sop-vitamins/c/sop-vitamins",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(nutrilite-concerns-personalized-health-solution)",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/nutrilite-concerns/nutrilite-concerns-personalized/nutrilite-concerns-personalized-health-solution/c/nutrilite-concerns-personalized-health-solution",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(oral-care)",
+      "siteUrl": "https://api.amway.co.kr/shop/personal-care/oral-care/c/oral-care",
+      "siteCount": 4,
+      "dbCount": 4,
+      "diff": 0
+    },
+    {
+      "name": "기타(beauty-page-category-7)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/beauty-page-category-7/c/beauty-page-category-7",
+      "siteCount": 4,
+      "dbCount": 4,
+      "diff": 0
+    },
+    {
+      "name": "기타(sop-daily-plus-pack)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/sop-cat-nutrilite/sop-daily-plus-pack/c/sop-daily-plus-pack",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-nutrition-renewing)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-nutrition/skin-nutrition-renewing/c/skin-nutrition-renewing",
+      "siteCount": 6,
+      "dbCount": 6,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-studio-skin)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-studio-skin/c/artistry-studio-skin",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "기타(seasonal-etc)",
+      "siteUrl": "https://api.amway.co.kr/shop/one-for-one/seasonal/seasonal-etc/c/seasonal-etc",
+      "siteCount": 9,
+      "dbCount": 9,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-ideal-radiance)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-ideal-radiance/c/artistry-ideal-radiance",
+      "siteCount": 4,
+      "dbCount": 4,
+      "diff": 0
+    },
+    {
+      "name": "기타(sop-microbiome)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smart-order-program/sop-cat-mylab/sop-microbiome/c/sop-microbiome",
+      "siteCount": 6,
+      "dbCount": 6,
+      "diff": 0
+    },
+    {
+      "name": "기타(cushion-foundations)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/base-makeup/cushion-foundations/c/cushion-foundations",
+      "siteCount": 8,
+      "dbCount": 8,
+      "diff": 0
+    },
+    {
+      "name": "기타(lipstick)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/lip/lipstick/c/lipstick",
+      "siteCount": 9,
+      "dbCount": 9,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-signature-select)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-signature-select/c/artistry-signature-select",
+      "siteCount": 5,
+      "dbCount": 5,
+      "diff": 0
+    },
+    {
+      "name": "기타(eyebrow)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/eyes/eyebrow/c/eyebrow",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-nutrition-firming)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-nutrition/skin-nutrition-firming/c/skin-nutrition-firming",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-nutrition-cleansing)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-nutrition/skin-nutrition-cleansing/c/skin-nutrition-cleansing",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-care)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/c/skin-care",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(nutrition)",
+      "siteUrl": "https://api.amway.co.kr/shop/nutrition/c/nutrition",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-men)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-men/c/artistry-men",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistrry-intensive-skincare)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistrry-intensive-skincare/c/artistrry-intensive-skincare",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(liptint)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/lip/liptint/c/liptint",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(eyeshadow)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/eyes/eyeshadow/c/eyeshadow",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(eyeliner)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/eyes/eyeliner/c/eyeliner",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(powder-foundation)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/base-makeup/powder-foundation/c/powder-foundation",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(smartpay)",
+      "siteUrl": "https://api.amway.co.kr/shop/plus-shop/smartpay/c/smartpay",
+      "siteCount": 3,
+      "dbCount": 3,
+      "diff": 0
+    },
+    {
+      "name": "기타(concealer)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/base-makeup/concealer/c/concealer",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(skin-nutrition-hydrating)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-nutrition/skin-nutrition-hydrating/c/skin-nutrition-hydrating",
+      "siteCount": 1,
+      "dbCount": 1,
+      "diff": 0
+    },
+    {
+      "name": "기타(blush)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/makeup/blush-shading/blush/c/blush",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타(artistry-labs)",
+      "siteUrl": "https://api.amway.co.kr/shop/beauty/skin-care/artistry-labs/c/artistry-labs",
+      "siteCount": 2,
+      "dbCount": 2,
+      "diff": 0
+    },
+    {
+      "name": "기타/미분류",
+      "siteUrl": "",
+      "siteCount": 0,
+      "dbCount": 0,
+      "diff": 0
+    }
+  ]
+}

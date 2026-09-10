@@ -10,6 +10,7 @@ import leadRoutes from './leads';
 import consentRoutes from './consent';
 import adminRoutes from './admin';
 import kakaoRoutes from './kakao';
+import homePromotionRoutes from './homePromotion';
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/leads', leadRoutes);
 router.use('/consent', consentRoutes);
 router.use('/admin', adminRoutes);
 router.use('/kakao', kakaoRoutes);
+router.use('/home-promotion', homePromotionRoutes);
 
 export default router;

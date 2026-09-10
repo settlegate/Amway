@@ -12,31 +12,31 @@
 /* ---------- Design tokens ---------- */
 
 :root,
-html[data-theme='forest'],
+html[data-theme="forest"],
 .theme-forest {
   color-scheme: light;
-  --bg: #eef4ee;
-  --bg-accent: linear-gradient(160deg, #e3f0e4 0%, #f4f8f1 55%, #eef4ee 100%);
+  --bg: #e0e0e0;
+  --bg-accent: #e0e0e0;
   --surface: #ffffff;
-  --surface-soft: #f2f7f1;
-  --surface-tint: #e6f1e8;
-  --text: #1d3328;
-  --text-soft: #52705f;
-  --border: #d5e3d8;
-  --brand: #17663f;
-  --brand-strong: #0e4d2e;
-  --brand-soft: #d9ecdd;
-  --accent: #2e7d4f;
-  --accent-bg: #e2f1e6;
+  --surface-soft: #f2f2f0;
+  --surface-tint: #e8e8e8;
+  --text: #111111;
+  --text-soft: #555555;
+  --border: #c0c0c0;
+  --brand: #111111;
+  --brand-strong: #000000;
+  --brand-soft: #e0e0e0;
+  --accent: #111111;
+  --accent-bg: #d0d0d0;
   --accent-text: #ffffff;
-  --ring: rgba(46, 125, 79, 0.35);
-  --chip: #eaf4eb;
-  --chip-text: #22543a;
-  --shadow: 0 10px 30px rgba(23, 80, 50, 0.12);
-  --shadow-soft: 0 4px 14px rgba(23, 80, 50, 0.08);
-  --hero-badge: #17663f;
-  --gradient-brand: linear-gradient(135deg, #1a7345 0%, #2e9e63 60%, #7cc49b 100%);
-  --motif: '잎';
+  --ring: rgba(0, 0, 0, 0.15);
+  --chip: #e0e0e0;
+  --chip-text: #111111;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --hero-badge: #111111;
+  --gradient-brand: #111111;
+  --motif: "";
 }
 
 html[data-theme='sunrise'],
@@ -97,27 +97,27 @@ html[data-theme='nature'],
 .theme-nature {
   color-scheme: light;
   --bg: #ffffff;
-  --bg-accent: radial-gradient(circle at 80% 10%, rgba(46, 125, 79, 0.16), transparent 30%),
-    radial-gradient(circle at 10% 85%, rgba(124, 196, 155, 0.1), transparent 28%), #ffffff;
+  --bg-accent: radial-gradient(circle at 80% 10%, rgba(0, 0, 0, 0.16), transparent 30%),
+    radial-gradient(circle at 10% 85%, rgba(0, 0, 0, 0.1), transparent 28%), #ffffff;
   --surface: #ffffff;
   --surface-soft: #f6faf6;
   --surface-tint: #eef6ee;
   --text: #1d3328;
   --text-soft: #52705f;
   --border: #d8e6da;
-  --brand: #17663f;
-  --brand-strong: #0e4d2e;
-  --brand-soft: #e6f1e8;
+  --brand: #111111;
+  --brand-strong: #000000;
+  --brand-soft: #e8e8e8;
   --accent: #2e7d4f;
   --accent-bg: #e8f2ea;
   --accent-text: #ffffff;
-  --ring: rgba(46, 125, 79, 0.35);
+  --ring: rgba(0, 0, 0, 0.35);
   --chip: #eaf4eb;
   --chip-text: #22543a;
-  --shadow: 0 1px 3px rgba(23, 102, 63, 0.08), 0 10px 28px rgba(23, 102, 63, 0.1);
-  --shadow-lg: 0 25px 50px -12px rgba(23, 80, 50, 0.22);
-  --hero-badge: #17663f;
-  --gradient-brand: linear-gradient(135deg, #17663f 0%, #2e9e63 55%, #7cc49b 100%);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 10px 28px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.22);
+  --hero-badge: #111111;
+  --gradient-brand: linear-gradient(135deg, #111111 0%, #555555 55%, #d0d0d0 100%);
   --motif: '잎';
 }
 
@@ -1316,11 +1316,11 @@ button:disabled {
 .btn-primary {
   background: var(--gradient-brand);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(23, 102, 63, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 8px 24px rgba(23, 102, 63, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 .btn-ghost {
@@ -1351,7 +1351,7 @@ button:disabled {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 55%, #b8e0c6 100%);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 55%, #d0d0d0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1376,8 +1376,8 @@ button:disabled {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 80% 10%, rgba(46, 125, 79, 0.2), transparent 32%),
-    radial-gradient(circle at 10% 85%, rgba(124, 196, 155, 0.12), transparent 28%);
+    radial-gradient(circle at 80% 10%, rgba(0, 0, 0, 0.2), transparent 32%),
+    radial-gradient(circle at 10% 85%, rgba(0, 0, 0, 0.12), transparent 28%);
   pointer-events: none;
 }
 
@@ -1474,7 +1474,7 @@ button:disabled {
   width: 100%;
   height: 100%;
   border-radius: 34px;
-  background: linear-gradient(180deg, #f0f7f1 0%, #e6f1e8 100%);
+  background: linear-gradient(180deg, #f2f2f0 0%, #e8e8e8 100%);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1509,7 +1509,7 @@ button:disabled {
   border-radius: 18px;
   font-size: 0.8125rem;
   line-height: 1.55;
-  box-shadow: 0 2px 8px rgba(23, 102, 63, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   animation: float 6s ease-in-out infinite;
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.9);
@@ -1535,7 +1535,7 @@ button:disabled {
   text-align: center;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 4px 14px rgba(23, 102, 63, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
 @keyframes float {
@@ -1713,7 +1713,7 @@ button:disabled {
   font-weight: 900;
   font-size: 0.9375rem;
   border: 4px solid var(--surface-soft);
-  box-shadow: 0 4px 12px rgba(23, 102, 63, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .process-card h3 {
@@ -1860,7 +1860,7 @@ button:disabled {
   padding: 64px 32px;
   text-align: center;
   margin: 0 24px 80px;
-  background: linear-gradient(135deg, #134b2f 0%, #17663f 50%, #2e9e63 100%);
+  background: linear-gradient(135deg, #111111 0%, #111111 50%, #555555 100%);
   color: #fff;
 }
 
@@ -1877,8 +1877,8 @@ button:disabled {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(124, 196, 155, 0.35), transparent 35%),
-    radial-gradient(circle at 80% 80%, rgba(124, 196, 155, 0.2), transparent 35%);
+    radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.35), transparent 35%),
+    radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.2), transparent 35%);
   pointer-events: none;
 }
 
@@ -1894,7 +1894,7 @@ button:disabled {
 .landing-cta p {
   position: relative;
   z-index: 1;
-  color: #e6f1e8;
+  color: #e8e8e8;
   font-size: 1.0625rem;
   max-width: 540px;
   margin: 0 auto 30px;
@@ -1911,7 +1911,7 @@ button:disabled {
 
 .landing-cta .btn-primary {
   background: #fff;
-  color: #134b2f;
+  color: #111111;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -2113,4 +2113,127 @@ button:disabled {
   .landing .container {
     padding: 0 16px;
   }
+}
+
+/* ---------- Editorial homepage layout ---------- */
+
+.home-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.home-sidebar {
+  order: 1;
+  padding: 32px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.home-main {
+  order: 2;
+  padding: 32px 20px;
+  min-width: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sidebar-brand-mark {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--text);
+  color: #fff;
+}
+
+.sidebar-brand-mark svg {
+  width: 70%;
+  height: 70%;
+}
+
+.sidebar-brand-logo {
+  height: 22px;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  align-self: flex-start;
+  object-fit: contain;
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.sidebar-brand-text span:last-child {
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--text-soft);
+}
+
+@media (min-width: 1024px) {
+  .home-layout {
+    grid-template-columns: 280px 1fr;
+  }
+
+  .home-sidebar {
+    position: sticky;
+    top: 0;
+    order: unset;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 60px 28px 48px;
+    border-right: 1px solid var(--border);
+    border-bottom: none;
+    align-self: start;
+  }
+
+  .home-main {
+    order: unset;
+    padding: 60px 48px;
+    min-height: 100vh;
+  }
+
+  .sidebar-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 0;
+  }
+
+  .sidebar-brand-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .sidebar-brand-logo {
+    height: 24px;
+  }
+
+  .sidebar-brand-text {
+    font-size: 1.1rem;
+    gap: 6px;
+  }
+
+  .sidebar-brand-text span:last-child {
+    font-size: 0.875rem;
+  }
+}
+
+.landing-hero {
+  padding: 0 0 56px;
 }

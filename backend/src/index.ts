@@ -4,6 +4,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 
 import routes from './routes';
 import { initCronJobs } from './lib/cron';
@@ -20,6 +21,8 @@ app.use(cors({ origin: isDev ? true : allowedOrigin }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'public', 'uploads')));
 
 app.use('/api', routes);
 

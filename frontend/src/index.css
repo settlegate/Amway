@@ -1449,8 +1449,44 @@ button:disabled {
 
 .hero-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 8px 8px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.hero-actions input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--text);
+  padding: 0;
+  outline: none;
+  min-width: 0;
+  caret-color: transparent;
+}
+
+.hero-actions input::placeholder {
+  color: var(--text-soft);
+}
+
+.hero-actions input:hover::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hero-actions .btn {
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .hero-note {
@@ -2134,6 +2170,8 @@ button:disabled {
   width: 36px;
   height: 36px;
   border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
   background: var(--surface-soft);
   border-radius: 8px;
   cursor: pointer;

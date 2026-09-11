@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api'
 import { openProductWindow } from '../lib/open'
 import LeafIcon from './LeafIcon'
+import UploadIcon from './UploadIcon'
+
+interface ManualBodyValues {
+  skeletalMuscleKg: string
+  bodyFatPercent: string
+  visceralFatLevel: string
+  bodyType: string
+}
 
 export interface ChatProduct {
   id: string
@@ -13,10 +21,21 @@ export interface ChatProduct {
   aClicUrl?: string
 }
 
+export interface BodyResult {
+  skeletalMuscleKg?: number
+  bodyFatPercent?: number
+  visceralFatLevel?: number
+  bodyType?: string
+  confidence?: 'high' | 'medium' | 'low'
+  valid?: boolean
+  source: 'image' | 'manual'
+}
+
 export interface ChatMessage {
   role: 'user' | 'ai'
   text: string
   products?: ChatProduct[]
+  bodyResult?: BodyResult
   createdAt: Date | string
 }
 
@@ -70,8 +89,16 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
   )
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [manualOpen, setManualOpen] = useState(false)
+  const [manual, setManual] = useState<ManualBodyValues>({
+    skeletalMuscleKg: '',
+    bodyFatPercent: '',
+    visceralFatLevel: '',
+    bodyType: '',
+  })
   const logRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
   const startedRef = useRef(false)
 
@@ -97,24 +124,36 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
     }
   }, [loading, messages])
 
-  const send = async (text: string, history: ChatMessage[] = []) => {
+  const send = async (text: string, history: ChatMessage[] = [], extra?: { imageBase64?: string; mimeType?: string; bodyMetrics?: Partial<BodyResult> }) => {
     const userMsg = text.trim()
-    if (!userMsg) return
+    if (!userMsg && !extra?.imageBase64 && !extra?.bodyMetrics) return
     setInput('')
+    const userText = userMsg || (extra?.imageBase64 ? '인바디 결과지를 분석해주세요' : '체성분 수치를 분석해주세요')
     setMessages((prev) => [
       ...prev,
-      { role: 'user', text: userMsg, createdAt: new Date() },
+      { role: 'user', text: userText, createdAt: new Date() },
     ])
     setLoading(true)
 
     try {
-      const { data } = await api.post('/api/chat', { message: userMsg, history: history.map((m) => ({ role: m.role, text: m.text })) })
+      const payload: any = { message: userMsg, history: history.map((m) => ({ role: m.role, text: m.text })) }
+      if (extra?.imageBase64) {
+        payload.imageBase64 = extra.imageBase64
+        payload.mimeType = extra.mimeType
+      }
+      if (extra?.bodyMetrics) {
+        payload.bodyMetrics = extra.bodyMetrics
+      }
+      const { data } = await api.post('/api/chat', payload)
       setMessages((prev) => [
         ...prev,
         {
           role: 'ai',
           text: data.text,
           products: Array.isArray(data.products) ? data.products : [],
+          bodyResult: data.bodyResult
+            ? { ...data.bodyResult, source: extra?.imageBase64 ? 'image' : 'manual' }
+            : undefined,
           createdAt: new Date(),
         },
       ])
@@ -149,6 +188,66 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
       e.preventDefault()
       send(input, messages)
     }
+  }
+
+  const preprocessImage = (file: File, maxWidth = 1024): Promise<{ base64: string; mimeType: string }> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width)
+        canvas.width = Math.floor(img.width * scale)
+        canvas.height = Math.floor(img.height * scale)
+        if (ctx) {
+          ctx.filter = 'contrast(1.2)'
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+        resolve({ base64: canvas.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg' })
+      }
+      img.onerror = reject
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
+  const handleImage = async (file: File) => {
+    try {
+      const { base64, mimeType } = await preprocessImage(file)
+      await send('', messages, { imageBase64: base64, mimeType })
+    } catch {
+      alert('이미지를 읽을 수 없습니다.')
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleImage(file)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile()
+        if (file) {
+          e.preventDefault()
+          handleImage(file)
+        }
+      }
+    }
+  }
+
+  const handleManual = () => {
+    const metrics: Partial<BodyResult> = {}
+    if (manual.skeletalMuscleKg) metrics.skeletalMuscleKg = Number(manual.skeletalMuscleKg)
+    if (manual.bodyFatPercent) metrics.bodyFatPercent = Number(manual.bodyFatPercent)
+    if (manual.visceralFatLevel) metrics.visceralFatLevel = Number(manual.visceralFatLevel)
+    if (manual.bodyType) metrics.bodyType = manual.bodyType
+    if (Object.keys(metrics).length === 0) return
+    send('', messages, { bodyMetrics: metrics })
+    setManualOpen(false)
   }
 
   let lastUserIndex = -1
@@ -190,6 +289,19 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
               {renderBubble(m.text, m.role)}
               <span className="msg-time">{formatTime(m.createdAt)}</span>
             </div>
+
+            {m.role === 'ai' && m.bodyResult && (
+              <div className={`body-result-card ${m.bodyResult.valid === false ? 'is-invalid' : ''}`}>
+                <h4>체성분 분석 결과 {m.bodyResult.confidence && <small>({m.bodyResult.confidence})</small>}</h4>
+                <p>골격근량: {m.bodyResult.skeletalMuscleKg ?? '-'} kg</p>
+                <p>체지방률: {m.bodyResult.bodyFatPercent ?? '-'}%</p>
+                <p>내장지방: {m.bodyResult.visceralFatLevel ?? '-'}</p>
+                <p>체형: {m.bodyResult.bodyType ?? '-'}</p>
+                {m.bodyResult.valid === false && (
+                  <p className="body-result-warning">수치 확인이 필요합니다. 정확한 결과는 전문의와 상담하세요.</p>
+                )}
+              </div>
+            )}
 
             {m.role === 'ai' && m.products && m.products.length > 0 && (
               <div className="product-list">
@@ -239,12 +351,29 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
 
       <form className="chat-composer" onSubmit={handleSubmit}>
         <input
+          type="file"
+          accept="image/*"
+          ref={fileRef}
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={loading}
+          aria-label="이미지 첨부"
+          className="body-image-btn"
+        >
+          <UploadIcon size={20} />
+        </button>
+        <input
           ref={inputRef}
           id="chat-input"
           name="message"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           autoComplete="off"
           aria-label="메시지 입력"
           disabled={loading}
@@ -252,7 +381,51 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
         <button type="submit" disabled={loading || !input.trim()} aria-label="전송">
           <LeafIcon size={18} />
         </button>
+        <button
+          type="button"
+          onClick={() => setManualOpen((v) => !v)}
+          disabled={loading}
+          aria-label="수동 입력"
+          className="body-manual-btn"
+        >
+          수동
+        </button>
       </form>
+
+      {manualOpen && (
+        <div className="body-manual-form">
+          <input
+            type="number"
+            placeholder="골격근량(kg)"
+            value={manual.skeletalMuscleKg}
+            onChange={(e) => setManual((v) => ({ ...v, skeletalMuscleKg: e.target.value }))}
+          />
+          <input
+            type="number"
+            placeholder="체지방률(%)"
+            value={manual.bodyFatPercent}
+            onChange={(e) => setManual((v) => ({ ...v, bodyFatPercent: e.target.value }))}
+          />
+          <input
+            type="number"
+            placeholder="내장지방"
+            value={manual.visceralFatLevel}
+            onChange={(e) => setManual((v) => ({ ...v, visceralFatLevel: e.target.value }))}
+          />
+          <select
+            value={manual.bodyType}
+            onChange={(e) => setManual((v) => ({ ...v, bodyType: e.target.value }))}
+          >
+            <option value="">체형 선택</option>
+            <option value="근육 부족형">근육 부족형</option>
+            <option value="체지방 과다형">체지방 과다형</option>
+            <option value="균형형">균형형</option>
+          </select>
+          <button type="button" onClick={handleManual} disabled={loading}>
+            분석하기
+          </button>
+        </div>
+      )}
     </section>
   )
 }

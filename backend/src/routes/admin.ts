@@ -7,11 +7,10 @@ const router = Router();
 
 router.get('/dashboard', async (_req, res) => {
   try {
-    const [userCount, leadCount, seminarCount, bodyRecordCount] = await Promise.all([
+    const [userCount, leadCount, seminarCount] = await Promise.all([
       prisma.user.count(),
       prisma.lead.count(),
       prisma.seminar.count(),
-      prisma.bodyRecord.count(),
     ]);
 
     const followUpLeads = await prisma.lead.findMany({
@@ -22,7 +21,7 @@ router.get('/dashboard', async (_req, res) => {
     });
 
     res.json({
-      counts: { userCount, leadCount, seminarCount, bodyRecordCount },
+      counts: { userCount, leadCount, seminarCount },
       followUpLeads,
     });
   } catch (err) {

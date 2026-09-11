@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
 import chatRoutes from './chat';
-import bodyRoutes from './body';
 import productRoutes from './products';
 import reminderRoutes from './reminders';
 import seminarRoutes from './seminars';
@@ -15,7 +14,6 @@ import homePromotionRoutes from './homePromotion';
 const router = Router();
 
 router.use('/chat', chatRoutes);
-router.use('/body', bodyRoutes);
 router.use('/products', productRoutes);
 router.use('/reminders', reminderRoutes);
 router.use('/seminars', seminarRoutes);

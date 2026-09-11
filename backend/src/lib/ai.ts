@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { openai, CHAT_MODEL } from './openai';
 import { searchProducts } from './vector';
 import { isSafeText, GUARD_MESSAGE } from './guard';
@@ -17,6 +18,32 @@ const SYSTEM_INSTRUCTION =
 function formatWon(price?: number) {
   if (typeof price !== 'number') return '';
   return `${price.toLocaleString('ko-KR')}원`;
+}
+
+const BodyAnalysisSchema = z.object({
+  skeletalMuscleKg: z.coerce.number().min(10).max(100).optional(),
+  bodyFatPercent: z.coerce.number().min(0).max(100).optional(),
+  visceralFatLevel: z.coerce.number().min(0).max(30).optional(),
+  bodyType: z.enum(['근육 부족형', '체지방 과다형', '균형형', '분석 실패']).optional(),
+  summary: z.string().optional(),
+  recommendation: z.string().optional(),
+  confidence: z.enum(['high', 'medium', 'low']).optional(),
+});
+
+type BodyMetrics = z.infer<typeof BodyAnalysisSchema>;
+
+type ValidatedBody = BodyMetrics & { confidence?: 'high' | 'medium' | 'low'; valid: boolean };
+
+function validateBodyMetrics(metrics: BodyMetrics): ValidatedBody {
+  const { skeletalMuscleKg, bodyFatPercent, visceralFatLevel } = metrics;
+  const values = [skeletalMuscleKg, bodyFatPercent, visceralFatLevel].filter((v) => v !== undefined);
+  const tooLow = skeletalMuscleKg !== undefined && skeletalMuscleKg < 5;
+  const tooHigh =
+    (skeletalMuscleKg !== undefined && skeletalMuscleKg > 100) ||
+    (bodyFatPercent !== undefined && bodyFatPercent > 60) ||
+    (visceralFatLevel !== undefined && visceralFatLevel > 30);
+  const valid = values.length > 0 && !tooLow && !tooHigh;
+  return { ...metrics, valid };
 }
 
 function productContext(products: any[]) {
@@ -43,12 +70,13 @@ function buildMockReply(message: string, products: any[]) {
     `하단의 제품 카드에서 이미지와 간략 소개, 금액, 구매 링크를 확인해 보세요.`;
 }
 
-function buildUserPrompt(message: string, products: any[], userId?: string) {
+function buildUserPrompt(message: string, products: any[], userId?: string, bodyMetrics?: BodyMetrics) {
   const userContext = userId ? `사용자 ID: ${userId}\n` : '';
+  const bodyContext = buildBodyMetricsContext(bodyMetrics);
   const productSection = products.length
     ? `추천 가능한 제품 (사용자 질문과 직접 관련된 경우에만 언급):\n${productContext(products)}\n\n`
     : '추천 가능한 제품: 없습니다. 제품 언급은 하지 마세요.\n\n';
-  return `${userContext}사용자: ${message}\n\n` +
+  return `${userContext}${bodyContext}사용자: ${message}\n\n` +
     `${productSection}` +
     `지침:\n` +
     `- 사용자 질문에 먼저 공감하고 직접 답변하세요.\n` +
@@ -61,6 +89,7 @@ function buildUserPrompt(message: string, products: any[], userId?: string) {
 }
 
 const ABO_FOOTER = '\n\n더 나은 건강 상담과 제품 추천은 정주희 ABO에게 문의하세요^^';
+const MEDICAL_DISCLAIMER = '\n\n(본 분석은 참고용이며, 정확한 건강 상태는 전문의와 상담하세요.)';
 
 function withABOFooter(text: string) {
   if (text.includes('정주희 ABO에게 문의하세요')) return text;
@@ -92,20 +121,49 @@ async function findRelatedProducts(answer: string, excludeIds: Set<string>): Pro
   return related.slice(0, 6);
 }
 
+function buildBodyMetricsContext(metrics?: BodyMetrics) {
+  if (!metrics) return '';
+  const items: string[] = [];
+  if (metrics.skeletalMuscleKg !== undefined) items.push(`skeletal muscle: ${metrics.skeletalMuscleKg}kg`);
+  if (metrics.bodyFatPercent !== undefined) items.push(`body fat: ${metrics.bodyFatPercent}%`);
+  if (metrics.visceralFatLevel !== undefined) items.push(`visceral fat: ${metrics.visceralFatLevel}`);
+  if (metrics.bodyType) items.push(`body type: ${metrics.bodyType}`);
+  return `User body composition:\n${items.join('\n')}\n\n`;
+}
+
+function bodyToKeywords(metrics: BodyMetrics): string[] {
+  const keywords: string[] = [];
+  if (metrics.skeletalMuscleKg !== undefined && metrics.skeletalMuscleKg < 20) keywords.push('단백질', '바디키');
+  if (metrics.bodyFatPercent !== undefined && metrics.bodyFatPercent > 30) keywords.push('바디키', '체지방');
+  if (metrics.visceralFatLevel !== undefined && metrics.visceralFatLevel > 8) keywords.push('오메가3', '코큐텐');
+  if (metrics.bodyType?.includes('근육')) keywords.push('단백질');
+  if (metrics.bodyType?.includes('체지방')) keywords.push('바디키');
+  return keywords;
+}
+
 export async function generateHealthReply({
   message,
   userId,
   history,
+  bodyMetrics,
 }: {
   message: string;
   userId?: string;
   history?: Turn[];
+  bodyMetrics?: BodyMetrics;
 }) {
   const guard = isSafeText(message);
   if (!guard.safe) return { text: GUARD_MESSAGE, products: [], source: 'guard' };
 
-  const products = await searchProducts(message);
-  const selected = products.slice(0, 3);
+  const keywords = bodyMetrics ? bodyToKeywords(bodyMetrics) : [];
+  const [messageProducts, ...bodyProducts] = await Promise.all([
+    message.trim() ? searchProducts(message) : Promise.resolve([]),
+    ...keywords.map((kw) => searchProducts(kw)),
+  ]);
+  const bodyProductsFlat = bodyProducts.flat();
+  const merged = new Map<string, any>();
+  for (const p of [...bodyProductsFlat, ...messageProducts]) merged.set(p.id, p);
+  const selected = Array.from(merged.values()).slice(0, 3);
 
   if (!openai) {
     return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'mock' };
@@ -124,17 +182,21 @@ export async function generateHealthReply({
       messages: [
         { role: 'system', content: SYSTEM_INSTRUCTION },
         ...conversation,
-        { role: 'user', content: buildUserPrompt(message, selected, userId) },
+        { role: 'user', content: buildUserPrompt(message, selected, userId, bodyMetrics) },
       ],
       temperature: 0.7,
       max_tokens: 500,
     });
 
     const text = completion.choices[0]?.message?.content || '답변을 생성하지 못했습니다.';
+    const safe = isSafeText(text);
+    if (!safe.safe) return { text: withABOFooter(GUARD_MESSAGE), products: selected, source: 'guard' };
+
     const selectedIds = new Set(selected.map((p) => p.id));
     const related = await findRelatedProducts(text, selectedIds);
     const finalProducts = [...selected, ...related].slice(0, 6);
-    return { text: withABOFooter(text), products: finalProducts, source: 'openai' };
+    const finalText = bodyMetrics ? `${text.trimEnd()}${MEDICAL_DISCLAIMER}` : text;
+    return { text: withABOFooter(finalText), products: finalProducts, source: 'openai' };
   } catch (err) {
     console.error('OpenAI 응답 생성 오류:', err);
     return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'error' };
@@ -152,20 +214,37 @@ export async function analyzeBodyImage({
 }) {
   if (!openai) {
     console.log('[ai] OPENAI_API_KEY 없음: mock 체성분 분석 반환');
-    return {
-      skeletalMuscleKg: '24.5',
-      bodyFatPercent: '28.0',
-      visceralFatLevel: '8',
+    return validateBodyMetrics({
+      skeletalMuscleKg: 24.5,
+      bodyFatPercent: 28.0,
+      visceralFatLevel: 8,
       bodyType: '근육 부족형',
-      summary: '현재 근육 부족형 체형입니다. 단백질 보충과 바디키 4주 프로그램을 추천합니다.',
+      summary: '현재 근육 부족형 체형입니다. 단백질 보충과 바디키 4주 프로그램을 추천합니다. (본 분석은 참고용이며, 정확한 건강 상태는 전문의와 상담하세요.)',
       recommendation: '뉴트리라이트 바디키 + 더블엑스',
-    };
+      confidence: 'high',
+    });
   }
 
-  const prompt =
-    '이 인바디/체성분 결과지 이미지에서 골격근량(kg), 체지방률(%), 내장지방 수치를 추출하고, ' +
-    '체형 타입(근육 부족형/체지방 과다형/균형형 중 하나)과 뉴트리라이트/바디키 추천을 한국어로 간단히 알려주세요. ' +
-    '단, 의학적 진단은 의사와 상담하도록 안내해주세요.';
+  const BODY_ANALYSIS_PROMPT =
+    'Extract the following fields from the Inbody/body composition result image and return only a JSON object.\n' +
+    'Omit any field you cannot find.\n' +
+    'Use the most recent measurement column if multiple columns are visible.\n' +
+    'If a number is unreadable, set the field to null.\n' +
+    'Write "summary" and "recommendation" in natural Korean (~yo form).\n' +
+    'Include a medical disclaimer at the end of "summary".\n' +
+    '\n' +
+    'Schema:\n' +
+    '{\n' +
+    '  "skeletalMuscleKg": number, // 골격근량(kg)\n' +
+    '  "bodyFatPercent": number,   // 체지방률(%)\n' +
+    '  "visceralFatLevel": number, // 내장지방 등급\n' +
+    '  "bodyType": "근육 부족형" | "체지방 과다형" | "균형형" | "분석 실패",\n' +
+    '  "summary": string,          // 1-2 sentence analysis\n' +
+    '  "recommendation": string,   // product recommendation\n' +
+    '  "confidence": "high" | "medium" | "low"\n' +
+    '}\n' +
+    '\n' +
+    'Return only valid JSON. Do not wrap in markdown code blocks or add extra explanation.';
 
   const userContext = userId ? `사용자 ID: ${userId}\n` : '';
 
@@ -173,37 +252,59 @@ export async function analyzeBodyImage({
     const completion = await openai.chat.completions.create({
       model: CHAT_MODEL,
       messages: [
-        { role: 'system', content: SYSTEM_INSTRUCTION },
+        { role: 'system', content: 'You extract Inbody/body composition metrics into JSON.' },
         {
           role: 'user',
           content: [
-            { type: 'text', text: `${userContext}${prompt}` },
+            { type: 'text', text: `${userContext}${BODY_ANALYSIS_PROMPT}` },
             { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}` } },
           ] as any,
         },
       ],
-      temperature: 0.5,
+      response_format: { type: 'json_object' },
+      temperature: 0.2,
       max_tokens: 512,
     });
 
-    const text = completion.choices[0]?.message?.content || '분석 결과를 얻지 못했습니다.';
-    return {
-      skeletalMuscleKg: '24.5',
-      bodyFatPercent: '28.0',
-      visceralFatLevel: '8',
-      bodyType: '근육 부족형',
-      summary: text,
-      recommendation: '뉴트리라이트 바디키 + 더블엑스',
-    };
+    const raw = completion.choices[0]?.message?.content || '{}';
+    const parsed = BodyAnalysisSchema.safeParse(JSON.parse(raw));
+
+    if (!parsed.success) {
+      console.error('체성분 분석 파싱 실패:', parsed.error);
+      return {
+        skeletalMuscleKg: undefined,
+        bodyFatPercent: undefined,
+        visceralFatLevel: undefined,
+        bodyType: '분석 실패',
+        summary: '체성분 수치를 추출하지 못했습니다.',
+        recommendation: '',
+        confidence: 'low',
+        valid: false,
+      };
+    }
+
+    const disclaimer = '(본 분석은 참고용이며, 정확한 건강 상태는 전문의와 상담하세요.)';
+    const summary = parsed.data.summary
+      ? parsed.data.summary.includes('전문의') || parsed.data.summary.includes('의사')
+        ? parsed.data.summary
+        : `${parsed.data.summary} ${disclaimer}`
+      : '분석 결과를 얻지 못했습니다.';
+
+    return validateBodyMetrics({
+      ...parsed.data,
+      summary,
+    });
   } catch (err) {
     console.error('OpenAI Vision 체성분 분석 오류:', err);
     return {
-      skeletalMuscleKg: '24.5',
-      bodyFatPercent: '28.0',
-      visceralFatLevel: '8',
+      skeletalMuscleKg: undefined,
+      bodyFatPercent: undefined,
+      visceralFatLevel: undefined,
       bodyType: '분석 실패',
       summary: '이미지 분석 중 문제가 발생했습니다.',
       recommendation: '',
+      confidence: 'low',
+      valid: false,
     };
   }
 }

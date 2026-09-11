@@ -61,7 +61,7 @@ export default function Home() {
                   type="text"
                   value={heroInput}
                   onChange={(e) => setHeroInput(e.target.value)}
-                  placeholder="이번 달 건강 이슈를 검색해보세요"
+                  placeholder="반가워요. 본인과 가족들의 건강에 관한 고민이 있나요?"
                   aria-label="상담 질문 입력"
                   autoComplete="off"
                 />

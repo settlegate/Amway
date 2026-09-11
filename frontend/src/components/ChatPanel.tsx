@@ -52,15 +52,18 @@ const DEFAULT_MESSAGE: ChatMessage = {
 
 interface ChatPanelProps {
   initialMessages?: ChatMessage[]
+  initialQuestion?: string
 }
 
-export default function ChatPanel({ initialMessages }: ChatPanelProps) {
+export default function ChatPanel({ initialMessages, initialQuestion }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(
     initialMessages && initialMessages.length ? initialMessages : [DEFAULT_MESSAGE],
   )
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const startedRef = useRef(false)
 
   const scrollToBottom = () => {
     const el = logRef.current
@@ -71,7 +74,13 @@ export default function ChatPanel({ initialMessages }: ChatPanelProps) {
     scrollToBottom()
   }, [messages, loading])
 
-  const send = async (text: string) => {
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      inputRef.current?.focus()
+    }
+  }, [loading, messages])
+
+  const send = async (text: string, history: ChatMessage[] = []) => {
     const userMsg = text.trim()
     if (!userMsg) return
     setInput('')
@@ -82,7 +91,7 @@ export default function ChatPanel({ initialMessages }: ChatPanelProps) {
     setLoading(true)
 
     try {
-      const { data } = await api.post('/api/chat', { message: userMsg })
+      const { data } = await api.post('/api/chat', { message: userMsg, history: history.map((m) => ({ role: m.role, text: m.text })) })
       setMessages((prev) => [
         ...prev,
         {
@@ -106,15 +115,22 @@ export default function ChatPanel({ initialMessages }: ChatPanelProps) {
     }
   }
 
+  useEffect(() => {
+    if (initialQuestion && !startedRef.current) {
+      startedRef.current = true
+      send(initialQuestion, messages)
+    }
+  }, [initialQuestion])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    send(input)
+    send(input, messages)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault()
-      send(input)
+      send(input, messages)
     }
   }
 
@@ -204,7 +220,7 @@ export default function ChatPanel({ initialMessages }: ChatPanelProps) {
           <button
             key={prompt}
             type="button"
-            onClick={() => send(prompt)}
+            onClick={() => send(prompt, messages)}
             disabled={loading}
             aria-label={`질문 보내기: ${prompt}`}
           >
@@ -215,6 +231,7 @@ export default function ChatPanel({ initialMessages }: ChatPanelProps) {
 
       <form className="chat-composer" onSubmit={handleSubmit}>
         <input
+          ref={inputRef}
           id="chat-input"
           name="message"
           value={input}

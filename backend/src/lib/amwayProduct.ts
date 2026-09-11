@@ -9,6 +9,7 @@ export interface SyncProductResult {
   imageUrl: string | null;
   promotion: string | null;
   isNew: boolean;
+  isPurchasable: boolean;
 }
 
 function skuFromUrl(url: string): string {
@@ -40,6 +41,11 @@ function parseNumbers(str: string | undefined | null): number | null {
   if (!str) return null;
   const clean = str.replace(/[^\d]/g, '');
   return clean ? Number(clean) : null;
+}
+
+function parseIsPurchasable(text: string): boolean {
+  const unavailable = /(구매\s*불가|구매\s*불가능|구매\s*불가능한\s*상품|현재\s*구매하실\s*수\s*없는\s*상품|품\s*절|일시\s*품\s*절|재\s*고\s*없음|매진|판매\s*종료)/i;
+  return !unavailable.test(text);
 }
 
 function extractImageUrl(text: string, sku: string): string | null {
@@ -136,7 +142,7 @@ function parseAmwayProductPage(text: string, url: string) {
     if (
       !/^#/.test(l) &&
       !l.includes(title) &&
-      !/^[\*\-\!]\s/.test(l) &&
+      !/^[*\-!]\s/.test(l) &&
       !/\[.*\]\(.*\)/.test(l)
     ) {
       description += ` ${l}`;
@@ -147,6 +153,7 @@ function parseAmwayProductPage(text: string, url: string) {
   if (description.length > 400) description = `${description.slice(0, 400)}...`;
 
   const promotionEnd = isPromotion ? parsePromotionEnd(text) : null;
+  const isPurchasable = parseIsPurchasable(blockText);
 
   return {
     title,
@@ -158,6 +165,7 @@ function parseAmwayProductPage(text: string, url: string) {
     imageUrl,
     isPromotion,
     promotionEnd,
+    isPurchasable,
   };
 }
 
@@ -204,6 +212,7 @@ export async function syncProductFromUrl(
         promotion: parsed.isPromotion ? parsed.title : null,
         imageUrl: parsed.imageUrl,
         aClicUrl: url,
+        isPurchasable: parsed.isPurchasable,
         lastSyncedAt: new Date(),
       },
     });
@@ -222,6 +231,7 @@ export async function syncProductFromUrl(
         promotion: parsed.isPromotion ? parsed.title : product.promotion,
         imageUrl: parsed.imageUrl || product.imageUrl,
         aClicUrl: url,
+        isPurchasable: parsed.isPurchasable,
         lastSyncedAt: new Date(),
       },
     });
@@ -253,6 +263,7 @@ export async function syncProductFromUrl(
     imageUrl: product.imageUrl,
     promotion: product.promotion,
     isNew,
+    isPurchasable: product.isPurchasable ?? true,
   };
 }
 

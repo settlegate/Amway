@@ -81,3 +81,9 @@ npm run dev
 - **a-clic 구매 링크**: `A_CLIC_SPONSOR_ID` 필요 (암웨이 후원자 번호)
 - **개인정보 암호화**: `ENCRYPTION_KEY` 필요 (AES-256 64자 hex)
 - **Docker 사용 시**: `docker-compose up -d db chroma` 로 PostgreSQL과 Chroma 실행 가능
+
+## 프론트엔드 페이지 구성 규칙
+
+- 모든 새로운 페이지에는 App.tsx 라우트에 등록할 때 Footer를 포함해야 합니다.
+- 단독으로 끝나는 페이지(�엔드엔드페이지)를 만들지 않습니다.
+- 각 페이지 하단에는 홈, 건강 상담, 제품, 세미나, 사업 등 주요 경로로 이동할 수 있는 공통 푸터 내비게이션을 제공합니다.

@@ -8,6 +8,7 @@ import Seminars from './pages/Seminars'
 import Business from './pages/Business'
 import Admin from './pages/Admin'
 import Design from './pages/Design'
+import Footer from './components/Footer'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/joohee0229" element={<Admin />} />
         </Routes>
       </main>
+      <Footer />
     </div>
   )
 }

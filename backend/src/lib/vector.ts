@@ -111,21 +111,21 @@ function buildMockProducts(): Product[] {
 const MOCK_PRODUCTS = buildMockProducts();
 
 const SYNONYMS: Record<string, string[]> = {
-  '간': ['간', '해독', '간염', '간기능'],
-  '피로': ['피로', '피곤', '활력', '에너지'],
-  '체중': ['체중', '다이어트', '체지방', '비만', '바디키', '감량', '감소'],
-  '체지방': ['체지방', '체중', '다이어트', '감량', '감소'],
-  '단백질': ['단백질', '근육', '근력'],
-  '혈액': ['혈행', '혈액', '혈관', '중성지방', '오메가'],
-  '눈': ['눈', '시력'],
-  '장': ['장', '유산균', '배변', '식이섬유'],
-  '뼈': ['뼈', '관절', '칼슘', '마그네슘'],
-  '면역': ['면역', '감기', '항체'],
-  '수면': ['수면', '불면'],
-  '스트레스': ['스트레스'],
-  '기억': ['기억', '기억력', '두뇌'],
-  '심장': ['심장', '심혈관'],
-  '피부': ['피부', '콜라겐'],
+  '간': ['간', '해독', '간염', '간기능', '밀크씨슬', '실리마린'],
+  '피로': ['피로', '피곤', '활력', '에너지', '비타민B', '마그네슘', '철분', '홍삼', '인삼', '코엔자임'],
+  '체중': ['체중', '다이어트', '체지방', '비만', '바디키', '식이섬유', '단백질', '감량', '감소'],
+  '체지방': ['체지방', '체중', '다이어트', '식이섬유', '단백질', '감량', '감소'],
+  '단백질': ['단백질', '근육', '근력', '아미노산'],
+  '혈액': ['혈행', '혈액', '혈관', '중성지방', '오메가', '오메가3', 'dha', 'epa'],
+  '눈': ['눈', '시력', '오메가', '오메가3', '루테인', '지아잔틴', '글루타치온', '아스타잔틴', '비타민A'],
+  '장': ['장', '유산균', '프로바이오틱스', '배변', '식이섬유'],
+  '뼈': ['뼈', '관절', '칼슘', '마그네슘', '비타민D'],
+  '면역': ['면역', '감기', '항체', '비타민C', '아연', '유산균', '프로바이오틱스'],
+  '수면': ['수면', '불면', '마그네슘', '감태'],
+  '스트레스': ['스트레스', '비타민B', '마그네슘'],
+  '기억': ['기억', '기억력', '두뇌', '오메가', '오메가3', 'dha', '인지질', '포스파티딜세린'],
+  '심장': ['심장', '심혈관', '코엔자임', '오메가', '오메가3'],
+  '피부': ['피부', '콜라겐', '히알루론산', '글루타치온', '아스타잔틴', '비타민C', '비타민E'],
   '감량': ['감량', '감소', '체중', '체지방', '다이어트'],
 };
 
@@ -139,9 +139,12 @@ const STOPWORDS = new Set([
 
 const HEALTH_TERMS = new Set<string>([
   '간', '피로', '체중', '다이어트', '체지방', '단백질', '근육', '혈액', '혈행', '혈관',
-  '중성지방', '오메가', '눈', '시력', '뼈', '관절', '칼슘', '마그네슘', '면역', '감기',
+  '중성지방', '오메가', '오메가3', '눈', '시력', '뼈', '관절', '칼슘', '마그네슘', '면역', '감기',
   '수면', '스트레스', '기억', '기억력', '두뇌', '심장', '피부', '콜라겐', '에너지', '활력',
-  '항산화', '유산균', '배변', '식이섬유', '미네랄', '비타민', '단백', '장', '위', '코',
+  '항산화', '유산균', '프로바이오틱스', '배변', '식이섬유', '미네랄', '비타민', '비타민A', '비타민B',
+  '비타민C', '비타민D', '비타민E', '루테인', '지아잔틴', '글루타치온', '아스타잔틴', '철분', '아연',
+  '홍삼', '인삼', '코엔자임', '감태', '인지질', '포스파티딜세린', '히알루론산', '밀크씨슬', '실리마린',
+  'dha', 'epa', '단백', '장', '위', '코',
   '간염', '해독', '간기능', '감량', '감소', '조절',
 ]);
 
@@ -235,13 +238,20 @@ async function searchDbProducts(query: string): Promise<Product[]> {
   const q = query.trim();
   const keywords = extractKeywords(q);
 
-  const allRows = await prisma.product.findMany({
-    where: { isActive: true },
+  const rawRows = await prisma.product.findMany({
+    where: { isActive: true, isPurchasable: true },
     orderBy: { salesVolume: 'desc' },
     take: 50,
   });
 
-  const scored = allRows.map((row) => ({
+  const allRows = rawRows.filter((row) =>
+    row.price > 0 &&
+    !row.name?.startsWith('http') &&
+    !row.description?.includes('Warning') &&
+    !row.description?.includes('CAPTCHA')
+  );
+
+    const scored = allRows.map((row) => ({
     row,
     score: scoreProduct(row, keywords),
   }));
@@ -251,10 +261,9 @@ async function searchDbProducts(query: string): Promise<Product[]> {
     return (b.row.salesVolume || 0) - (a.row.salesVolume || 0);
   });
 
-  const matched = scored.filter((s) => s.score > 0);
-  const fallback = scored.filter((s) => s.score === 0);
+  const matched = scored.filter((s) => s.score >= 3);
 
-  const selected = [...matched, ...fallback].slice(0, 3).map((s) => s.row);
+  const selected = matched.slice(0, 3).map((s) => s.row);
   return selected.map(normalizeProduct);
 }
 
@@ -314,6 +323,6 @@ export async function searchProducts(query: string): Promise<Product[]> {
     console.error('[vector] DB 검색 오류:', err);
   }
 
-  console.log('[vector] Pinecone 키 없음: mock 결과 반환');
-  return MOCK_PRODUCTS.slice(0, Math.max(3, MOCK_PRODUCTS.length));
+  console.log('[vector] No relevant products found');
+  return [];
 }

@@ -162,6 +162,12 @@ select:focus-visible,
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main-content {
+  flex: 1;
 }
 
 .page {
@@ -2248,4 +2254,43 @@ button:disabled {
   white-space: nowrap;
   text-align: center;
   grid-column: 1 / -1;
+}
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 32px 20px;
+}
+
+.footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  justify-content: center;
+}
+
+.footer-nav a {
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  color: var(--text-soft);
+}
+
+.footer-copy {
+  font-size: 0.8125rem;
+  color: var(--text-soft);
+  margin: 0;
 }

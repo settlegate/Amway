@@ -4,12 +4,14 @@ import type { ChatMessage } from '../components/ChatPanel'
 
 export default function Chat() {
   const location = useLocation()
-  const initialMessages = (location.state as { messages?: ChatMessage[] } | null)?.messages
+  const state = (location.state as { messages?: ChatMessage[]; initialQuestion?: string } | null) || null
+  const initialMessages = state?.messages
+  const initialQuestion = state?.initialQuestion
 
   return (
     <div className="page">
       <h2>건강 상담 챗봇</h2>
-      <ChatPanel initialMessages={initialMessages} />
+      <ChatPanel initialMessages={initialMessages} initialQuestion={initialQuestion} />
     </div>
   )
 }

@@ -4,14 +4,14 @@ import { generateHealthReply } from '../lib/ai';
 const router = Router();
 
 router.post('/', async (req, res) => {
-  const { message, userId } = req.body;
+  const { message, userId, history } = req.body;
   if (!message || typeof message !== 'string') {
     res.status(400).json({ error: 'message가 필요합니다.' });
     return;
   }
 
   try {
-    const reply = await generateHealthReply({ message, userId });
+    const reply = await generateHealthReply({ message, userId, history });
     res.json(reply);
   } catch (err) {
     console.error('채팅 응답 생성 오류:', err);

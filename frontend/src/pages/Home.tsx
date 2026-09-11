@@ -45,7 +45,7 @@ export default function Home() {
             aria-labelledby="landing-hero-title"
           >
             <div className="container">
-              <h1 id="landing-hero-title">ABO 정주희가 전하는 이달의 웰니스 뉴스</h1>
+              <h1 id="landing-hero-title">ABO 정주희가 전하는 이달의 웰니스 뉴스레터</h1>
               <p className="lead">
                 새로운 계절의 문턱, 자연이 옷을 갈아입듯 우리의 건강 밸런스도 새로워질 시간입니다.
                 <br />

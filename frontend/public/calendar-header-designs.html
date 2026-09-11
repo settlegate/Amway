@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Header Designs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #e0e0e0; color: #111; margin: 0; padding: 40px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  .design { margin: 40px 0; padding: 32px; background: #f2f2f0; border-radius: 12px; }
+  .label { font-size: 12px; color: #555; margin-bottom: 16px; font-weight: 700; }
+  .header-a { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+  .header-a button { background: transparent; border: none; font-size: 20px; color: #111; cursor: pointer; padding: 4px; }
+  .header-a h3 { margin: 0; font-size: 16px; font-weight: 600; }
+  .header-b { display: flex; justify-content: space-between; align-items: center; }
+  .header-b button { width: 36px; height: 36px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #111; font-size: 16px; cursor: pointer; }
+  .header-b h3 { margin: 0; font-size: 18px; font-weight: 600; }
+  .header-c { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 10px 16px; }
+  .header-c button { width: 32px; height: 32px; border-radius: 50%; border: none; background: #111; color: #fff; font-size: 14px; cursor: pointer; }
+  .header-c h3 { margin: 0; font-size: 16px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calendar Header Designs</h1>
+  <div class="design">
+    <div class="label">A. minimal underline</div>
+    <div class="header-a"><button type="button" aria-label="previous month">&lt;</button><h3>2026년 9월</h3><button type="button" aria-label="next month">&gt;</button></div>
+  </div>
+  <div class="design">
+    <div class="label">B. pill buttons</div>
+    <div class="header-b"><button type="button" aria-label="previous month">&lt;</button><h3>2026년 9월</h3><button type="button" aria-label="next month">&gt;</button></div>
+  </div>
+  <div class="design">
+    <div class="label">C. card background</div>
+    <div class="header-c"><button type="button" aria-label="previous month">&lt;</button><h3>2026년 9월</h3><button type="button" aria-label="next month">&gt;</button></div>
+  </div>
+</div>
+</body>
+</html>

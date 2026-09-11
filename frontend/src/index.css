@@ -2158,6 +2158,8 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .calendar-header h3 {
@@ -2167,15 +2169,15 @@ button:disabled {
 }
 
 .calendar-header button {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--border);
+  background: transparent;
+  border: none;
+  font-size: 20px;
   color: var(--text);
-  font-weight: 700;
-  background: var(--surface-soft);
-  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  padding: 4px;
+  width: auto;
+  height: auto;
+  border-radius: 0;
 }
 
 .calendar-days {
@@ -2233,4 +2235,7 @@ button:disabled {
   color: var(--text-soft);
   font-size: 14px;
   padding: 24px;
+  white-space: nowrap;
+  text-align: center;
+  grid-column: 1 / -1;
 }

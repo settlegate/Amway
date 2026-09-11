@@ -1426,20 +1426,26 @@ button:disabled {
 }
 
 .landing-hero h1 {
-  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  font-size: clamp(16px, 4.5vw, 30px);
   font-weight: 900;
   line-height: 1.15;
   letter-spacing: -0.03em;
   color: var(--text);
+  white-space: nowrap;
   margin-bottom: 20px;
 }
 
 .landing-hero .lead {
-  font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
+  font-size: 14px;
   color: var(--text-soft);
-  max-width: 520px;
   margin-bottom: 32px;
 }
+.hero-input-hint {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
 
 .hero-actions {
   display: flex;
@@ -1549,41 +1555,6 @@ button:disabled {
   }
 }
 
-/* Trust bar */
-.trust {
-  padding: 28px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-soft);
-}
-
-.trust-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 32px 48px;
-  font-size: 0.875rem;
-  color: var(--text-soft);
-  font-weight: 500;
-}
-
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.trust-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: grid;
-  place-items: center;
-  color: var(--brand);
-}
-
 /* Sections */
 .landing-section {
   padding: 80px 0;
@@ -1665,7 +1636,7 @@ button:disabled {
 
 /* Process */
 .landing-section.process {
-  background: var(--surface-soft);
+  background: transparent;
 }
 
 .process-grid {
@@ -2236,4 +2207,150 @@ button:disabled {
 
 .landing-hero {
   padding: 0 0 56px;
+}
+.promotion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.promotion-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.promotion-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.promotion-content {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.promotion-tag {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.promotion-content h3 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  margin: 8px 0 16px;
+}
+
+.promotion-content p {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin: 0 0 24px;
+}
+
+@media (max-width: 768px) {
+  .promotion-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.promotion-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.promotion-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-soft);
+}
+
+.event-calendar {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.calendar-header button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background: transparent;
+  padding: 24px;
+}
+
+@media (max-width: 640px) {
+  .calendar-days {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.day-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  background: transparent;
+}
+
+.day-card .dow {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.day-card .date {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 6px 0;
+}
+
+.day-card .title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.day-card .time {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+.day-card .loc {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 8px;
+}
+
+.event-calendar .empty {
+  color: var(--text-soft);
+  font-size: 14px;
+  padding: 24px;
 }

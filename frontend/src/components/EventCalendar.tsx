@@ -9,17 +9,75 @@ interface CalendarEvent {
   location?: string
 }
 
+const kstDate = (input: string | number | Date) =>
+  new Date(new Date(input).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }))
+
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
+const MOCK_EVENTS: CalendarEvent[] = [
+  {
+    id: 'mock-1',
+    title: 'OMR 리더십 특강',
+    description: '오전 10시~12시',
+    date: '2026-09-03T10:00:00+09:00',
+    location: '온라인',
+  },
+  {
+    id: 'mock-2',
+    title: '뉴트리라이트 기초 세미나',
+    description: '오전 10시~12시',
+    date: '2026-09-06T10:00:00+09:00',
+    location: '온라인',
+  },
+  {
+    id: 'mock-3',
+    title: '건강기능식품 실전 활용법',
+    description: '오후 2시~5시',
+    date: '2026-09-10T14:00:00+09:00',
+    location: '강남 웰니스 센터',
+  },
+  {
+    id: 'mock-4',
+    title: '체성분 분석 오픈 데이',
+    description: '오후 1시~4시',
+    date: '2026-09-12T13:00:00+09:00',
+    location: '강남 웰니스 센터',
+  },
+  {
+    id: 'mock-5',
+    title: '리서스 그룹 OMR',
+    description: '오후 2시~5시',
+    date: '2026-09-19T14:00:00+09:00',
+    location: '구리 장자공원 잔디광장',
+  },
+  {
+    id: 'mock-6',
+    title: 'ABO 비즈니스 리더 워크숍',
+    description: '오후 7시~9시',
+    date: '2026-09-23T19:00:00+09:00',
+    location: '잠실 롯데타워 3F',
+  },
+  {
+    id: 'mock-7',
+    title: '주말 가족 웰니스 캠페인',
+    description: '오전 11시~1시',
+    date: '2026-09-26T11:00:00+09:00',
+    location: '홍대 마포구민체육센터',
+  },
+]
+
 export default function EventCalendar() {
-  const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [current, setCurrent] = useState(() => new Date())
+  const [events, setEvents] = useState<CalendarEvent[]>(MOCK_EVENTS)
+  const [current, setCurrent] = useState(() => kstDate(new Date(2026, 8, 1)))
 
   useEffect(() => {
     api
       .get('/api/seminars')
-      .then((res) => setEvents(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setEvents([]))
+      .then((res) => {
+        const fetched = Array.isArray(res.data) ? res.data : []
+        setEvents((prev) => [...fetched, ...prev])
+      })
+      .catch(() => {})
   }, [])
 
   const year = current.getFullYear()
@@ -27,85 +85,50 @@ export default function EventCalendar() {
 
   const monthEvents = useMemo(
     () =>
-      events.filter((e) => {
-        const d = new Date(e.date)
-        return d.getFullYear() === year && d.getMonth() === month
-      }),
-    [events, year, month],
+      events
+        .filter((e) => {
+          const d = kstDate(e.date)
+          return d.getFullYear() === year && d.getMonth() === month
+        })
+        .sort((a, b) => kstDate(a.date).getTime() - kstDate(b.date).getTime()),
+    [events, year, month]
   )
 
-  const eventsByDay = useMemo(() => {
-    const map: Record<number, CalendarEvent[]> = {}
-    monthEvents.forEach((e) => {
-      const day = new Date(e.date).getDate()
-      if (!map[day]) map[day] = []
-      map[day].push(e)
-    })
-    return map
-  }, [monthEvents])
-
-  const startOfMonth = new Date(year, month, 1)
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const startDay = startOfMonth.getDay()
-
-  const cells: (number | null)[] = []
-  for (let i = 0; i < startDay; i += 1) cells.push(null)
-  for (let d = 1; d <= daysInMonth; d += 1) cells.push(d)
-
   const changeMonth = (delta: number) => {
-    setCurrent(new Date(year, month + delta, 1))
+    setCurrent(kstDate(new Date(year, month + delta, 1)))
   }
 
   return (
     <div className="event-calendar">
       <div className="calendar-header">
         <button type="button" onClick={() => changeMonth(-1)} aria-label="이전 달">
-          ‹
+          {'<'}
         </button>
         <h3>
           {year}년 {month + 1}월
         </h3>
         <button type="button" onClick={() => changeMonth(1)} aria-label="다음 달">
-          ›
+          {'>'}
         </button>
       </div>
-      <div className="calendar-grid" role="grid" aria-label={`${year}년 ${month + 1}월 달력`}>
-        {WEEKDAYS.map((d) => (
-          <div key={d} className="calendar-weekday" role="columnheader">
-            {d}
-          </div>
-        ))}
-        {cells.map((day, idx) => (
-          <div
-            key={idx}
-            className={`calendar-cell ${day === null ? 'empty' : ''} ${
-              day && eventsByDay[day] ? 'has-event' : ''
-            }`}
-            role="gridcell"
-          >
-            {day && (
-              <>
-                <span className="calendar-date">{day}</span>
-                {eventsByDay[day] && <span className="calendar-dot" aria-hidden="true" />}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      <div className="calendar-events">
-        <h4>이번 달 일정</h4>
+      <div className="calendar-days">
         {monthEvents.length === 0 ? (
-          <p className="empty">이번 달 예정된 일정이 없습니다.</p>
+          <p className="empty">아직 등록된 일정이 없어요</p>
         ) : (
-          <ul>
-            {monthEvents.map((e) => (
-              <li key={e.id}>
-                <time dateTime={e.date}>{new Date(e.date).toLocaleDateString('ko-KR')}</time>
-                <strong>{e.title}</strong>
-                <span>{e.location || '장소 미정'}</span>
-              </li>
-            ))}
-          </ul>
+          monthEvents.map((e) => {
+            const d = kstDate(e.date)
+            return (
+              <div key={e.id} className="day-card">
+                <span className="dow">
+                  {month + 1}월 {d.getDate()}일 · {WEEKDAYS[d.getDay()]}
+                </span>
+                <div className="date">{d.getDate()}</div>
+                <div className="title">{e.title}</div>
+                {e.description && <div className="time">{e.description}</div>}
+                <div className="loc">{e.location || '장소 미정'}</div>
+              </div>
+            )
+          })
         )}
       </div>
     </div>

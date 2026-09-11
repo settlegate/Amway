@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LeafIcon from '../components/LeafIcon'
-import IconBadge from '../components/IconBadge'
+import ExternalLink from "../components/ExternalLink"
 
 export default function Home() {
   const navigate = useNavigate()
@@ -44,16 +44,13 @@ export default function Home() {
             aria-labelledby="landing-hero-title"
           >
             <div className="container">
-              <h1 id="landing-hero-title">
-                ABO 정주희가 전하는
-                <br />
-                이달의 웰니스 뉴스
-              </h1>
+              <h1 id="landing-hero-title">ABO 정주희가 전하는 이달의 웰니스 뉴스</h1>
               <p className="lead">
-                ABO 정주희가 본인 레그에게 보내는 시즈널 뉴스레터. 환절기
-                건강 이슈부터 뉴트리라이트 영양 가이드까지, 매월 업데이트되는
-                맞춤 콘텐츠로 레그의 건강한 하루 루틴을 함께 만들어갑니다.
+                새로운 계절의 문턱, 자연이 옷을 갈아입듯 우리의 건강 밸런스도 새로워질 시간입니다.
+                <br />
+                이번 달도 당신의 활력 넘치는 하루를 곁에서 함께할게요.
               </p>
+              <p className="hero-input-hint">AI 챗봇에게 물어보세요</p>
               <form
                 className="hero-actions"
                 onSubmit={handleHeroSubmit}
@@ -75,97 +72,54 @@ export default function Home() {
                   {heroLoading ? '답변 생성 중…' : '상담 시작하기'}
                 </button>
               </form>
-              <p className="hero-note">
-                매월 새로운 시즌 인사이트를 뉴스레터와 AI 상담으로
-                만나보세요.
-              </p>
             </div>
           </section>
 
-          <div className="trust">
-            <div className="container">
-              <div className="trust-grid">
-                <div className="trust-item">
-                  <span className="trust-icon">
-                    <IconBadge type="check" size={16} />
-                  </span>
-                  <span>식약처 승인 기능성 문구 기준</span>
-                </div>
-                <div className="trust-item">
-                  <span className="trust-icon">
-                    <IconBadge type="lock" size={16} />
-                  </span>
-                  <span>개인정보 AES-256 암호화 저장</span>
-                </div>
-                <div className="trust-item">
-                  <span className="trust-icon">
-                    <IconBadge type="shield" size={16} />
-                  </span>
-                  <span>뉴트리라이트 공식 가이드라인</span>
-                </div>
-                <div className="trust-item">
-                  <span className="trust-icon">
-                    <IconBadge type="clock" size={16} />
-                  </span>
-                  <span>1:1 ABO 웰니스 컨설팅</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <section id="values" className="landing-section">
-            <div className="container">
-              <div className="landing-section-header">
-                <h2>왜 웰니스 AI인가?</h2>
-                <p>
-                  자연과 건강, 그리고 정직함을 담아 고객 한 사람 한 사람의
-                  웰니스 여정을 돕습니다.
-                </p>
+                    <section id='values' className='landing-section'>
+            <div className='container'>
+              <div className='landing-section-header'>
+                <h2>이달의 프로모션</h2>
+                <p>ABO 정주희가 전하는 이달의 추천 프로모션</p>
               </div>
-              <div className="values-grid">
-                <article className="value-card">
-                  <div className="value-icon">
-                    <LeafIcon size={26} />
+              <div className='promotion-list'>
+                <article className='promotion-card'>
+                  <div className='promotion-visual'>
+                    <img src='/promo-chuseok.png' alt='9월 신규 ABO 프로모션' />
                   </div>
-                  <h3>자연 기반</h3>
-                  <p>
-                    천연재료를 담은 뉴트리라이트 철학을 바탕으로, 신뢰할 수
-                    있는 정보를 안내합니다.
-                  </p>
+                  <div className='promotion-content'>
+                    <span className='promotion-tag'>[신규 ABO 대상]</span>
+                    <h3>웰컴 선물 한가득, 지금 당장 달려가마(馬)!</h3>
+                    <p>한가위 풍요로움을 가득 담아 드리는 9월 신규 ABO 프로모션</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                  </div>
                 </article>
-                <article className="value-card">
-                  <div className="value-icon">
-                    <IconBadge type="shield" size={26} />
+                <article className='promotion-card'>
+                  <div className='promotion-visual'>
+                    <img src='/promo-chuseok.png' alt='Double X Refill' />
                   </div>
-                  <h3>정직한 정보</h3>
-                  <p>
-                    과대광고 문구는 AI가 실시간 필터링하고, 검증된 정보만
-                    전달합니다.
-                  </p>
+                  <div className='promotion-content'>
+                    <span className='promotion-tag'>[기간 한정]</span>
+                    <h3>Cellular Aging Support 구매 혜택</h3>
+                    <p>NEW Cellular Aging Support 2개 구매 시 Double X 리필을 무료로 드립니다.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                  </div>
                 </article>
-                <article className="value-card">
-                  <div className="value-icon">
-                    <IconBadge type="zap" size={26} />
+                <article className='promotion-card'>
+                  <div className='promotion-visual'>
+                    <img src='/promo-chuseok.png' alt='가을 면역 케어 세트' />
                   </div>
-                  <h3>맞춤 추천</h3>
-                  <p>
-                    체성분과 상담 이력을 바탕으로 개인에게 맞는 제품과 루틴을
-                    제안합니다.
-                  </p>
-                </article>
-                <article className="value-card">
-                  <div className="value-icon">
-                    <IconBadge type="lock" size={26} />
+                  <div className='promotion-content'>
+                    <span className='promotion-tag'>[프리미엄 케어]</span>
+                    <h3>가을 면역 케어 세트 할인</h3>
+                    <p>뉴트리라이트 면역 케어 베스트셀러 3종을 특별한 가격에 만나보세요.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
                   </div>
-                  <h3>개인정보 보호</h3>
-                  <p>
-                    체성분, 전화번호 등 민감 정보는 암호화 후 저장하고
-                    안전하게 관리합니다.
-                  </p>
                 </article>
               </div>
             </div>
           </section>
+
 
           <section id="process" className="landing-section process">
             <div className="container">

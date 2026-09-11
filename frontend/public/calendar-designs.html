@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>캘린더 디자인 시안</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+      background: #e0e0e0;
+      color: #111111;
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 600;
+      margin: 0 0 48px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #111111;
+    }
+    .variant {
+      background: #ffffff;
+      border: 1px solid #c0c0c0;
+      border-radius: 0;
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+    .variant-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #555555;
+      margin: 0 0 24px;
+    }
+
+    /* Shared tokens */
+    :root {
+      --bg: #e0e0e0;
+      --surface: #ffffff;
+      --surface-soft: #f2f2f0;
+      --text: #111111;
+      --text-soft: #555555;
+      --border: #c0c0c0;
+      --brand: #111111;
+    }
+
+    /* A. Classic monthly grid */
+    .cal-a {
+      max-width: 720px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      padding: 24px;
+      background: var(--surface);
+    }
+    .cal-a .cal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+    .cal-a .cal-head h3 { margin: 0; font-size: 18px; }
+    .cal-a .cal-head button {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      cursor: pointer;
+    }
+    .cal-a .grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    }
+    .cal-a .weekday {
+      text-align: center; font-size: 12px; font-weight: 700;
+      color: var(--text-soft); padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-a .cell {
+      min-height: 68px; border: 1px solid var(--border);
+      padding: 8px; position: relative;
+      background: var(--surface-soft);
+    }
+    .cal-a .cell.empty { background: transparent; border-color: transparent; }
+    .cal-a .cell.event { border-color: #111; background: #fff; }
+    .cal-a .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #111; margin-top: 6px;
+    }
+    .cal-a .events { margin-top: 20px; }
+    .cal-a .events li {
+      display: flex; gap: 16px; padding: 10px 0;
+      border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .cal-a .events time { color: var(--text-soft); white-space: nowrap; }
+
+    /* B. Vertical list with date badges */
+    .cal-b { max-width: 640px; margin: 0 auto; }
+    .cal-b .month-label {
+      font-size: 22px; font-weight: 600; margin-bottom: 24px;
+    }
+    .cal-b .list { display: flex; flex-direction: column; gap: 0; }
+    .cal-b .list-item {
+      display: flex; align-items: flex-start; gap: 20px;
+      border-top: 1px solid var(--border); padding: 24px 0;
+    }
+    .cal-b .badge {
+      width: 64px; height: 64px; border: 2px solid #111;
+      display: grid; place-items: center; text-align: center;
+      flex-shrink: 0;
+    }
+    .cal-b .badge span { display: block; font-size: 11px; color: var(--text-soft); }
+    .cal-b .badge strong { display: block; font-size: 26px; font-weight: 700; }
+    .cal-b .body { flex: 1; }
+    .cal-b .body h4 { margin: 0 0 6px; font-size: 16px; }
+    .cal-b .body p { margin: 0; font-size: 14px; color: var(--text-soft); }
+
+    /* C. Magazine card */
+    .cal-c { max-width: 760px; margin: 0 auto; }
+    .cal-c .featured {
+      display: grid; grid-template-columns: 200px 1fr; gap: 0;
+      border: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .cal-c .featured .visual {
+      background: #c0c0c0; display: grid; place-items: center;
+      color: #fff; font-size: 14px; font-weight: 700;
+    }
+    .cal-c .featured .info { padding: 32px; }
+    .cal-c .featured .info h3 { margin: 0 0 10px; font-size: 24px; }
+    .cal-c .featured .info p { margin: 0 0 16px; color: var(--text-soft); }
+    .cal-c .mini-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    }
+    .cal-c .mini-cell {
+      aspect-ratio: 1; border: 1px solid var(--border);
+      display: grid; place-items: center; font-size: 13px;
+    }
+    .cal-c .mini-cell.head { background: #111; color: #fff; border: 0; }
+    .cal-c .mini-cell.mark { background: #111; color: #fff; }
+
+    /* D. Table agenda */
+    .cal-d { max-width: 800px; margin: 0 auto; }
+    .cal-d table {
+      width: 100%; border-collapse: collapse;
+      font-size: 14px;
+    }
+    .cal-d th, .cal-d td {
+      text-align: left; padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-d th {
+      font-weight: 700; color: var(--text-soft);
+      border-top: 1px solid #111; border-bottom: 2px solid #111;
+    }
+    .cal-d td:first-child { white-space: nowrap; color: var(--text-soft); width: 140px; }
+    .cal-d .status {
+      display: inline-block; padding: 4px 10px;
+      border: 1px solid #111; font-size: 12px;
+    }
+
+    /* E. Horizontal day cards */
+    .cal-e { max-width: 800px; margin: 0 auto; }
+    .cal-e .days {
+      display: flex; gap: 12px; overflow-x: auto;
+      padding-bottom: 16px;
+    }
+    .cal-e .day-card {
+      min-width: 140px; border: 1px solid var(--border);
+      padding: 20px; background: var(--surface);
+      flex: 1;
+    }
+    .cal-e .day-card.active {
+      border: 2px solid #111; background: var(--surface-soft);
+    }
+    .cal-e .day-card .dow { font-size: 12px; color: var(--text-soft); }
+    .cal-e .day-card .date { font-size: 28px; font-weight: 700; margin: 6px 0; }
+    .cal-e .day-card .title { font-size: 14px; font-weight: 600; }
+    .cal-e .day-card .loc { font-size: 12px; color: var(--text-soft); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>이달의 행사 — 캘린더 디자인 시안 5가지</h1>
+
+    <section class="variant">
+      <p class="variant-title">A. Classic Monthly Grid</p>
+      <div class="cal-a">
+        <div class="cal-head">
+          <button>&lt;</button>
+          <h3>2026년 6월</h3>
+          <button>&gt;</button>
+        </div>
+        <div class="grid">
+          <div class="weekday">일</div>
+          <div class="weekday">월</div>
+          <div class="weekday">화</div>
+          <div class="weekday">수</div>
+          <div class="weekday">목</div>
+          <div class="weekday">금</div>
+          <div class="weekday">토</div>
+          <div class="cell empty"></div>
+          <div class="cell">1</div>
+          <div class="cell">2</div>
+          <div class="cell">3</div>
+          <div class="cell">4</div>
+          <div class="cell">5</div>
+          <div class="cell">6</div>
+          <div class="cell">7</div>
+          <div class="cell">8</div>
+          <div class="cell">9</div>
+          <div class="cell event">10<div class="dot"></div></div>
+          <div class="cell">11</div>
+          <div class="cell">12</div>
+          <div class="cell">13</div>
+          <div class="cell">14</div>
+          <div class="cell">15</div>
+          <div class="cell">16</div>
+          <div class="cell">17</div>
+          <div class="cell event">18<div class="dot"></div></div>
+          <div class="cell">19</div>
+          <div class="cell">20</div>
+          <div class="cell">21</div>
+          <div class="cell event">22<div class="dot"></div></div>
+          <div class="cell">23</div>
+          <div class="cell">24</div>
+          <div class="cell">25</div>
+          <div class="cell">26</div>
+          <div class="cell">27</div>
+          <div class="cell">28</div>
+        </div>
+        <ul class="events" style="list-style:none;padding:0;margin:0;">
+          <li><time>6월 10일</time><strong>뉴트리라이트 웰니스 세미나</strong></li>
+          <li><time>6월 18일</time><strong>ABO 리더십 워크숍</strong></li>
+          <li><time>6월 22일</time><strong>체성분 분석 오픈 데이</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="variant">
+      <p class="variant-title">B. Vertical List with Date Badges</p>
+      <div class="cal-b">
+        <h2 class="month-label">2026년 6월</h2>
+        <div class="list">
+          <div class="list-item">
+            <div class="badge">
+              <span>6월</span>
+              <strong>10</strong>
+            </div>
+            <div class="body">
+              <h4>뉴트리라이트 웰니스 세미나</h4>
+              <p>온라인 / 19:00 · 정주희 ABO</p>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="badge">
+              <span>6월</span>
+              <strong>18</strong>
+            </div>
+            <div class="body">
+              <h4>ABO 리더십 워크숍</h4>
+              <p>강남 센터 / 14:00 · 오프라인</p>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="badge">
+              <span>6월</span>
+              <strong>22</strong>
+            </div>
+            <div class="body">
+              <h4>체성분 분석 오픈 데이</h4>
+              <p>전국 파트너 대상 · 1:1 상담</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="variant">
+      <p class="variant-title">C. Magazine Card + Mini Calendar</p>
+      <div class="cal-c">
+        <div class="featured">
+          <div class="visual" style="min-height:160px;">프로모션 이미지</div>
+          <div class="info">
+            <span style="font-size:12px;color:#555;">6월 18일 · 강남 센터</span>
+            <h3>ABO 리더십 워크숍</h3>
+            <p>새로운 시즌을 준비하는 ABO 리더를 위한 워크숍. 현장에서 실전 노하우를 나눕니다.</p>
+            <button style="padding:8px 20px;border:1px solid #111;background:transparent;cursor:pointer;">신청하기</button>
+          </div>
+        </div>
+        <div class="mini-grid">
+          <div class="mini-cell head">일</div>
+          <div class="mini-cell head">월</div>
+          <div class="mini-cell head">화</div>
+          <div class="mini-cell head">수</div>
+          <div class="mini-cell head">목</div>
+          <div class="mini-cell head">금</div>
+          <div class="mini-cell head">토</div>
+          <div class="mini-cell"></div>
+          <div class="mini-cell">1</div>
+          <div class="mini-cell">2</div>
+          <div class="mini-cell">3</div>
+          <div class="mini-cell">4</div>
+          <div class="mini-cell">5</div>
+          <div class="mini-cell">6</div>
+          <div class="mini-cell">7</div>
+          <div class="mini-cell">8</div>
+          <div class="mini-cell">9</div>
+          <div class="mini-cell mark">10</div>
+          <div class="mini-cell">11</div>
+          <div class="mini-cell">12</div>
+          <div class="mini-cell">13</div>
+          <div class="mini-cell">14</div>
+          <div class="mini-cell">15</div>
+          <div class="mini-cell">16</div>
+          <div class="mini-cell">17</div>
+          <div class="mini-cell mark">18</div>
+          <div class="mini-cell">19</div>
+          <div class="mini-cell">20</div>
+          <div class="mini-cell">21</div>
+          <div class="mini-cell mark">22</div>
+          <div class="mini-cell">23</div>
+          <div class="mini-cell">24</div>
+          <div class="mini-cell">25</div>
+          <div class="mini-cell">26</div>
+          <div class="mini-cell">27</div>
+          <div class="mini-cell">28</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="variant">
+      <p class="variant-title">D. Table / Agenda View</p>
+      <div class="cal-d">
+        <table>
+          <thead>
+            <tr>
+              <th>일자</th>
+              <th>행사</th>
+              <th>장소</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>6월 10일 (수)</td>
+              <td>뉴트리라이트 웰니스 세미나</td>
+              <td>온라인</td>
+              <td><span class="status">신청 가능</span></td>
+            </tr>
+            <tr>
+              <td>6월 18일 (목)</td>
+              <td>ABO 리더십 워크숍</td>
+              <td>강남 센터</td>
+              <td><span class="status">마감 임박</span></td>
+            </tr>
+            <tr>
+              <td>6월 22일 (월)</td>
+              <td>체성분 분석 오픈 데이</td>
+              <td>전국 파트너</td>
+              <td><span class="status">신청 가능</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="variant">
+      <p class="variant-title">E. Horizontal Day Cards</p>
+      <div class="cal-e">
+        <div class="days">
+          <div class="day-card">
+            <span class="dow">6월 8일 · 월</span>
+            <div class="date">8</div>
+            <div class="title">-</div>
+          </div>
+          <div class="day-card active">
+            <span class="dow">6월 10일 · 수</span>
+            <div class="date">10</div>
+            <div class="title">뉴트리라이트 웰니스 세미나</div>
+            <div class="loc">온라인</div>
+          </div>
+          <div class="day-card">
+            <span class="dow">6월 15일 · 월</span>
+            <div class="date">15</div>
+            <div class="title">-</div>
+          </div>
+          <div class="day-card active">
+            <span class="dow">6월 18일 · 목</span>
+            <div class="date">18</div>
+            <div class="title">ABO 리더십 워크숍</div>
+            <div class="loc">강남 센터</div>
+          </div>
+          <div class="day-card active">
+            <span class="dow">6월 22일 · 월</span>
+            <div class="date">22</div>
+            <div class="title">체성분 분석 오픈 데이</div>
+            <div class="loc">전국 파트너</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

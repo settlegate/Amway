@@ -14,6 +14,13 @@ const kstDate = (input: string | number | Date) =>
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
+const formatStart = (date: Date) => {
+  const h = date.getHours()
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${ampm} ${hour}시`
+}
+
 const MOCK_EVENTS: CalendarEvent[] = [
   {
     id: 'mock-1',
@@ -119,10 +126,7 @@ export default function EventCalendar() {
             const d = kstDate(e.date)
             return (
               <div key={e.id} className="day-card">
-                <span className="dow">
-                  {month + 1}월 {d.getDate()}일 · {WEEKDAYS[d.getDay()]}
-                </span>
-                <div className="date">{d.getDate()}</div>
+                <div className="date">{d.getDate()}일({WEEKDAYS[d.getDay()]}), {formatStart(d)}</div>
                 <div className="title">{e.title}</div>
                 {e.description && <div className="time">{e.description}</div>}
                 <div className="loc">{e.location || '장소 미정'}</div>

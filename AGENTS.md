@@ -71,6 +71,8 @@ npm run dev
 - 승인 없이 `git commit`, `git push`, `gh pr create`, `gh pr merge` 등 git remote에 영향을 주는 명령을 실행해서는 안 됩니다.
 - 비밀값, API 키, 개인정보가 포함된 파일이 staging area에 있는지 다시 한번 확인하고, pre-commit hook 경고가 있으면 즉시 중단합니다.
 
+- **체크아웃, git restore 등 변경 이력을 되돌리는 작업은 사전 승인을 받아야 합니다.**
+
 ## 외부 서비스 연동
 
 - **OpenAI API**: `OPENAI_API_KEY` 필요 (채팅/체성분 OCR/뉴스레터/임베딩)

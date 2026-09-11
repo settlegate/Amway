@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom'
+import PageLayout from '../components/PageLayout'
 import ChatPanel from '../components/ChatPanel'
 import type { ChatMessage } from '../components/ChatPanel'
 
@@ -9,9 +10,9 @@ export default function Chat() {
   const initialQuestion = state?.initialQuestion
 
   return (
-    <div className="page">
-      <h2>건강 상담 챗봇</h2>
+    <PageLayout>
+      <h2 className="chat-page-title">건강 상담 챗봇</h2>
       <ChatPanel initialMessages={initialMessages} initialQuestion={initialQuestion} />
-    </div>
+    </PageLayout>
   )
 }

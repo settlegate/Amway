@@ -20,16 +20,25 @@ export interface ChatMessage {
   createdAt: Date | string
 }
 
-const QUICK_PROMPTS = [
-  '피로 회복 영양제 추천',
-  '단백질 보충 가이드',
-  '아침 루틴 설계',
-  '체성분 결과 해석',
-]
-
 function formatWon(price?: number) {
   if (typeof price !== 'number') return ''
   return `${price.toLocaleString('ko-KR')}원`
+}
+
+const ABO_FOOTER = '더 나은 건강 상담과 제품 추천은 정주희 ABO에게 문의하세요^^'
+
+function renderBubble(text: string, role: 'ai' | 'user') {
+  if (role !== 'ai' || !text.includes(ABO_FOOTER)) {
+    return <div className="bubble">{text}</div>
+  }
+  const index = text.lastIndexOf(ABO_FOOTER)
+  const main = text.slice(0, index)
+  return (
+    <div className="bubble">
+      {main}
+      <strong className="msg-footer">{ABO_FOOTER}</strong>
+    </div>
+  )
 }
 
 function toDate(date: Date | string) {
@@ -63,15 +72,23 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
   const [loading, setLoading] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastUserMessageRef = useRef<HTMLDivElement>(null)
   const startedRef = useRef(false)
 
-  const scrollToBottom = () => {
-    const el = logRef.current
-    if (el) el.scrollTop = el.scrollHeight
+  const scrollToLastUserMessage = () => {
+    const log = logRef.current
+    const el = lastUserMessageRef.current
+    if (!log || !el) return
+    const newScrollTop =
+      el.getBoundingClientRect().top -
+      log.getBoundingClientRect().top +
+      log.scrollTop -
+      12
+    log.scrollTop = newScrollTop
   }
 
   useEffect(() => {
-    scrollToBottom()
+    scrollToLastUserMessage()
   }, [messages, loading])
 
   useEffect(() => {
@@ -134,6 +151,11 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
     }
   }
 
+  let lastUserIndex = -1
+  messages.forEach((m, i) => {
+    if (m.role === 'user') lastUserIndex = i
+  })
+
   return (
     <section className="chat-shell" aria-label="건강 상담 챗봇">
       <div className="chat-head">
@@ -158,14 +180,14 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
         aria-relevant="additions"
       >
         {messages.map((m, i) => (
-          <div key={i}>
+          <div key={i} ref={i === lastUserIndex ? lastUserMessageRef : undefined}>
             <div className={`msg-row ${m.role}`}>
               {m.role === 'ai' && (
                 <div className="avatar" aria-hidden="true">
                   <LeafIcon size={14} />
                 </div>
               )}
-              <div className="bubble">{m.text}</div>
+              {renderBubble(m.text, m.role)}
               <span className="msg-time">{formatTime(m.createdAt)}</span>
             </div>
 
@@ -215,20 +237,6 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
         )}
       </div>
 
-      <div className="quick-chips" role="group" aria-label="빠른 질문">
-        {QUICK_PROMPTS.map((prompt) => (
-          <button
-            key={prompt}
-            type="button"
-            onClick={() => send(prompt, messages)}
-            disabled={loading}
-            aria-label={`질문 보내기: ${prompt}`}
-          >
-            {prompt}
-          </button>
-        ))}
-      </div>
-
       <form className="chat-composer" onSubmit={handleSubmit}>
         <input
           ref={inputRef}
@@ -237,13 +245,12 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="예: 피로 회복에 도움되는 영양제 추천해주세요…"
           autoComplete="off"
           aria-label="메시지 입력"
           disabled={loading}
         />
-        <button type="submit" disabled={loading || !input.trim()}>
-          {loading ? '전송 중…' : '전송'}
+        <button type="submit" disabled={loading || !input.trim()} aria-label="전송">
+          <LeafIcon size={18} />
         </button>
       </form>
     </section>

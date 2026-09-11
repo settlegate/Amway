@@ -60,6 +60,13 @@ function buildUserPrompt(message: string, products: any[], userId?: string) {
     `- 자연스러운 한국어 구어체(~요체)로, 2~4문장 내외로 간결하게 답변하세요.`;
 }
 
+const ABO_FOOTER = '\n\n더 나은 건강 상담과 제품 추천은 정주희 ABO에게 문의하세요^^';
+
+function withABOFooter(text: string) {
+  if (text.includes('정주희 ABO에게 문의하세요')) return text;
+  return text.trimEnd() + ABO_FOOTER;
+}
+
 const NUTRIENT_TERMS = [
   '오메가', '오메가3', '오메가-3', '루테인', '지아잔틴', '비타민A', '비타민B', '비타민C',
   '비타민D', '비타민E', '비타민', '미네랄', '칼슘', '마그네슘', '철분', '아연', '셀레늄',
@@ -101,7 +108,7 @@ export async function generateHealthReply({
   const selected = products.slice(0, 3);
 
   if (!openai) {
-    return { text: buildMockReply(message, selected), products: selected, source: 'mock' };
+    return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'mock' };
   }
 
   const conversation = (history || [])
@@ -127,10 +134,10 @@ export async function generateHealthReply({
     const selectedIds = new Set(selected.map((p) => p.id));
     const related = await findRelatedProducts(text, selectedIds);
     const finalProducts = [...selected, ...related].slice(0, 6);
-    return { text, products: finalProducts, source: 'openai' };
+    return { text: withABOFooter(text), products: finalProducts, source: 'openai' };
   } catch (err) {
     console.error('OpenAI 응답 생성 오류:', err);
-    return { text: buildMockReply(message, selected), products: selected, source: 'error' };
+    return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'error' };
   }
 }
 

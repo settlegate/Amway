@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import PageLayout from '../components/PageLayout'
 import LeafIcon from '../components/LeafIcon'
 import ExternalLink from "../components/ExternalLink"
 import EventCalendar from '../components/EventCalendar'
@@ -20,26 +21,7 @@ export default function Home() {
   }
 
   return (
-    <div className="landing">
-      <div className="home-layout">
-                                        <aside className="home-sidebar">
-          <div className="sidebar-brand">
-            <div className="sidebar-brand-mark">
-              <LeafIcon size={48} />
-            </div>
-            <div className="sidebar-brand-text">
-              <img
-                className="sidebar-brand-logo"
-                src="/amway-logo.png"
-                alt="Amway"
-                height="28"
-              />
-              <span>건마주희's 뉴스레터</span>
-            </div>
-          </div>
-        </aside>
-
-        <main className="home-main">
+    <PageLayout>
           <section
             className="landing-hero"
             aria-labelledby="landing-hero-title"
@@ -256,9 +238,7 @@ export default function Home() {
               </div>
             </div>
           </footer>
-        </main>
-      </div>
-    </div>
+    </PageLayout>
   )
 }
 

@@ -170,6 +170,18 @@ select:focus-visible,
   flex: 1;
 }
 
+@media (min-width: 1024px) {
+  .app {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #main-content {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 .page {
   width: 100%;
   max-width: 1120px;
@@ -475,10 +487,9 @@ a.card:hover {
 .chat-shell {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 22px;
-  box-shadow: var(--shadow);
   overflow: hidden;
 }
 
@@ -498,9 +509,8 @@ a.card:hover {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: var(--gradient-brand);
+  background: var(--accent);
   color: #fff;
-  box-shadow: var(--shadow-soft);
 }
 
 .chat-head strong {
@@ -521,20 +531,14 @@ a.card:hover {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #35b56b;
-  box-shadow: 0 0 0 3px rgba(53, 181, 107, 0.18);
+  background: var(--text-soft);
 }
 
 .chat-log {
   flex: 1;
   min-height: 320px;
-  max-height: 56vh;
-  overflow-y: auto;
   padding: 18px;
-  overscroll-behavior: contain;
-  background:
-    radial-gradient(1200px 500px at 80% -10%, var(--accent-bg), transparent 60%),
-    var(--surface);
+  background: var(--surface-soft);
 }
 
 .msg-row {
@@ -554,7 +558,7 @@ a.card:hover {
   font-size: 11px;
   font-weight: 700;
   color: #fff;
-  background: var(--gradient-brand);
+  background: var(--accent);
 }
 
 .msg-row.user {
@@ -581,9 +585,15 @@ a.card:hover {
 }
 
 .msg-row.user .bubble {
-  background: var(--gradient-brand);
+  background: var(--accent);
   border-bottom-right-radius: 6px;
   color: #fff;
+}
+
+.msg-footer {
+  display: block;
+  margin-top: 8px;
+  font-weight: 700;
 }
 
 .msg-time {
@@ -674,40 +684,43 @@ a.card:hover {
 
 .chat-composer {
   display: flex;
-  gap: 8px;
-  padding: 12px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-soft);
+  align-items: center;
+  gap: 6px;
+  width: 80%;
+  max-width: 560px;
+  margin: 0 auto 14px;
+  padding: 6px 6px 6px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
 .chat-composer input {
   flex: 1;
   min-width: 0;
   margin: 0;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  padding: 12px 18px;
-  font-size: 14px;
+  border: none;
+  background: transparent;
+  padding: 10px 0 10px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--text);
-}
-
-.chat-composer input::placeholder {
-  color: var(--text-soft);
+  line-height: 1;
+  outline: none;
 }
 
 .chat-composer button {
-  width: auto;
+  width: 40px;
+  height: 40px;
   margin: 0;
-  padding: 0 22px;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
-  background: var(--gradient-brand);
+  border-radius: 50%;
+  background: var(--accent);
   color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  white-space: nowrap;
   touch-action: manipulation;
   transition: opacity 0.2s ease, transform 0.15s ease;
 }
@@ -717,8 +730,47 @@ a.card:hover {
 }
 
 .chat-composer button:disabled {
-  opacity: 0.55;
+  opacity: 1;
   cursor: not-allowed;
+}
+
+.chat-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-page-title {
+  margin: 0 0 16px;
+  font-size: 19px;
+  letter-spacing: -0.2px;
+}
+
+.chat-main .chat-shell {
+  flex: 1;
+  min-height: 420px;
+}
+
+.chat-main .chat-log {
+  flex: 1;
+  max-height: none;
+  min-height: 240px;
+}
+
+@media (min-width: 1024px) {
+  .chat-main {
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .chat-main .chat-shell {
+    min-height: 420px;
+    overflow: hidden;
+  }
+
+  .chat-main .chat-log {
+    min-height: 240px;
+    overflow: visible;
+  }
 }
 
 /* ---------- Forms ---------- */
@@ -775,22 +827,27 @@ button:disabled {
 }
 
 .product-list {
-  margin: -4px 0 10px;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px;
+  margin: 8px 0 10px;
 }
 
 .product-card {
+  flex: 0 0 160px;
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  padding: 10px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--surface);
-  margin-bottom: 8px;
 }
 
 .product-img {
-  width: 72px;
-  height: 72px;
+  width: 100%;
+  height: 100px;
   object-fit: cover;
   border-radius: 10px;
   background: var(--surface-soft);
@@ -799,34 +856,41 @@ button:disabled {
 .product-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .product-name {
   font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .product-desc {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-soft);
-  margin-bottom: 6px;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-price {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--brand);
-  margin-bottom: 8px;
+  margin-top: auto;
   font-variant-numeric: tabular-nums;
 }
 
 .product-info button {
-  margin-bottom: 0;
-  padding: 6px 10px;
-  font-size: 13px;
-  width: auto;
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  width: 100%;
+  border-radius: 999px;
 }
 
 /* ---------- Design preview page ---------- */
@@ -1478,7 +1542,6 @@ button:disabled {
   line-height: 1;
   outline: none;
   min-width: 0;
-  caret-color: transparent;
 }
 
 .hero-actions input::placeholder {
@@ -2005,6 +2068,13 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-brand:hover,
+.sidebar-brand:hover * {
+  text-decoration: none;
 }
 
 .sidebar-brand-mark {
@@ -2045,21 +2115,27 @@ button:disabled {
 }
 
 .sidebar-brand-text span:last-child {
-  font-weight: 500;
+  font-weight: 800;
   font-size: 0.8125rem;
-  color: var(--text-soft);
+  color: var(--text);
 }
 
 @media (min-width: 1024px) {
+  .landing {
+    height: 100%;
+  }
+
   .home-layout {
     grid-template-columns: 280px 1fr;
+    height: 100%;
+    overflow: hidden;
   }
 
   .home-sidebar {
     position: sticky;
     top: 0;
     order: unset;
-    height: 100vh;
+    height: 100%;
     overflow-y: auto;
     padding: 60px 28px 48px;
     border-right: 1px solid var(--border);
@@ -2070,7 +2146,9 @@ button:disabled {
   .home-main {
     order: unset;
     padding: 60px 48px;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
   }
 
   .sidebar-brand {

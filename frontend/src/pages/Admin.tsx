@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
+import SeminarAdmin from '../components/SeminarAdmin'
 
 type Product = {
   id: string
@@ -224,6 +225,8 @@ export default function Admin() {
   return (
     <div className="page">
       <h2>ABO 관리자</h2>
+
+      <SeminarAdmin />
 
       <div className="grid" style={{ marginBottom: 20 }}>
         <div className="card">

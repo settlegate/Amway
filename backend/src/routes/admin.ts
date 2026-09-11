@@ -158,6 +158,62 @@ router.delete('/promotions/:id', async (req, res) => {
 // ----------------------
 // 홈 프로모션 배너
 // ----------------------
+// ----------------------
+// 세미나(캘린더 일정) 관리
+// ----------------------
+router.get('/seminars', async (_req, res) => {
+  try {
+    const seminars = await prisma.seminar.findMany({
+      orderBy: { date: 'asc' },
+    });
+    res.json(seminars);
+  } catch (err) {
+    console.error('Seminar list error:', err);
+    res.status(500).json({ error: 'Failed to load seminars' });
+  }
+});
+
+router.post('/seminars', async (req, res) => {
+  const { title, description, date, location, maxAttendees } = req.body;
+  if (!title || !date) {
+    res.status(400).json({ error: 'title and date are required' });
+    return;
+  }
+  try {
+    const seminar = await prisma.seminar.create({
+      data: {
+        title,
+        description: description || null,
+        date: new Date(date),
+        location: location || null,
+        maxAttendees: Number(maxAttendees) || 20,
+      },
+    });
+    res.json(seminar);
+  } catch (err) {
+    console.error('Seminar create error:', err);
+    res.status(500).json({ error: 'Failed to create seminar' });
+  }
+});
+
+router.delete('/seminars/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.seminar.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (err: any) {
+    console.error('Seminar delete error:', err);
+    if (err.code === 'P2025') {
+      res.status(404).json({ error: 'Seminar not found' });
+      return;
+    }
+    res.status(500).json({ error: 'Failed to delete seminar' });
+  }
+});
+
+// ----------------------
+// 홈 프로모션 배너
+// ----------------------
 router.use('/home-promotions', homePromotionAdmin);
 
 export default router;

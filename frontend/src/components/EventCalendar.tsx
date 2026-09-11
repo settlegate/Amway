@@ -128,7 +128,6 @@ export default function EventCalendar() {
               <div key={e.id} className="day-card">
                 <div className="date">{d.getDate()}일({WEEKDAYS[d.getDay()]}), {formatStart(d)}</div>
                 <div className="title">{e.title}</div>
-                {e.description && <div className="time">{e.description}</div>}
                 <div className="loc">{e.location || '장소 미정'}</div>
               </div>
             )

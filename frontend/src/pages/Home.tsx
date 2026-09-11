@@ -2,6 +2,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import LeafIcon from '../components/LeafIcon'
 import ExternalLink from "../components/ExternalLink"
+import EventCalendar from '../components/EventCalendar'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -121,44 +122,16 @@ export default function Home() {
           </section>
 
 
-          <section id="process" className="landing-section process">
+                    <section id="process" className="landing-section process">
             <div className="container">
               <div className="landing-section-header">
-                <h2>4단계 웰니스 케어</h2>
-                <p>챗봇에서 시작해 지속 가능한 건강 관리로 연결합니다.</p>
+                <h2>이달의 행사</h2>
+                <p>ABO 정주희가 추천하는 이번 달 세미나와 일정</p>
               </div>
-              <div className="process-grid">
-                <article className="process-card">
-                  <h3>챗봇 상담</h3>
-                  <p>
-                    증상과 목표를 자연어로 입력하면 AI가 초동 상담과 가이드를
-                    제공합니다.
-                  </p>
-                </article>
-                <article className="process-card">
-                  <h3>체성분/증빙 분석</h3>
-                  <p>
-                    InBody 사진이나 건강 데이터를 업로드하면 AI가 수치를
-                    해석합니다.
-                  </p>
-                </article>
-                <article className="process-card">
-                  <h3>제품/루틴 제안</h3>
-                  <p>
-                    뉴트리라이트 제품과 식이·운동 루틴을 개인별로
-                    매칭합니다.
-                  </p>
-                </article>
-                <article className="process-card">
-                  <h3>지속 케어</h3>
-                  <p>
-                    알림톡과 리드 CRM으로 정기적인 케어와 재구매를
-                    돕습니다.
-                  </p>
-                </article>
-              </div>
+              <EventCalendar />
             </div>
           </section>
+
 
           <section id="services" className="landing-section">
             <div className="container">

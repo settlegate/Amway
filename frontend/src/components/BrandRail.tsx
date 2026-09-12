@@ -18,6 +18,11 @@ export default function BrandRail() {
           <span>건마주희&apos;s 뉴스레터</span>
         </div>
       </Link>
+      <img
+        className="sidebar-abo-photo"
+        src="/images/abo-photo.jpg"
+        alt="ABO 정주희"
+      />
     </aside>
   )
 }

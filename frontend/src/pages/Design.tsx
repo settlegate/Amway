@@ -26,6 +26,7 @@ export default function Design() {
         컬러는 시안의 ‘새벽 숲’ 그린 톤을 기준으로 유지하며, 레이아웃만 다르게
         구성했습니다.
       </p>
+
       <div className="design-grid">
         {LAYOUTS.map((t) => {
           const LayoutPreview = PREVIEW_COMPONENT[t.id]

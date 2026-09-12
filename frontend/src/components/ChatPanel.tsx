@@ -36,6 +36,7 @@ export interface ChatMessage {
   text: string
   products?: ChatProduct[]
   bodyResult?: BodyResult
+  bodyPrompt?: boolean
   createdAt: Date | string
 }
 
@@ -46,16 +47,54 @@ function formatWon(price?: number) {
 
 const ABO_FOOTER = '더 나은 건강 상담과 제품 추천은 정주희 ABO에게 문의하세요^^'
 
+const NUTRIENT_HEADER = '★ 영양소 정보'
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
 function renderBubble(text: string, role: 'ai' | 'user') {
   if (role !== 'ai' || !text.includes(ABO_FOOTER)) {
     return <div className="bubble">{text}</div>
   }
   const index = text.lastIndexOf(ABO_FOOTER)
   const main = text.slice(0, index)
+  const headerHtml = `<span class="nutrient-header">${NUTRIENT_HEADER}</span>`
+  const html = escapeHtml(main)
+    .replace(new RegExp(escapeHtml(NUTRIENT_HEADER), 'g'), headerHtml)
+    .replace(/(?:\r\n|\r|\n)/g, '<br>')
   return (
-    <div className="bubble">
-      {main}
-      <strong className="msg-footer">{ABO_FOOTER}</strong>
+    <div
+      className="bubble"
+      dangerouslySetInnerHTML={{
+        __html: `${html}<br><br><strong class="msg-footer">${escapeHtml(ABO_FOOTER)}</strong>`,
+      }}
+    />
+  )
+}
+
+function BodyPrompt({
+  onUpload,
+  onManual,
+}: {
+  onUpload: () => void
+  onManual: () => void
+}) {
+  return (
+    <div className="bubble body-prompt-bubble">
+      <p>체성분 분석을 시작할게요.</p>
+      <p>InBody 결과지 사진을 업로드하거나 수치를 직접 입력해주세요.</p>
+      <div className="body-prompt-actions">
+        <button type="button" onClick={onUpload} className="body-prompt-btn upload">
+          이미지 업로드
+        </button>
+        <button type="button" onClick={onManual} className="body-prompt-btn manual">
+          수동 입력
+        </button>
+      </div>
     </div>
   )
 }
@@ -174,18 +213,46 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
   useEffect(() => {
     if (initialQuestion && !startedRef.current) {
       startedRef.current = true
-      send(initialQuestion, messages)
+      if (isBodyPromptKeyword(initialQuestion)) {
+        showBodyPrompt(initialQuestion)
+      } else {
+        send(initialQuestion, messages)
+      }
     }
   }, [initialQuestion])
 
+  const isBodyPromptKeyword = (text: string) => /체성분|인바디|inbody|bodycomposition/i.test(text.trim())
+
+  const showBodyPrompt = (text: string) => {
+    setInput('')
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', text: text.trim(), createdAt: new Date() },
+      {
+        role: 'ai',
+        text: '체성분 분석을 시작할게요. InBody 결과지 사진을 업로드하거나 수치를 직접 입력해주세요.',
+        bodyPrompt: true,
+        createdAt: new Date(),
+      },
+    ])
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (isBodyPromptKeyword(input)) {
+      showBodyPrompt(input)
+      return
+    }
     send(input, messages)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault()
+      if (isBodyPromptKeyword(input)) {
+        showBodyPrompt(input)
+        return
+      }
       send(input, messages)
     }
   }
@@ -280,13 +347,20 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
       >
         {messages.map((m, i) => (
           <div key={i} ref={i === lastUserIndex ? lastUserMessageRef : undefined}>
-            <div className={`msg-row ${m.role}`}>
+            <div className={`msg-row ${m.role}${i === lastUserIndex ? ' sticky-question' : ''}`}>
               {m.role === 'ai' && (
                 <div className="avatar" aria-hidden="true">
                   <LeafIcon size={14} />
                 </div>
               )}
-              {renderBubble(m.text, m.role)}
+              {m.bodyPrompt ? (
+                <BodyPrompt
+                  onUpload={() => fileRef.current?.click()}
+                  onManual={() => setManualOpen(true)}
+                />
+              ) : (
+                renderBubble(m.text, m.role)
+              )}
               <span className="msg-time">{formatTime(m.createdAt)}</span>
             </div>
 
@@ -380,15 +454,6 @@ export default function ChatPanel({ initialMessages, initialQuestion }: ChatPane
         />
         <button type="submit" disabled={loading || !input.trim()} aria-label="전송">
           <LeafIcon size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setManualOpen((v) => !v)}
-          disabled={loading}
-          aria-label="수동 입력"
-          className="body-manual-btn"
-        >
-          수동
         </button>
       </form>
 

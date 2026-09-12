@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { openai, CHAT_MODEL } from './openai';
 import { searchProducts } from './vector';
 import { isSafeText, GUARD_MESSAGE } from './guard';
+import { enrichWithNutrientInfo } from './nutrients';
 
 type Turn = { role: 'user' | 'ai'; text: string };
 
@@ -64,10 +65,11 @@ function buildMockReply(message: string, products: any[]) {
     return '말씀하신 부분에 공감드려요. 규칙적인 식사와 충분한 수면, 가벼운 운동이 건강 관리의 기초예요. 더 구체적인 조언을 원하시면 어떤 부분이 가장 신경 쓰이시는지 알려주세요.';
   }
   const names = products.map((p) => `• ${p.name} (${formatWon(p.price)})`).join('\n');
-  return `그 마음 충분히 이해해요.\n\n` +
+  const text = `그 마음 충분히 이해해요.\n\n` +
     `한국암웨이 공식 라벨 정보를 바탕으로, 질문과 관련된 제품을 골라봤어요.\n\n` +
     `${names}\n\n` +
     `하단의 제품 카드에서 이미지와 간략 소개, 금액, 구매 링크를 확인해 보세요.`;
+  return enrichWithNutrientInfo(text);
 }
 
 function buildUserPrompt(message: string, products: any[], userId?: string, bodyMetrics?: BodyMetrics) {
@@ -195,7 +197,8 @@ export async function generateHealthReply({
     const selectedIds = new Set(selected.map((p) => p.id));
     const related = await findRelatedProducts(text, selectedIds);
     const finalProducts = [...selected, ...related].slice(0, 6);
-    const finalText = bodyMetrics ? `${text.trimEnd()}${MEDICAL_DISCLAIMER}` : text;
+    const enrichedText = enrichWithNutrientInfo(text);
+    const finalText = bodyMetrics ? `${enrichedText.trimEnd()}${MEDICAL_DISCLAIMER}` : enrichedText;
     return { text: withABOFooter(finalText), products: finalProducts, source: 'openai' };
   } catch (err) {
     console.error('OpenAI 응답 생성 오류:', err);

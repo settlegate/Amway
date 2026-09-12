@@ -11,8 +11,10 @@ export default function Chat() {
 
   return (
     <PageLayout>
-      <h2 className="chat-page-title">건강 상담 챗봇</h2>
-      <ChatPanel initialMessages={initialMessages} initialQuestion={initialQuestion} />
+      <div className="chat-focus">
+        <h2 className="chat-page-title">건강 상담 챗봇</h2>
+        <ChatPanel initialMessages={initialMessages} initialQuestion={initialQuestion} />
+      </div>
     </PageLayout>
   )
 }

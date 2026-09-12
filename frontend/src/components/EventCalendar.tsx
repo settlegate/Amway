@@ -13,6 +13,14 @@ const kstDate = (input: string | number | Date) =>
   new Date(new Date(input).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }))
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
+const KAKAO_URL = (import.meta.env.VITE_KAKAO_CHANNEL_URL as string | undefined) || ''
+
+const isCookingClass = (e: CalendarEvent) =>
+  (e.title + ' ' + (e.description || '')).toLowerCase().includes('쿠킹')
+
+const openKakao = () => {
+  if (KAKAO_URL) window.open(KAKAO_URL, '_blank', 'noopener,noreferrer')
+}
 
 const formatStart = (date: Date) => {
   const h = date.getHours()
@@ -124,11 +132,36 @@ export default function EventCalendar() {
         ) : (
           monthEvents.map((e) => {
             const d = kstDate(e.date)
+            const cooking = isCookingClass(e)
+
+            const handleOpen = () => {
+              if (cooking && KAKAO_URL) openKakao()
+            }
+
             return (
-              <div key={e.id} className="day-card">
+              <div
+                key={e.id}
+                className={`day-card${cooking ? ' cooking' : ''}`}
+                onClick={cooking ? handleOpen : undefined}
+                onKeyDown={(ev) => {
+                  if (cooking && (ev.key === 'Enter' || ev.key === ' ')) {
+                    ev.preventDefault()
+                    handleOpen()
+                  }
+                }}
+                role={cooking ? 'button' : undefined}
+                tabIndex={cooking ? 0 : undefined}
+                aria-label={cooking ? '카카오톡으로 쿠킹 클래스 신청하기' : undefined}
+              >
                 <div className="date">{d.getDate()}일({WEEKDAYS[d.getDay()]}), {formatStart(d)}</div>
                 <div className="title">{e.title}</div>
                 <div className="loc">{e.location || '장소 미정'}</div>
+                {cooking && KAKAO_URL && (
+                  <div className="kakao-overlay" aria-hidden="true">
+                    <span>카카오톡으로</span>
+                    <span>신청하기</span>
+                  </div>
+                )}
               </div>
             )
           })

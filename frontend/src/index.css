@@ -565,6 +565,18 @@ a.card:hover {
   flex-direction: row-reverse;
 }
 
+.msg-row.ai {
+  align-items: flex-start;
+}
+
+.sticky-question {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-soft);
+  padding-top: 8px;
+}
+
 .bubble {
   max-width: 78%;
   min-width: 0;
@@ -579,9 +591,11 @@ a.card:hover {
 
 .msg-row.ai .bubble {
   background: var(--surface-soft);
-  border: 1px solid var(--border);
   border-bottom-left-radius: 6px;
   color: var(--text);
+  font-size: 1rem;
+  line-height: 26px;
+  font-weight: 700;
 }
 
 .msg-row.user .bubble {
@@ -593,6 +607,13 @@ a.card:hover {
 .msg-footer {
   display: block;
   margin-top: 8px;
+  font-weight: 700;
+}
+
+.nutrient-header {
+  display: block;
+  margin-top: 12px;
+  color: #00a862;
   font-weight: 700;
 }
 
@@ -701,11 +722,12 @@ a.card:hover {
   margin: 0;
   border: none;
   background: transparent;
-  padding: 10px 0 10px 8px;
+  padding: 0 0 0 8px;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text);
-  line-height: 1;
+  line-height: 56px;
+  height: 56px;
   outline: none;
 }
 
@@ -743,6 +765,21 @@ a.card:hover {
   margin: 0 0 16px;
   font-size: 19px;
   letter-spacing: -0.2px;
+  text-align: center;
+}
+
+.chat-focus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px 0;
+}
+
+.chat-focus .chat-shell {
+  width: 100%;
+  max-width: 720px;
 }
 
 .chat-main .chat-shell {
@@ -1537,9 +1574,9 @@ button:disabled {
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--text);
-  height: 44px;
-  padding: 14px 0 15px 20px;
-  line-height: 1;
+  height: 60px;
+  padding: 0 0 0 20px;
+  line-height: 60px;
   outline: none;
   min-width: 0;
 }
@@ -1557,8 +1594,8 @@ button:disabled {
   border-radius: 999px;
   display: inline-block;
   height: 44px;
-  padding: 14px 24px 15px;
-  line-height: 1;
+  padding: 0 24px;
+  line-height: 44px;
   font-size: 0.9375rem;
   font-weight: 700;
   white-space: nowrap;
@@ -2120,6 +2157,16 @@ button:disabled {
   color: var(--text);
 }
 
+.sidebar-abo-photo {
+  width: 100%;
+  height: 320px;
+  margin-top: 24px;
+  object-fit: cover;
+  object-position: center 22%;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
 @media (min-width: 1024px) {
   .landing {
     height: 100%;
@@ -2325,6 +2372,42 @@ button:disabled {
   padding-top: 10px;
 }
 
+.day-card.cooking {
+  position: relative;
+  cursor: pointer;
+}
+
+.day-card.cooking .kakao-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  background: #fee500;
+  color: #111;
+  border-radius: 22px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.day-card.cooking:hover .kakao-overlay,
+.day-card.cooking:focus-within .kakao-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.day-card.cooking .kakao-overlay span {
+  pointer-events: none;
+  line-height: 1.25;
+}
+
 .event-calendar .empty {
   color: var(--text-soft);
   font-size: 14px;
@@ -2412,25 +2495,18 @@ button:disabled {
   font-weight: 600;
 }
 
-.body-image-btn,
-.body-manual-btn {
+.body-image-btn {
   width: 40px;
   height: 40px;
   border: 0;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+  background: transparent;
+  color: var(--text);
   display: grid;
   place-items: center;
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
-}
-
-.body-manual-btn {
-  width: auto;
-  padding: 0 12px;
-  border-radius: 999px;
 }
 
 .body-manual-form {
@@ -2465,6 +2541,37 @@ button:disabled {
   border-radius: 999px;
   background: var(--accent);
   color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.body-prompt-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.body-prompt-bubble p {
+  margin: 0;
+}
+
+.body-prompt-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.body-prompt-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }

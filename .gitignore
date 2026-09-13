@@ -8,6 +8,9 @@ backend/dist
 frontend/dist
 *.tsbuildinfo
 
+# test coverage
+coverage
+
 # env
 .env
 .env.local

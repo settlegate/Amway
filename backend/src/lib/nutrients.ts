@@ -1,3 +1,5 @@
+import { openai, CHAT_MODEL } from './openai';
+
 const NUTRIENT_INFO: Record<string, string> = {
   '오메가-3': 'EPA·DHA를 포함한 불포화지방산으로, 체내에서 합성되지 않는 필수지방산입니다.',
   '오메가3': 'EPA·DHA를 포함한 불포화지방산으로, 체내에서 합성되지 않는 필수지방산입니다.',
@@ -25,6 +27,7 @@ const NUTRIENT_INFO: Record<string, string> = {
   글루타치온: '간 건강·피부 미백·항산화에 도움을 줄 수 있는 펩타이드입니다.',
   아스타잔틴: '항산화 작용과 눈·피로 개선에 도움을 줄 수 있는 카로티노이드입니다.',
   '코엔자임 큐텐': '세포 에너지 생성과 항산화에 도움을 줄 수 있는 보조 인자입니다.',
+  코큐텐: '코엔자임 큐텐의 줄임말로, 세포 에너지 생성과 항산화에 도움을 줄 수 있는 보조 인자입니다.',
   큐텐: '세포 에너지 생성과 항산화에 도움을 줄 수 있는 보조 인자입니다.',
   '밀크씨슬(실리마린)': '간 건강에 도움을 줄 수 있는 허브 추출물입니다.',
   실리마린: '간 세포 보호에 도움을 줄 수 있는 밀크씨슬의 활성 성분입니다.',
@@ -44,24 +47,67 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function enrichWithNutrientInfo(answer: string): string {
+const TERM_BOUNDARY = '[-\\w가-힣]';
+const NUTRIENT_HEADER = '★ 영양소 정보';
+const REFERENCE_SOURCE = 'https://ods.od.nih.gov/factsheets/list-all/';
+
+async function generateNutrientBlock(answer: string, matched: string[]): Promise<string | null> {
+  if (!openai) return null;
+
+  const prompt = [
+    'You are a professional Korean nutrition consultant for an Amway wellness newsletter.',
+    'Base your explanations on the official fact sheets of the NIH Office of Dietary Supplements (',
+    REFERENCE_SOURCE,
+    ').',
+    'The assistant just gave the following answer to a user question:',
+    '',
+    answer,
+    '',
+    `The ONLY nutrients/ingredients you may explain are: ${matched.join(', ')}.`,
+    'Explain ONLY the terms listed above. Do not add, translate, or explain any other word, product name, marketing term, or ingredient such as "릴렉스", "이너", or brand names.',
+    `Write a "${NUTRIENT_HEADER}" section in Korean. For each listed nutrient, write at least 3 sentences covering: (1) what it is, (2) how it works or its main role in the body, and (3) common food sources or intake tips.`,
+    'Include mechanism-of-action information when relevant, such as how antioxidants neutralize free radicals or how CoQ10 supports mitochondrial energy production.',
+    'Use safe, general wellness language only. Do not make disease treatment or prevention claims.',
+    'Format each item as: "• {term}: {explanation}".',
+    'Keep the total under 200 words. Do not add a closing sentence.',
+  ].join('\n');
+
+  const completion = await openai.chat.completions.create({
+    model: CHAT_MODEL,
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.5,
+    max_tokens: 700,
+  });
+
+  const block = completion.choices[0]?.message?.content?.trim() || '';
+  if (!block) return null;
+  return block.startsWith(NUTRIENT_HEADER) ? block : `${NUTRIENT_HEADER}\n${block}`;
+}
+
+export async function enrichWithNutrientInfo(answer: string): Promise<string> {
   let work = answer.toLowerCase();
   const matched: string[] = [];
 
   for (const term of terms) {
     const lowerTerm = term.toLowerCase();
-    const re = new RegExp(escapeRegExp(lowerTerm), 'gi');
-    if (work.includes(lowerTerm)) {
+    const re = new RegExp('(?<!' + TERM_BOUNDARY + ')' + escapeRegExp(lowerTerm), 'g');
+    const replaced = work.replace(re, ' '.repeat(term.length));
+    if (replaced !== work) {
       matched.push(term);
-      work = work.replace(re, ' '.repeat(term.length));
+      work = replaced;
     }
   }
 
   if (matched.length === 0) return answer;
 
+  const generated = await generateNutrientBlock(answer, matched);
+  if (generated) {
+    return `${answer.trimEnd()}\n\n${generated}`;
+  }
+
   const infoBlock = matched
     .map((term) => `• ${term}: ${NUTRIENT_INFO[term]}`)
     .join('\n');
 
-  return `${answer.trimEnd()}\n\n★ 영양소 정보\n${infoBlock}`;
+  return `${answer.trimEnd()}\n\n${NUTRIENT_HEADER}\n${infoBlock}`;
 }

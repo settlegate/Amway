@@ -11,10 +11,10 @@ const SYSTEM_INSTRUCTION =
   '한국암웨이 공식 라벨 정보와 식약처 승인 기능성 문구만 인용하세요. ' +
   '질병 진단·치료·예방, 확정 수입, 과장된 효능을 약속하는 표현은 사용하지 마세요. ' +
   '사용자의 말에 먼저 공감하고, 질문에 직접 답변하세요. ' +
-  '제품 추천은 사용자가 원하거나, 제공된 제품이 질문과 명확히 관련 있을 때만 자연스럽게 언급하세요. ' +
+  '제품 추천은 사용자가 원하거나, 건강 고민(잠, 피로, 눈, 피부 등)을 언급하면 관련 영양소와 제품의 작용 메커니즘을 자연스럽게 설명하세요. ' +
   '관련 제품이 없으면 일반적인 영양·생활 조언을 주세요. ' +
   '추가 질문은 질문이 모호할 때만 최대 1개 하고, 구체적인 질문에는 추가 질문 없이 답변하세요. ' +
-  '자연스러운 한국어 구어체(~요체)로, 2~4문장 내외로 간결하게 답변하세요.';
+  '자연스러운 한국어 구어체(~요체)로, 4~8문장 내외로 충분히 설명하세요.';
 
 function formatWon(price?: number) {
   if (typeof price !== 'number') return '';
@@ -69,25 +69,26 @@ function buildMockReply(message: string, products: any[]) {
     `한국암웨이 공식 라벨 정보를 바탕으로, 질문과 관련된 제품을 골라봤어요.\n\n` +
     `${names}\n\n` +
     `하단의 제품 카드에서 이미지와 간략 소개, 금액, 구매 링크를 확인해 보세요.`;
-  return enrichWithNutrientInfo(text);
+  return text;
 }
 
 function buildUserPrompt(message: string, products: any[], userId?: string, bodyMetrics?: BodyMetrics) {
   const userContext = userId ? `사용자 ID: ${userId}\n` : '';
   const bodyContext = buildBodyMetricsContext(bodyMetrics);
   const productSection = products.length
-    ? `추천 가능한 제품 (사용자 질문과 직접 관련된 경우에만 언급):\n${productContext(products)}\n\n`
+    ? `추천 가능한 제품 (사용자의 건강 고민과 직접 관련된 경우 언급):\n${productContext(products)}\n\n`
     : '추천 가능한 제품: 없습니다. 제품 언급은 하지 마세요.\n\n';
   return `${userContext}${bodyContext}사용자: ${message}\n\n` +
     `${productSection}` +
     `지침:\n` +
-    `- 사용자 질문에 먼저 공감하고 직접 답변하세요.\n` +
+    `- 사용자 말에 먼저 공감하고 직접 답변하세요.\n` +
+    `- 사용자가 제품을 요구하지 않아도, 건강 고민(잠, 피로, 눈, 피부 등)을 언급하면 관련 영양소와 제품의 작용 메커니즘을 1~2문장으로 설명하고 제품을 자연스럽게 추천하세요.\n` +
     `- 제공된 제품 중 사용자 질문과 직접 관련된 제품만 추천하고, 그 이유를 한 문장으로 설명하세요.\n` +
     `- 관련 제품이 없으면 제품 추천 없이 일반적인 영양·생활 조언을 주세요.\n` +
     `- 추가 질문은 질문이 모호할 때만 1개 하고, 구체적인 질문(예: "시력이 나빠져", "피로가 심해")에는 추가 질문 없이 답변하세요.\n` +
     `- 질병 진단·치료·예방, 확정 수입, 과장된 효능을 약속하는 표현은 사용하지 마세요.\n` +
     `- 암웨이 공식 라벨 정보와 식약처 승인 기능성 문구만 인용하세요.\n` +
-    `- 자연스러운 한국어 구어체(~요체)로, 2~4문장 내외로 간결하게 답변하세요.`;
+    `- 자연스러운 한국어 구어체(~요체)로, 4~8문장 내외로 충분히 설명하세요.`;
 }
 
 const ABO_FOOTER = '\n\n더 나은 건강 상담과 제품 추천은 정주희 ABO에게 문의하세요^^';
@@ -143,6 +144,24 @@ function bodyToKeywords(metrics: BodyMetrics): string[] {
   return keywords;
 }
 
+function enhanceSearchQuery(message: string): string {
+  const lower = message.toLowerCase();
+  const extra: string[] = [];
+  if (/잠|수면|불면|숙면/.test(lower)) extra.push('수면 마그네슘');
+  if (/눈|시력|눈물|눈피로/.test(lower)) extra.push('눈 루테인');
+  if (/피로|피곤|활력|에너지|스트레스/.test(lower)) extra.push('피로 코큐텐 비타민B');
+  if (/피부|주름|탄력|보습/.test(lower)) extra.push('피부 콜라겐 히알루론산');
+  if (/장|소화|유산균|프로바이오틱스/.test(lower)) extra.push('장 유산균');
+  if (/면역|감기/.test(lower)) extra.push('면역 홍삼 비타민C');
+  if (/뼈|관절|칼슘/.test(lower)) extra.push('뼈 칼슘 비타민D');
+  if (/체중|다이어트|식이섬유/.test(lower)) extra.push('체중 식이섬유');
+  if (/혈행|중성지방|콜레스테롤/.test(lower)) extra.push('혈행 오메가3 EPA');
+  if (/간|술|음주/.test(lower)) extra.push('간 밀크씨슬');
+  if (/기억|집중|인지/.test(lower)) extra.push('기억 포스파티딜세린');
+  if (extra.length === 0) return message;
+  return `${message} ${extra.join(' ')}`;
+}
+
 export async function generateHealthReply({
   message,
   userId,
@@ -159,7 +178,7 @@ export async function generateHealthReply({
 
   const keywords = bodyMetrics ? bodyToKeywords(bodyMetrics) : [];
   const [messageProducts, ...bodyProducts] = await Promise.all([
-    message.trim() ? searchProducts(message) : Promise.resolve([]),
+    message.trim() ? searchProducts(enhanceSearchQuery(message)) : Promise.resolve([]),
     ...keywords.map((kw) => searchProducts(kw)),
   ]);
   const bodyProductsFlat = bodyProducts.flat();
@@ -197,7 +216,9 @@ export async function generateHealthReply({
     const selectedIds = new Set(selected.map((p) => p.id));
     const related = await findRelatedProducts(text, selectedIds);
     const finalProducts = [...selected, ...related].slice(0, 6);
-    const enrichedText = enrichWithNutrientInfo(text);
+    const enrichedText = await enrichWithNutrientInfo(text);
+    const enrichedSafe = isSafeText(enrichedText);
+    if (!enrichedSafe.safe) return { text: withABOFooter(GUARD_MESSAGE), products: finalProducts, source: 'guard' };
     const finalText = bodyMetrics ? `${enrichedText.trimEnd()}${MEDICAL_DISCLAIMER}` : enrichedText;
     return { text: withABOFooter(finalText), products: finalProducts, source: 'openai' };
   } catch (err) {

@@ -1,24 +1,24 @@
-﻿import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import PageLayout from '../components/PageLayout'
 import LeafIcon from '../components/LeafIcon'
 import ExternalLink from "../components/ExternalLink"
 import EventCalendar from '../components/EventCalendar'
 
 export default function Home() {
-  const navigate = useNavigate()
-  const [heroInput, setHeroInput] = useState('')
-  const [heroLoading, setHeroLoading] = useState(false)
-
-  const handleHeroSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!heroInput.trim()) return
-    setHeroLoading(true)
-    setTimeout(() => {
-      setHeroLoading(false)
-      navigate('/chat', { state: { initialQuestion: heroInput } })
-    }, 800)
-  }
+  // AI 챗봇 히어로 입력 — 나중에 다시 활용할 예정으로 비활성
+  // const navigate = useNavigate()
+  // const [heroInput, setHeroInput] = useState('')
+  // const [heroLoading, setHeroLoading] = useState(false)
+  //
+  // const handleHeroSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault()
+  //   if (!heroInput.trim()) return
+  //   setHeroLoading(true)
+  //   setTimeout(() => {
+  //     setHeroLoading(false)
+  //     navigate('/chat', { state: { initialQuestion: heroInput } })
+  //   }, 800)
+  // }
 
   return (
     <PageLayout>
@@ -33,19 +33,26 @@ export default function Home() {
                 <br />
                 이번 달도 당신의 활력 넘치는 하루를 곁에서 함께할게요.
               </p>
+              {/* AI 챗봇 히어로 입력 — 나중에 다시 활용할 예정으로 숨김 처리
               <p className="hero-input-hint">AI 챗봇에게 물어보세요</p>
               <form
                 className="hero-actions"
                 onSubmit={handleHeroSubmit}
                 aria-label="건강 상담 바로가기"
               >
-                <input
-                  type="text"
+                <textarea
                   value={heroInput}
                   onChange={(e) => setHeroInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      e.currentTarget.form?.requestSubmit()
+                    }
+                  }}
                   placeholder="반가워요. 본인과 가족들의 건강에 관한 고민이 있나요?"
                   aria-label="상담 질문 입력"
                   autoComplete="off"
+                  rows={1}
                 />
                 <button
                   type="submit"
@@ -55,6 +62,7 @@ export default function Home() {
                   {heroLoading ? '답변 생성 중…' : '상담 시작하기'}
                 </button>
               </form>
+              */}
             </div>
           </section>
 
@@ -118,58 +126,15 @@ export default function Home() {
           <section id="services" className="landing-section">
             <div className="container">
               <div className="landing-section-header">
-                <h2>핵심 서비스</h2>
-                <p>
-                  건강 상담부터 사업 지원까지, ABO를 위한 웰니스 인프라를
-                  제공합니다.
-                </p>
+                <h2>시즌별 아이들 건강정보</h2>
+                <p>계절마다 달라지는 아이 건강에 맞는 제품을 골라보세요.</p>
               </div>
               <div className="services-grid">
-                <article className="service-card featured">
-                  <span className="service-tag">CORE</span>
-                  <h3>건강 상담 챗봇</h3>
-                  <p>
-                    AI 컨설턴트가 24시간 고객의 건강 질문에 답하고 적절한
-                    제품을 안내합니다.
-                  </p>
-                </article>
-                <article className="service-card">
-                  <span className="service-tag">BODY</span>
-                  <h3>체성분 분석</h3>
-                  <p>
-                    InBody 결과 사진을 올리면 AI가 근육량, 체지방 등을
-                    해석해드립니다.
-                  </p>
-                </article>
                 <article className="service-card">
                   <span className="service-tag">PRODUCT</span>
                   <h3>제품 추천</h3>
                   <p>
                     목적과 컨디션에 맞는 뉴트리라이트 제품을 찾아보세요.
-                  </p>
-                </article>
-                <article className="service-card">
-                  <span className="service-tag">SEMINAR</span>
-                  <h3>세미나 신청</h3>
-                  <p>
-                    건강 세미나 일정을 확인하고 참여 신청을 간편하게
-                    진행하세요.
-                  </p>
-                </article>
-                <article className="service-card">
-                  <span className="service-tag">BUSINESS</span>
-                  <h3>사업 설명</h3>
-                  <p>
-                    ABO 비즈니스 기회와 암웨이 후원 시스템을
-                    소개해드립니다.
-                  </p>
-                </article>
-                <article className="service-card">
-                  <span className="service-tag">CRM</span>
-                  <h3>리드 CRM</h3>
-                  <p>
-                    상담 이력과 고객 케어 일정을 체계적으로
-                    관리하세요.
                   </p>
                 </article>
               </div>
@@ -178,6 +143,7 @@ export default function Home() {
 
 
 
+          {/* 하단 상담 CTA — 나중에 다시 활용할 예정으로 숨김 처리
           <section
             className="landing-cta"
             aria-labelledby="landing-cta-title"
@@ -201,6 +167,7 @@ export default function Home() {
               </div>
             </div>
           </section>
+          */}
 
           <footer className="landing-footer">
             <div className="container">

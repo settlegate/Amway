@@ -29,61 +29,67 @@ const formatStart = (date: Date) => {
   return `${ampm} ${hour}시`
 }
 
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+const MOCK_NOW = kstDate(new Date())
+const mockDate = (day: number, hour: number) =>
+  `${MOCK_NOW.getFullYear()}-${pad2(MOCK_NOW.getMonth() + 1)}-${pad2(day)}T${pad2(hour)}:00:00+09:00`
+
 const MOCK_EVENTS: CalendarEvent[] = [
   {
     id: 'mock-1',
     title: 'OMR 리더십 특강',
     description: '오전 10시~12시',
-    date: '2026-09-03T10:00:00+09:00',
+    date: mockDate(3, 10),
     location: '온라인',
   },
   {
     id: 'mock-2',
     title: '뉴트리라이트 기초 세미나',
     description: '오전 10시~12시',
-    date: '2026-09-06T10:00:00+09:00',
+    date: mockDate(6, 10),
     location: '온라인',
   },
   {
     id: 'mock-3',
     title: '건강기능식품 실전 활용법',
     description: '오후 2시~5시',
-    date: '2026-09-10T14:00:00+09:00',
+    date: mockDate(10, 14),
     location: '강남 웰니스 센터',
   },
   {
     id: 'mock-4',
     title: '체성분 분석 오픈 데이',
     description: '오후 1시~4시',
-    date: '2026-09-12T13:00:00+09:00',
+    date: mockDate(12, 13),
     location: '강남 웰니스 센터',
   },
   {
     id: 'mock-5',
     title: '리서스 그룹 OMR',
     description: '오후 2시~5시',
-    date: '2026-09-19T14:00:00+09:00',
+    date: mockDate(19, 14),
     location: '구리 장자공원 잔디광장',
   },
   {
     id: 'mock-6',
     title: 'ABO 비즈니스 리더 워크숍',
     description: '오후 7시~9시',
-    date: '2026-09-23T19:00:00+09:00',
+    date: mockDate(23, 19),
     location: '잠실 롯데타워 3F',
   },
   {
     id: 'mock-7',
     title: '주말 가족 웰니스 캠페인',
     description: '오전 11시~1시',
-    date: '2026-09-26T11:00:00+09:00',
+    date: mockDate(26, 11),
     location: '홍대 마포구민체육센터',
   },
 ]
 
 export default function EventCalendar() {
   const [events, setEvents] = useState<CalendarEvent[]>(MOCK_EVENTS)
-  const [current, setCurrent] = useState(() => kstDate(new Date(2026, 8, 1)))
+  const [current, setCurrent] = useState(() => kstDate(new Date()))
 
   useEffect(() => {
     api
@@ -153,9 +159,14 @@ export default function EventCalendar() {
                 tabIndex={cooking ? 0 : undefined}
                 aria-label={cooking ? '카카오톡으로 쿠킹 클래스 신청하기' : undefined}
               >
-                <div className="date">{d.getDate()}일({WEEKDAYS[d.getDay()]}), {formatStart(d)}</div>
-                <div className="title">{e.title}</div>
-                <div className="loc">{e.location || '장소 미정'}</div>
+                <div className="day-date">
+                  <span className="day-num">{d.getDate()}</span>
+                  <span className="day-week">{WEEKDAYS[d.getDay()]}</span>
+                </div>
+                <div className="day-info">
+                  <div className="title">{e.title}</div>
+                  <div className="meta">{formatStart(d)} · {e.location || '장소 미정'}</div>
+                </div>
                 {cooking && KAKAO_URL && (
                   <div className="kakao-overlay" aria-hidden="true">
                     <span>카카오톡으로</span>

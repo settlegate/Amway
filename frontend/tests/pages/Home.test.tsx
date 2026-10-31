@@ -6,6 +6,11 @@ import { renderRoute } from '../helpers/render'
 
 vi.mock('../../src/lib/api', () => import('../helpers/apiMock'))
 
+const currentMonthLabel = () => {
+  const n = new Date(new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }))
+  return `${n.getFullYear()}년 ${n.getMonth() + 1}월`
+}
+
 beforeEach(() => {
   mockApiDefaults()
 })
@@ -15,17 +20,19 @@ afterEach(() => {
 })
 
 describe('Home', () => {
-  it('뉴스레터 히어로, 프로모션, 행사 캘린더, 서비스 소개를 보여준다', () => {
+  it('뉴스레터 히어로, 프로모션, 행사 캘린더, 시즌별 건강정보를 보여준다', () => {
     renderRoute('/', <Home />)
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('이달의 웰니스 뉴스레터')
     expect(screen.getAllByRole('link', { name: '프로모션 자세히 보기' })).toHaveLength(3)
-    expect(screen.getByRole('heading', { name: '2026년 9월' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '건강 상담 챗봇' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: currentMonthLabel() })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '시즌별 아이들 건강정보' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '제품 추천' })).toBeInTheDocument()
     expect(document.querySelector('.home-sidebar')).toBeInTheDocument()
   })
 
-  it('질문이 비어 있으면 이동하지 않는다', () => {
+  // 히어로 상담 입력이 숨김 처리되어 스킵 — 다시 활성화할 때 복구
+  it.skip('질문이 비어 있으면 이동하지 않는다', () => {
     renderRoute('/', <Home />)
 
     fireEvent.submit(screen.getByRole('form', { name: '건강 상담 바로가기' }))
@@ -34,7 +41,7 @@ describe('Home', () => {
     expect(screen.queryByTestId('location')).not.toBeInTheDocument()
   })
 
-  it('질문을 입력하면 잠시 후 질문과 함께 채팅 페이지로 이동한다', () => {
+  it.skip('질문을 입력하면 잠시 후 질문과 함께 채팅 페이지로 이동한다', () => {
     vi.useFakeTimers()
     renderRoute('/', <Home />)
 

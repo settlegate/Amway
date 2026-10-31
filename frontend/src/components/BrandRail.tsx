@@ -15,7 +15,7 @@ export default function BrandRail() {
             alt="Amway"
             height="28"
           />
-          <span>건마주희&apos;s 뉴스레터</span>
+          <span>주희의 뉴스레터</span>
         </div>
       </Link>
       <img

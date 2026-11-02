@@ -46,7 +46,7 @@ describe('EventCalendar', () => {
 
     expect(screen.getByRole('heading', { name: monthLabel() })).toBeInTheDocument()
     expect(api.get).toHaveBeenCalledWith('/api/seminars')
-    expect(titles()).toHaveLength(5)
+    expect(titles()).toHaveLength(8)
     expect(titles()[0]).toBe('암웨이 초청 세미나')
 
     const firstCard = screen.getByText('암웨이 초청 세미나').closest('.day-card')!
@@ -77,7 +77,7 @@ describe('EventCalendar', () => {
     render(<EventCalendar />)
     await Promise.resolve()
 
-    expect(titles()).toHaveLength(5)
+    expect(titles()).toHaveLength(8)
   })
 
   it('이전/다음 달로 이동하고 일정이 없으면 안내 문구를 보여준다', async () => {
@@ -98,7 +98,7 @@ describe('EventCalendar', () => {
     render(<EventCalendar />)
 
     const icons = document.querySelectorAll('.day-card .kakao-cta')
-    expect(icons).toHaveLength(5)
+    expect(icons).toHaveLength(8)
     icons.forEach((icon) => {
       expect(icon).toHaveAttribute('href', KAKAO_URL)
       expect(icon).toHaveAttribute('target', '_blank')

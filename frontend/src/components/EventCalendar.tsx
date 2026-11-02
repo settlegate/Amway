@@ -40,27 +40,45 @@ const EVENTS: CalendarEvent[] = [
   },
   {
     id: 'ev-2',
+    title: '요리 홈미팅',
+    date: eventDate(10, 19, 30),
+    location: '방배',
+  },
+  {
+    id: 'ev-3',
     title: '암웨이 사업설명',
     date: eventDate(12, 19, 30),
     location: '서초',
   },
   {
-    id: 'ev-3',
+    id: 'ev-4',
     title: '플리마켓 홈미팅',
     date: eventDate(18, 11),
     location: '다산',
   },
   {
-    id: 'ev-4',
+    id: 'ev-5',
     title: '암웨이 사업설명',
     date: eventDate(18, 19, 30),
     location: '하남',
   },
   {
-    id: 'ev-5',
+    id: 'ev-6',
+    title: '와인 홈미팅',
+    date: eventDate(20, 19),
+    location: '방배',
+  },
+  {
+    id: 'ev-7',
     title: '퀸요리 클래스',
     date: eventDate(24, 10, 30),
     location: '분당',
+  },
+  {
+    id: 'ev-8',
+    title: '요리 홈미팅',
+    date: eventDate(27, 11),
+    location: '방배',
   },
 ]
 
@@ -153,7 +171,7 @@ export default function EventCalendar() {
                           className='kakao-cta'
                           aria-label={`${e.title} 카카오톡 오픈채팅으로 문의하기`}
                         >
-                          <svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true' focusable='false'>
+                          <svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true' focusable='false'>
                             <path
                               d='M12 3C6.48 3 2 6.58 2 11c0 2.8 1.76 5.25 4.4 6.65l-.98 3.32c-.09.4.35.72.72.5l4.14-2.5c.56.08 1.13.13 1.72.13 5.52 0 10-3.58 10-8S17.52 3 12 3z'
                               fill='#3C1E1E'

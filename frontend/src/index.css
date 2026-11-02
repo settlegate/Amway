@@ -2567,8 +2567,8 @@ button.promotion-visual {
 
 .day-card .kakao-cta {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   background: #fee500;

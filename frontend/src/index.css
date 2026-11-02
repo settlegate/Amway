@@ -2265,7 +2265,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .promo-dot {
@@ -2298,6 +2298,53 @@ button:disabled {
   display: block;
 }
 
+button.promotion-visual {
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: zoom-in;
+  display: block;
+  width: 100%;
+}
+
+#highlights .promotion-card {
+  border: none;
+}
+
+#highlights .promotion-content {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#highlights .promotion-content h3 {
+  margin-top: 0;
+}
+
+.highlight-visual img {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  cursor: zoom-out;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
 .promotion-content {
   padding: 32px;
   display: flex;
@@ -2322,6 +2369,10 @@ button:disabled {
   margin: 0 0 24px;
   letter-spacing: -0.02em;
   text-align: justify;
+}
+
+.promotion-content p:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
@@ -2390,6 +2441,7 @@ button:disabled {
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .day-date {
@@ -2455,6 +2507,7 @@ button:disabled {
 
   .day-date {
     flex: 0 0 44px;
+    align-self: flex-start;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -2493,40 +2546,34 @@ button:disabled {
   }
 }
 
-.day-card.cooking {
-  position: relative;
-  cursor: pointer;
-}
-
-.day-card.cooking .kakao-overlay {
-  position: absolute;
-  inset: 0;
+.day-events {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.day-event {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 16px;
+  gap: 8px;
+}
+
+.day-event + .day-event {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.day-card .kakao-cta {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
   background: #fee500;
-  color: #111;
-  border-radius: inherit;
-  text-align: center;
-  font-weight: 800;
-  font-size: 1.1rem;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-.day-card.cooking:hover .kakao-overlay,
-.day-card.cooking:focus-within .kakao-overlay {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.day-card.cooking .kakao-overlay span {
-  pointer-events: none;
-  line-height: 1.25;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .event-calendar .empty {
@@ -2575,6 +2622,28 @@ button:disabled {
   font-size: 0.8125rem;
   color: var(--text-soft);
   margin: 0;
+}
+
+.footer-contact {
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.footer-contact p {
+  margin: 0;
+}
+
+.footer-contact .contact-strong,
+.footer-contact a {
+  font-weight: 700;
+}
+
+.footer-contact a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .body-result-card {

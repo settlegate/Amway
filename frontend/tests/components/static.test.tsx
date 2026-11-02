@@ -28,18 +28,11 @@ describe('ExternalLink', () => {
 })
 
 describe('Footer', () => {
-  it('주요 경로 내비게이션을 제공한다', () => {
+  it('카피라이트만 표시한다', () => {
     renderWithRouter(<Footer />)
 
-    const nav = screen.getByRole('navigation', { name: '푸터 메뉴' })
-    const links = Array.from(nav.querySelectorAll('a')).map((a) => [a.textContent, a.getAttribute('href')])
-    expect(links).toEqual([
-      ['홈', '/'],
-      ['건강 상담', '/chat'],
-      ['제품', '/products'],
-      ['세미나', '/seminars'],
-      ['사업', '/business'],
-    ])
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('© 2026 주희의 뉴스레터 AI. All rights reserved.')
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 })
 

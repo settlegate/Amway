@@ -46,17 +46,16 @@ describe('EventCalendar', () => {
 
     expect(screen.getByRole('heading', { name: monthLabel() })).toBeInTheDocument()
     expect(api.get).toHaveBeenCalledWith('/api/seminars')
-    expect(titles()).toHaveLength(7)
-    expect(titles()[0]).toBe('OMR 리더십 특강')
+    expect(titles()).toHaveLength(5)
+    expect(titles()[0]).toBe('암웨이 초청 세미나')
 
-    const firstCard = screen.getByText('OMR 리더십 특강').closest('.day-card')!
-    expect(firstCard.querySelector('.day-num')).toHaveTextContent('3')
+    const firstCard = screen.getByText('암웨이 초청 세미나').closest('.day-card')!
+    expect(firstCard.querySelector('.day-num')).toHaveTextContent('7')
     expect(firstCard.querySelector('.day-week')).toHaveTextContent(/^[일월화수목금토]$/)
-    expect(firstCard.querySelector('.meta')).toHaveTextContent('AM 10시 · 온라인')
-    expect(screen.getAllByText(/강남 웰니스 센터/)).toHaveLength(2)
+    expect(firstCard.querySelector('.meta')).toHaveTextContent('오후 2시 · 송파')
   })
 
-  it('서버 일정을 합쳐서 날짜순으로 정렬하고 장소가 없으면 미정으로 표시한다', async () => {
+  it('서버 일정을 합쳐서 날짜순으로 정렬하고 시간/장소가 있는 일정만 메타를 표시한다', async () => {
     const { EventCalendar } = await load({
       seminars: [cookingClass, { id: 'midnight', title: '자정 행사', date: isoThisMonth(1, 0) }],
     })
@@ -67,10 +66,9 @@ describe('EventCalendar', () => {
     expect(titles()[0]).toBe('자정 행사')
 
     const midnight = screen.getByText('자정 행사').closest('.day-card')!
-    expect(midnight.querySelector('.meta')).toHaveTextContent('AM 12시 · 장소 미정')
+    expect(midnight.querySelector('.meta')).toBeNull()
     const cooking = screen.getByText('추석 쿠킹 클래스').closest('.day-card')!
-    expect(cooking.querySelector('.meta')).toHaveTextContent('PM 12시 · 장소 미정')
-    expect(screen.getAllByText(/장소 미정/)).toHaveLength(2)
+    expect(cooking.querySelector('.meta')).toHaveTextContent('오후 12시')
   })
 
   it.each([{ not: 'array' }, new Error('offline')])('서버 응답이 비정상이면 기본 일정만 보여준다', async (seminars) => {
@@ -79,7 +77,7 @@ describe('EventCalendar', () => {
     render(<EventCalendar />)
     await Promise.resolve()
 
-    expect(titles()).toHaveLength(7)
+    expect(titles()).toHaveLength(5)
   })
 
   it('이전/다음 달로 이동하고 일정이 없으면 안내 문구를 보여준다', async () => {
@@ -95,46 +93,24 @@ describe('EventCalendar', () => {
     expect(screen.getByRole('heading', { name: monthLabel(1) })).toBeInTheDocument()
   })
 
-  it('카카오 채널 URL이 있으면 쿠킹 클래스 카드를 눌러 신청 창을 연다', async () => {
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
-    const { EventCalendar } = await load({ kakaoUrl: KAKAO_URL, seminars: [cookingClass] })
-    render(<EventCalendar />)
-
-    const card = await screen.findByRole('button', { name: '카카오톡으로 쿠킹 클래스 신청하기' })
-    expect(card).toHaveClass('cooking')
-    expect(card.querySelector('.kakao-overlay')).toBeInTheDocument()
-
-    fireEvent.click(card)
-    fireEvent.keyDown(card, { key: 'Enter' })
-    fireEvent.keyDown(card, { key: ' ' })
-    fireEvent.keyDown(card, { key: 'Escape' })
-
-    expect(open).toHaveBeenCalledTimes(3)
-    expect(open).toHaveBeenCalledWith(KAKAO_URL, '_blank', 'noopener,noreferrer')
-  })
-
-  it('일반 일정 카드는 키 입력에 반응하지 않는다', async () => {
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+  it('각 일정 카드에 카카오 문의 링크가 항상 노출된다', async () => {
     const { EventCalendar } = await load({ kakaoUrl: KAKAO_URL })
     render(<EventCalendar />)
 
-    const card = screen.getByText('OMR 리더십 특강').closest('.day-card')!
-    expect(card).not.toHaveAttribute('role')
-    fireEvent.keyDown(card, { key: 'Enter' })
-
-    expect(open).not.toHaveBeenCalled()
+    const icons = document.querySelectorAll('.day-card .kakao-cta')
+    expect(icons).toHaveLength(5)
+    icons.forEach((icon) => {
+      expect(icon).toHaveAttribute('href', KAKAO_URL)
+      expect(icon).toHaveAttribute('target', '_blank')
+      expect(icon).toHaveAttribute('rel', expect.stringContaining('noopener'))
+    })
   })
 
-  it('카카오 채널 URL이 없으면 쿠킹 클래스 카드를 눌러도 창을 열지 않는다', async () => {
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
-    const { EventCalendar } = await load({ seminars: [cookingClass] })
+  it('환경 변수가 없어도 기본 오픈채팅 URL로 연결된다', async () => {
+    const { EventCalendar } = await load()
     render(<EventCalendar />)
 
-    const card = await screen.findByRole('button', { name: '카카오톡으로 쿠킹 클래스 신청하기' })
-    expect(card.querySelector('.kakao-overlay')).toBeNull()
-    fireEvent.click(card)
-    fireEvent.keyDown(card, { key: 'Enter' })
-
-    expect(open).not.toHaveBeenCalled()
+    const icon = screen.getByText('암웨이 초청 세미나').closest('.day-card')!.querySelector('.kakao-cta')!
+    expect(icon).toHaveAttribute('href', 'https://open.kakao.com/o/swrk4QLi')
   })
 })

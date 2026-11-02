@@ -78,6 +78,7 @@ npm run dev
 
 - **OpenAI API**: `OPENAI_API_KEY` 필요 (채팅/체성분 OCR/뉴스레터/임베딩)
 - **카카오 비즈메시지**: `KAKAO_CHANNEL_TOKEN`, `KAKAO_API_KEY` 필요 (알림톡/친구톡)
+- **카카오 오픈채팅**: `VITE_KAKAO_CHANNEL_URL` = `https://open.kakao.com/o/swrk4QLi` — 일정 카드 등 "카카오톡으로 문의" 연결은 항상 이 오픈채팅 URL로 보냅니다 (코드 기본값도 동일).
 - **Pinecone/Chroma**: `PINECONE_API_KEY`, `PINECONE_INDEX` 또는 `CHROMA_URL` 필요 (RAG 벡터 검색)
 - **a-clic 구매 링크**: `A_CLIC_SPONSOR_ID` 필요 (암웨이 후원자 번호)
 - **개인정보 암호화**: `ENCRYPTION_KEY` 필요 (AES-256 64자 hex)
@@ -85,9 +86,8 @@ npm run dev
 
 ## 프론트엔드 페이지 구성 규칙
 
+- 공통 `Footer`(`frontend/src/components/Footer.tsx`)는 카피라이트(`© YYYY 주희의 뉴스레터 AI. All rights reserved.`)만 표시하며, 별도 메뉴 링크를 두지 않습니다.
 - 모든 새로운 페이지에는 App.tsx 라우트에 등록할 때 Footer를 포함해야 합니다.
-- 단독으로 끝나는 페이지(데드엔드 페이지)를 만들지 않습니다.
-- 각 페이지 하단에는 홈, 건강 상담, 제품, 세미나, 사업 등 주요 경로로 이동할 수 있는 공통 푸터 내비게이션을 제공합니다.
 - `frontend/src/pages`에 추가하는 모든 일반 페이지는 `PageLayout` 컴포넌트로 콘텐츠를 감싸, `/` (Home)과 동일한 좌측 브랜드 레일(`BrandRail`)을 유지해야 합니다.
 - `BrandRail` 마크업은 `Home.tsx` 등 개별 페이지에 직접 복사하지 말고, 반드시 `BrandRail.tsx`를 통해 사용해야 합니다. 브랜드 레일의 내용이나 구조를 수정할 때는 `BrandRail.tsx` 또는 `PageLayout.tsx`만 수정하면 모든 일반 페이지에 자동으로 적용됩니다.
 - 관리자 페이지(`/joohee0229`, `/admin` 등)는 `PageLayout`을 사용하지 않고 독립적인 레이아웃을 유지합니다.

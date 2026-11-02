@@ -13,82 +13,59 @@ const kstDate = (input: string | number | Date) =>
   new Date(new Date(input).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }))
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
-const KAKAO_URL = (import.meta.env.VITE_KAKAO_CHANNEL_URL as string | undefined) || ''
-
-const isCookingClass = (e: CalendarEvent) =>
-  (e.title + ' ' + (e.description || '')).toLowerCase().includes('쿠킹')
-
-const openKakao = () => {
-  if (KAKAO_URL) window.open(KAKAO_URL, '_blank', 'noopener,noreferrer')
-}
+const KAKAO_URL =
+  (import.meta.env.VITE_KAKAO_CHANNEL_URL as string | undefined) ||
+  'https://open.kakao.com/o/swrk4QLi'
 
 const formatStart = (date: Date) => {
   const h = date.getHours()
-  const ampm = h >= 12 ? 'PM' : 'AM'
+  const m = date.getMinutes()
+  const ampm = h >= 12 ? '오후' : '오전'
   const hour = h % 12 || 12
-  return `${ampm} ${hour}시`
+  return `${ampm} ${hour}시${m ? ` ${m}분` : ''}`
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
 
-const MOCK_NOW = kstDate(new Date())
-const mockDate = (day: number, hour: number) =>
-  `${MOCK_NOW.getFullYear()}-${pad2(MOCK_NOW.getMonth() + 1)}-${pad2(day)}T${pad2(hour)}:00:00+09:00`
+const NOW = kstDate(new Date())
+const eventDate = (day: number, hour = 0, minute = 0) =>
+  `${NOW.getFullYear()}-${pad2(NOW.getMonth() + 1)}-${pad2(day)}T${pad2(hour)}:${pad2(minute)}:00+09:00`
 
-const MOCK_EVENTS: CalendarEvent[] = [
+const EVENTS: CalendarEvent[] = [
   {
-    id: 'mock-1',
-    title: 'OMR 리더십 특강',
-    description: '오전 10시~12시',
-    date: mockDate(3, 10),
-    location: '온라인',
+    id: 'ev-1',
+    title: '암웨이 초청 세미나',
+    date: eventDate(7, 14),
+    location: '송파',
   },
   {
-    id: 'mock-2',
-    title: '뉴트리라이트 기초 세미나',
-    description: '오전 10시~12시',
-    date: mockDate(6, 10),
-    location: '온라인',
+    id: 'ev-2',
+    title: '암웨이 사업설명',
+    date: eventDate(12, 19, 30),
+    location: '서초',
   },
   {
-    id: 'mock-3',
-    title: '건강기능식품 실전 활용법',
-    description: '오후 2시~5시',
-    date: mockDate(10, 14),
-    location: '강남 웰니스 센터',
+    id: 'ev-3',
+    title: '플리마켓 홈미팅',
+    date: eventDate(18, 11),
+    location: '다산',
   },
   {
-    id: 'mock-4',
-    title: '체성분 분석 오픈 데이',
-    description: '오후 1시~4시',
-    date: mockDate(12, 13),
-    location: '강남 웰니스 센터',
+    id: 'ev-4',
+    title: '암웨이 사업설명',
+    date: eventDate(18, 19, 30),
+    location: '하남',
   },
   {
-    id: 'mock-5',
-    title: '리서스 그룹 OMR',
-    description: '오후 2시~5시',
-    date: mockDate(19, 14),
-    location: '구리 장자공원 잔디광장',
-  },
-  {
-    id: 'mock-6',
-    title: 'ABO 비즈니스 리더 워크숍',
-    description: '오후 7시~9시',
-    date: mockDate(23, 19),
-    location: '잠실 롯데타워 3F',
-  },
-  {
-    id: 'mock-7',
-    title: '주말 가족 웰니스 캠페인',
-    description: '오전 11시~1시',
-    date: mockDate(26, 11),
-    location: '홍대 마포구민체육센터',
+    id: 'ev-5',
+    title: '퀸요리 클래스',
+    date: eventDate(24, 10, 30),
+    location: '분당',
   },
 ]
 
 export default function EventCalendar() {
-  const [events, setEvents] = useState<CalendarEvent[]>(MOCK_EVENTS)
+  const [events, setEvents] = useState<CalendarEvent[]>(EVENTS)
   const [current, setCurrent] = useState(() => kstDate(new Date()))
 
   useEffect(() => {
@@ -115,6 +92,17 @@ export default function EventCalendar() {
     [events, year, month]
   )
 
+  const dayGroups = useMemo(() => {
+    const map = new Map<number, CalendarEvent[]>()
+    for (const e of monthEvents) {
+      const day = kstDate(e.date).getDate()
+      const list = map.get(day) ?? []
+      list.push(e)
+      map.set(day, list)
+    }
+    return [...map.entries()].map(([day, list]) => ({ day, list }))
+  }, [monthEvents])
+
   const changeMonth = (delta: number) => {
     setCurrent(kstDate(new Date(year, month + delta, 1)))
   }
@@ -136,43 +124,46 @@ export default function EventCalendar() {
         {monthEvents.length === 0 ? (
           <p className="empty">아직 등록된 일정이 없어요</p>
         ) : (
-          monthEvents.map((e) => {
-            const d = kstDate(e.date)
-            const cooking = isCookingClass(e)
-
-            const handleOpen = () => {
-              if (cooking && KAKAO_URL) openKakao()
-            }
+          dayGroups.map(({ day, list }) => {
+            const d = kstDate(list[0].date)
 
             return (
-              <div
-                key={e.id}
-                className={`day-card${cooking ? ' cooking' : ''}`}
-                onClick={cooking ? handleOpen : undefined}
-                onKeyDown={(ev) => {
-                  if (cooking && (ev.key === 'Enter' || ev.key === ' ')) {
-                    ev.preventDefault()
-                    handleOpen()
-                  }
-                }}
-                role={cooking ? 'button' : undefined}
-                tabIndex={cooking ? 0 : undefined}
-                aria-label={cooking ? '카카오톡으로 쿠킹 클래스 신청하기' : undefined}
-              >
+              <div key={day} className='day-card'>
                 <div className="day-date">
-                  <span className="day-num">{d.getDate()}</span>
+                  <span className="day-num">{day}</span>
                   <span className="day-week">{WEEKDAYS[d.getDay()]}</span>
                 </div>
-                <div className="day-info">
-                  <div className="title">{e.title}</div>
-                  <div className="meta">{formatStart(d)} · {e.location || '장소 미정'}</div>
+                <div className="day-events">
+                  {list.map((e) => {
+                    const ed = kstDate(e.date)
+                    const meta = [ed.getHours() ? formatStart(ed) : '', e.location]
+                      .filter(Boolean)
+                      .join(' · ')
+
+                    return (
+                      <div key={e.id} className="day-event">
+                        <div className="day-info">
+                          <div className="title">{e.title}</div>
+                          {meta && <div className="meta">{meta}</div>}
+                        </div>
+                        <a
+                          href={KAKAO_URL}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='kakao-cta'
+                          aria-label={`${e.title} 카카오톡 오픈채팅으로 문의하기`}
+                        >
+                          <svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true' focusable='false'>
+                            <path
+                              d='M12 3C6.48 3 2 6.58 2 11c0 2.8 1.76 5.25 4.4 6.65l-.98 3.32c-.09.4.35.72.72.5l4.14-2.5c.56.08 1.13.13 1.72.13 5.52 0 10-3.58 10-8S17.52 3 12 3z'
+                              fill='#3C1E1E'
+                            />
+                          </svg>
+                        </a>
+                      </div>
+                    )
+                  })}
                 </div>
-                {cooking && KAKAO_URL && (
-                  <div className="kakao-overlay" aria-hidden="true">
-                    <span>카카오톡으로</span>
-                    <span>신청하기</span>
-                  </div>
-                )}
               </div>
             )
           })

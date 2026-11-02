@@ -26,8 +26,7 @@ describe('Home', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('이달의 웰니스 뉴스레터')
     expect(screen.getAllByRole('link', { name: '프로모션 자세히 보기' })).toHaveLength(3)
     expect(screen.getByRole('heading', { name: currentMonthLabel() })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '시즌별 아이들 건강정보' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '제품 추천' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '주희의 추천템' })).toBeInTheDocument()
     expect(document.querySelector('.home-sidebar')).toBeInTheDocument()
   })
 

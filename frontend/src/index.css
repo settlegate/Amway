@@ -1730,17 +1730,21 @@ button:disabled {
 
 /* Sections */
 .landing-section {
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
 .landing-section.process,
 .landing-section#services {
-  padding-top: 20px;
+  padding-top: 16px;
+}
+
+.landing-section#values {
+  padding-top: 4px;
 }
 
 .landing-section-header {
   max-width: 640px;
-  margin: 0 auto 56px;
+  margin: 0 auto 20px;
   text-align: center;
 }
 
@@ -2092,7 +2096,7 @@ button:disabled {
 
 @media (max-width: 768px) {
   .landing-section {
-    padding: 32px 0;
+    padding: 16px 0;
   }
   .landing-cta {
     margin: 0 16px 64px;
@@ -2139,24 +2143,8 @@ button:disabled {
   text-decoration: none;
 }
 
-.sidebar-brand-mark {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--text);
-  color: #fff;
-}
-
-.sidebar-brand-mark svg {
-  width: 70%;
-  height: 70%;
-}
-
 .sidebar-brand-logo {
-  height: 22px;
+  height: 28px;
   width: auto;
   max-width: 100%;
   display: block;
@@ -2176,10 +2164,12 @@ button:disabled {
   color: var(--text);
 }
 
-.sidebar-brand-text span:last-child {
+.sidebar-brand-text h1 {
   font-weight: 800;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
   color: var(--text);
+  margin: 0;
 }
 
 .sidebar-abo-photo {
@@ -2231,14 +2221,8 @@ button:disabled {
     text-align: center;
   }
 
-  .sidebar-brand-mark {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-  }
-
   .sidebar-brand-logo {
-    height: 24px;
+    height: 32px;
   }
 
   .sidebar-brand-text {
@@ -2246,8 +2230,8 @@ button:disabled {
     gap: 6px;
   }
 
-  .sidebar-brand-text span:last-child {
-    font-size: 0.875rem;
+  .sidebar-brand-text h1 {
+    font-size: 1rem;
   }
 }
 
@@ -2262,6 +2246,44 @@ button:disabled {
   margin: 0 auto;
 }
 
+.promo-carousel {
+  max-width: 840px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.promo-track {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.promo-track .promotion-card {
+  flex: 0 0 100%;
+}
+
+.promo-nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.promo-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s ease, width 0.2s ease;
+}
+
+.promo-dot.active {
+  width: 20px;
+  background: var(--text);
+}
+
 .promotion-card {
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: transparent;
@@ -2272,8 +2294,7 @@ button:disabled {
 
 .promotion-visual img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
 }
 
@@ -2299,6 +2320,8 @@ button:disabled {
   font-size: 14px;
   color: var(--text-soft);
   margin: 0 0 24px;
+  letter-spacing: -0.02em;
+  text-align: justify;
 }
 
 @media (max-width: 768px) {

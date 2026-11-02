@@ -1,4 +1,5 @@
-﻿import { Link } from 'react-router-dom'
+﻿import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageLayout from '../components/PageLayout'
 import LeafIcon from '../components/LeafIcon'
 import ExternalLink from "../components/ExternalLink"
@@ -20,93 +21,71 @@ export default function Home() {
   //   }, 800)
   // }
 
+  const PROMO_COUNT = 3
+  const [promoIndex, setPromoIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPromoIndex((i) => (i + 1) % PROMO_COUNT)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [promoIndex])
+
   return (
     <PageLayout>
-          <section
-            className="landing-hero"
-            aria-labelledby="landing-hero-title"
-          >
-            <div className="container">
-              <h1 id="landing-hero-title">ABO 정주희가 전하는 이달의 웰니스 뉴스레터</h1>
-              <p className="lead">
-                새로운 계절의 문턱, 자연이 옷을 갈아입듯 우리의 건강 밸런스도 새로워질 시간입니다.
-                <br />
-                이번 달도 당신의 활력 넘치는 하루를 곁에서 함께할게요.
-              </p>
-              {/* AI 챗봇 히어로 입력 — 나중에 다시 활용할 예정으로 숨김 처리
-              <p className="hero-input-hint">AI 챗봇에게 물어보세요</p>
-              <form
-                className="hero-actions"
-                onSubmit={handleHeroSubmit}
-                aria-label="건강 상담 바로가기"
-              >
-                <textarea
-                  value={heroInput}
-                  onChange={(e) => setHeroInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      e.currentTarget.form?.requestSubmit()
-                    }
-                  }}
-                  placeholder="반가워요. 본인과 가족들의 건강에 관한 고민이 있나요?"
-                  aria-label="상담 질문 입력"
-                  autoComplete="off"
-                  rows={1}
-                />
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-lg"
-                  disabled={heroLoading}
-                >
-                  {heroLoading ? '답변 생성 중…' : '상담 시작하기'}
-                </button>
-              </form>
-              */}
-            </div>
-          </section>
-
-
                     <section id='values' className='landing-section'>
             <div className='container'>
               <div className='landing-section-header'>
-                <h2>이달의 프로모션</h2>
-                <p>ABO 정주희가 전하는 이달의 추천 프로모션</p>
+                <h2>놓칠 수 없는 프로모션</h2>
               </div>
-              <div className='promotion-list'>
+              <div className='promo-carousel'>
+                <div
+                  className='promo-track'
+                  style={{ transform: `translateX(-${promoIndex * 100}%)` }}
+                >
                 <article className='promotion-card'>
                   <div className='promotion-visual'>
-                    <img src='/promo-chuseok.png' alt='9월 신규 ABO 프로모션' />
+                    <img src='/promo-optimist.png' alt='옵티미스트 안심촉촉 프로모션' />
                   </div>
                   <div className='promotion-content'>
-                    <span className='promotion-tag'>[신규 ABO 대상]</span>
-                    <h3>웰컴 선물 한가득, 지금 당장 달려가마(馬)!</h3>
-                    <p>한가위 풍요로움을 가득 담아 드리는 9월 신규 ABO 프로모션</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <h3>[홈리빙] 옵티미스트 안심촉촉 프로모션</h3>
+                    <p>안심은 깊게, 촉촉함은 길게, 세균 걱정 없는 안심 가습, 옵티미스트로 다가오는 건조한 겨울을 준비하세요.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496303&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
                   <div className='promotion-visual'>
-                    <img src='/promo-chuseok.png' alt='Double X Refill' />
+                    <img src='/promo-nutrilite-gift.png' alt='밀크씨슬 이엑스 프로모션' />
                   </div>
                   <div className='promotion-content'>
-                    <span className='promotion-tag'>[기간 한정]</span>
-                    <h3>Cellular Aging Support 구매 혜택</h3>
-                    <p>NEW Cellular Aging Support 2개 구매 시 Double X 리필을 무료로 드립니다.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <h3>[영양건강] 밀크씨슬 이엑스 프로모션</h3>
+                    <p>소중한 분께 건강을 전할 수 있도록 뉴트리라이트 밀크씨슬을 특별한 기프트 패키지로 만나보세요.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00497301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
                   <div className='promotion-visual'>
-                    <img src='/promo-chuseok.png' alt='가을 면역 케어 세트' />
+                    <img src='/promo-satinique.png' alt='새티니크 클린 스캘프 프로모션' />
                   </div>
                   <div className='promotion-content'>
-                    <span className='promotion-tag'>[프리미엄 케어]</span>
-                    <h3>가을 면역 케어 세트 할인</h3>
-                    <p>뉴트리라이트 면역 케어 베스트셀러 3종을 특별한 가격에 만나보세요.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00489301&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <h3>[퍼스널 케어] 새티니크 클린 스캘프 프로모션</h3>
+                    <p>식물 기반 과학으로 완성한 새티니크 스캘프 뉴트리션과 인텐시브 리페어 라인을 특별한 혜택으로 만나보세요.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496304&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
                   </div>
                 </article>
+                </div>
+                <div className='promo-nav'>
+                  {Array.from({ length: PROMO_COUNT }, (_, i) => (
+                    <button
+                      key={i}
+                      type='button'
+                      className={`promo-dot${i === promoIndex ? ' active' : ''}`}
+                      onClick={() => setPromoIndex(i)}
+                      aria-label={`프로모션 ${i + 1}번 보기`}
+                      aria-current={i === promoIndex}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </section>

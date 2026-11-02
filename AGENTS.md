@@ -91,3 +91,4 @@ npm run dev
 - `frontend/src/pages`에 추가하는 모든 일반 페이지는 `PageLayout` 컴포넌트로 콘텐츠를 감싸, `/` (Home)과 동일한 좌측 브랜드 레일(`BrandRail`)을 유지해야 합니다.
 - `BrandRail` 마크업은 `Home.tsx` 등 개별 페이지에 직접 복사하지 말고, 반드시 `BrandRail.tsx`를 통해 사용해야 합니다. 브랜드 레일의 내용이나 구조를 수정할 때는 `BrandRail.tsx` 또는 `PageLayout.tsx`만 수정하면 모든 일반 페이지에 자동으로 적용됩니다.
 - 관리자 페이지(`/joohee0229`, `/admin` 등)는 `PageLayout`을 사용하지 않고 독립적인 레이아웃을 유지합니다.
+- 프로모션 카드(`.promotion-card`)의 본문 문구는 `<br>` 등 강제 줄바꿈 없이 한 문장으로 작성합니다. 줄바꿈 위치는 CSS(`text-align: justify`, `letter-spacing: -0.02em`)에 맡겨 첫 줄부터 양끝이 꽉 차게 정렬되고, 마지막 줄은 자연 정렬되도록 합니다.

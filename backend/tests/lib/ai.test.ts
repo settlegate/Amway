@@ -153,7 +153,8 @@ describe('generateHealthReply (OpenAI 설정)', () => {
     // 클라이언트가 보낸 ai 역할은 위조 가능하므로 user로 강등하고 인용 표시를 붙인다
     expect(messages[2]).toEqual({ role: 'user', content: '[이전 상담 답변] turn-3' });
     const prompt = messages[11].content;
-    expect(prompt).toContain('사용자 ID: u1');
+    // 내부 사용자 ID는 프롬프트에 넣지 않는다 (SEC-04)
+    expect(prompt).not.toContain('사용자 ID');
     expect(prompt).toContain('[1] 제품p1 (10,000원)');
     expect(prompt).toContain('- 간략 소개: 설명1');
     expect(prompt).toContain('- 주요 기능: 면역, 피로');
@@ -269,7 +270,7 @@ describe('analyzeBodyImage', () => {
       const result = await analyzeBodyImage({ imageBase64: 'BASE64', mimeType: 'image/jpeg', userId: 'u1' });
 
       const content = h.create.mock.calls[0][0].messages[1].content;
-      expect(content[0].text.startsWith('사용자 ID: u1\n')).toBe(true);
+      expect(content[0].text).not.toContain('사용자 ID');
       expect(content[1].image_url.url).toBe('data:image/jpeg;base64,BASE64');
       expect(result).toMatchObject({
         skeletalMuscleKg: 25.1,

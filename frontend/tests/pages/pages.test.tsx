@@ -17,6 +17,7 @@ const post = vi.mocked(api.post)
 
 beforeEach(() => {
   mockApiDefaults()
+  sessionStorage.clear()
 })
 
 describe('Chat', () => {
@@ -73,32 +74,33 @@ describe('Products', () => {
 })
 
 describe('Reminders', () => {
-  it('userId가 없으면 목록을 조회하지 않는다', () => {
+  it('세션이 없으면 안내만 보이고 목록을 조회하지 않는다', () => {
     renderWithRouter(<Reminders />)
+
     expect(get).not.toHaveBeenCalled()
+    expect(screen.getByText(/내 정보/)).toBeInTheDocument()
   })
 
-  it('리마인더를 등록하고 사용자 목록을 다시 불러온다', async () => {
+  it('세션이 있으면 리마인더를 등록하고 목록을 다시 불러온다', async () => {
+    sessionStorage.setItem('userToken', 'test-token')
     get.mockResolvedValue({ data: [{ id: 'r1', productName: '더블엑스', dosage: '1포', intakeTime: '08:00', cycleDays: 30 }] })
     renderWithRouter(<Reminders />)
 
-    fireEvent.change(screen.getByPlaceholderText('userId'), { target: { value: 'user 1' } })
+    await waitFor(() => expect(get).toHaveBeenCalledWith('/api/reminders'))
     fireEvent.change(screen.getByPlaceholderText('제품명'), { target: { value: '더블엑스' } })
     fireEvent.change(screen.getByPlaceholderText('섭취량'), { target: { value: '1포' } })
     fireEvent.change(screen.getByDisplayValue('09:00'), { target: { value: '08:00' } })
     fireEvent.change(screen.getByPlaceholderText('섭취 주기(일)'), { target: { value: '60' } })
     fireEvent.click(screen.getByRole('button', { name: '등록' }))
 
-    await waitFor(() => expect(get).toHaveBeenCalledWith('/api/reminders?userId=user%201'))
+    await waitFor(() => expect(get).toHaveBeenCalledTimes(2))
     expect(post).toHaveBeenCalledWith('/api/reminders', {
-      userId: 'user 1',
       productName: '더블엑스',
       dosage: '1포',
       intakeTime: '08:00',
       cycleDays: 60,
     })
     expect(await screen.findByText('매일 08:00 / 30일분')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('userId')).toHaveValue('user 1')
     expect(screen.getByPlaceholderText('제품명')).toHaveValue('')
   })
 })
@@ -135,7 +137,7 @@ describe('Seminars', () => {
     fireEvent.click(within(card).getByRole('button', { name: '신청하기' }))
 
     await waitFor(() => expect(alert).toHaveBeenLastCalledWith('신청이 완료되었습니다.'))
-    expect(post).toHaveBeenCalledWith('/api/seminars/s1/apply', { name: '홍길동', phone: '010-0000-0000', userId: '' })
+    expect(post).toHaveBeenCalledWith('/api/seminars/s1/apply', { name: '홍길동', phone: '010-0000-0000' })
   })
 })
 

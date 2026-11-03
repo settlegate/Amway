@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import routes from '../../src/routes';
-import { createAdminToken } from '../../src/lib/auth';
+import { createAdminToken, createUserToken } from '../../src/lib/auth';
 import { buildApp } from '../helpers/app';
 
 process.env.ADMIN_SESSION_SECRET = 'test-secret';
@@ -22,15 +22,30 @@ describe('API 라우터', () => {
   it.each([
     ['post', '/api/chat', 400],
     ['get', '/api/products', 200],
-    ['get', '/api/reminders', 400],
     ['get', '/api/seminars', 200],
     ['get', '/api/business/stp', 200],
-    ['post', '/api/consent/agree', 400],
     ['get', '/api/home-promotion', 200],
     ['post', '/api/kakao/webhook', 200],
   ] as const)('%s %s 경로가 인증 없이 연결되어 있다', async (method, path, status) => {
     const res = await request(app)[method](path).send({});
     expect(res.status).toBe(status);
+  });
+
+  it.each([
+    ['get', '/api/reminders'],
+    ['post', '/api/reminders'],
+    ['post', '/api/consent/agree'],
+    ['post', '/api/consent/withdraw'],
+  ] as const)('%s %s 는 사용자 세션 없이 401을 반환한다', async (method, path) => {
+    const res = await request(app)[method](path).send({});
+    expect(res.status).toBe(401);
+  });
+
+  it('사용자 세션 토큰으로 보호된 사용자 경로에 접근된다', async () => {
+    const res = await request(app)
+      .get('/api/reminders')
+      .set('Authorization', `Bearer ${createUserToken('u1')}`);
+    expect(res.status).not.toBe(401);
   });
 
   it.each([

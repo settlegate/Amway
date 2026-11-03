@@ -3,11 +3,12 @@ import { api } from '../lib/api'
 
 export default function Reminders() {
   const [list, setList] = useState<any[]>([])
-  const [form, setForm] = useState({ userId: '', productName: '', dosage: '', intakeTime: '09:00', cycleDays: 30 })
+  const [form, setForm] = useState({ productName: '', dosage: '', intakeTime: '09:00', cycleDays: 30 })
+  const hasSession = !!sessionStorage.getItem('userToken')
 
   const load = () => {
-    if (!form.userId) return
-    api.get('/api/reminders?userId=' + encodeURIComponent(form.userId)).then((res) => setList(res.data))
+    if (!hasSession) return
+    api.get('/api/reminders').then((res) => setList(res.data))
   }
 
   useEffect(() => {
@@ -21,11 +22,21 @@ export default function Reminders() {
     setForm({ ...form, productName: '', dosage: '', intakeTime: '09:00', cycleDays: 30 })
   }
 
+  if (!hasSession) {
+    return (
+      <div className="page">
+        <h2>자동 복용 리마인더</h2>
+        <div className="card">
+          <p>카카오 채널 채팅창에 <strong>&quot;내 정보&quot;</strong>를 입력해 받은 링크로 접속해 주세요.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="page">
       <h2>자동 복용 리마인더</h2>
       <form onSubmit={submit} className="card">
-        <input value={form.userId} onChange={(e) => setForm({ ...form, userId: e.target.value })} placeholder="userId" />
         <input value={form.productName} onChange={(e) => setForm({ ...form, productName: e.target.value })} placeholder="제품명" />
         <input value={form.dosage} onChange={(e) => setForm({ ...form, dosage: e.target.value })} placeholder="섭취량" />
         <input type="time" value={form.intakeTime} onChange={(e) => setForm({ ...form, intakeTime: e.target.value })} />

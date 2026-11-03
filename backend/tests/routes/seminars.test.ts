@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import seminarRoutes from '../../src/routes/seminars';
+import { createUserToken } from '../../src/lib/auth';
 import { prisma as prismaImport } from '../../src/lib/db';
 import type { PrismaMock } from '../helpers/prismaMock';
 import { buildApp } from '../helpers/app';
@@ -11,8 +12,11 @@ vi.mock('../../src/lib/crypto', () => ({
   decrypt: (v: string) => v,
 }));
 
+process.env.ADMIN_SESSION_SECRET = 'test-secret';
+
 const prisma = prismaImport as unknown as PrismaMock;
 const app = buildApp(seminarRoutes);
+const auth = { Authorization: `Bearer ${createUserToken('u1')}` };
 const PHONE = '010-1234-5678';
 
 function mockSeminarExists() {
@@ -72,18 +76,18 @@ describe('POST /:id/apply', () => {
     mockSeminarExists();
     prisma.seminarApplication.findFirst.mockResolvedValue({ id: 'a0' });
 
-    const res = await request(app).post('/s1/apply').send({ userId: 'u1', name: '홍길동', phone: PHONE });
+    const res = await request(app).post('/s1/apply').set(auth).send({ name: '홍길동', phone: PHONE });
 
     expect(res.status).toBe(409);
     expect(res.body.error).toContain('이미 신청');
     expect(prisma.seminarApplication.create).not.toHaveBeenCalled();
   });
 
-  it('비회원 신청은 userId를 null로 저장한다', async () => {
+  it('토큰 없이 신청하면 본문 userId를 무시하고 null로 저장한다', async () => {
     mockSeminarExists();
     prisma.seminarApplication.create.mockResolvedValue({ id: 'a1' });
 
-    const res = await request(app).post('/s1/apply').send({ name: '홍길동', phone: PHONE });
+    const res = await request(app).post('/s1/apply').send({ userId: 'victim', name: '홍길동', phone: PHONE });
 
     expect(res.body).toMatchObject({ id: 'a1', name: '홍길동', phone: PHONE });
     expect(prisma.seminarApplication.create).toHaveBeenCalledWith({
@@ -103,10 +107,10 @@ describe('POST /:id/apply', () => {
     expect(res.body).toMatchObject({ id: 'a2', name: '홍길동', phone: PHONE });
   });
 
-  it('회원 신청은 userId를 함께 저장한다', async () => {
+  it('회원 신청은 세션의 userId를 함께 저장한다 (본문 userId 무시)', async () => {
     mockSeminarExists();
 
-    await request(app).post('/s1/apply').send({ userId: 'u1', name: '홍길동', phone: PHONE });
+    await request(app).post('/s1/apply').set(auth).send({ userId: 'victim', name: '홍길동', phone: PHONE });
 
     expect(prisma.seminarApplication.create.mock.calls[0][0].data.userId).toBe('u1');
   });

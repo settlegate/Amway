@@ -73,3 +73,57 @@ export function adminLogin(req: Request, res: Response) {
 export function resetLoginAttempts() {
   loginAttempts.clear();
 }
+
+// --- 사용자 세션 (카카오 웹뷰) ---
+// 웹훅이 검증한 kakaoId로 발급한 단기 토큰만 userId 근거로 쓴다.
+// 요청 본문/쿼리의 userId는 신뢰하지 않는다.
+
+const USER_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
+
+function userSecret() {
+  return process.env.USER_SESSION_SECRET || process.env.ADMIN_SESSION_SECRET || '';
+}
+
+function signUser(value: string) {
+  return createHmac('sha256', userSecret()).update(`u.${value}`).digest('hex');
+}
+
+export function createUserToken(userId: string, now = Date.now()) {
+  const expires = String(now + USER_TOKEN_TTL_MS);
+  return `${userId}.${expires}.${signUser(`${userId}.${expires}`)}`;
+}
+
+function verifyUserToken(token: string): string | null {
+  if (!userSecret()) return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [userId, expires, sig] = parts;
+  if (!userId || !expires || !sig || Number.isNaN(Number(expires))) return null;
+  if (Number(expires) <= Date.now()) return null;
+  const expected = signUser(`${userId}.${expires}`);
+  if (sig.length !== expected.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+    return null;
+  }
+  return userId;
+}
+
+function extractUserId(req: Request): string | null {
+  const header = req.headers.authorization ?? '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  return token ? verifyUserToken(token) : null;
+}
+
+export function requireUser(req: Request, res: Response, next: NextFunction) {
+  const userId = extractUserId(req);
+  if (!userId) {
+    res.status(401).json({ error: '카카오 채널 채팅창에 "내 정보"를 입력해 링크로 다시 접속해 주세요.' });
+    return;
+  }
+  (req as any).userId = userId;
+  next();
+}
+
+export function optionalUser(req: Request, _res: Response, next: NextFunction) {
+  (req as any).userId = extractUserId(req) ?? undefined;
+  next();
+}

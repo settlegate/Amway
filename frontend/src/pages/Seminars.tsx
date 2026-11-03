@@ -3,7 +3,7 @@ import { api } from '../lib/api'
 
 export default function Seminars() {
   const [list, setList] = useState<any[]>([])
-  const [form, setForm] = useState({ name: '', phone: '', userId: '' })
+  const [form, setForm] = useState({ name: '', phone: '' })
 
   useEffect(() => {
     api.get('/api/seminars').then((res) => setList(res.data))

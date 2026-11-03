@@ -1,5 +1,6 @@
 import { generateHealthReply } from './ai';
 import { isAmwayUrl } from './amwayProduct';
+import { createUserToken } from './auth';
 import { prisma } from './db';
 
 const KAKAO_API_BASE = process.env.KAKAO_API_BASE || 'https://kapi.kakao.com';
@@ -26,6 +27,9 @@ export async function handleKakaoWebhook(payload: any) {
       template: { outputs: [{ simpleText: { text: consentReply } }] },
     };
   }
+
+  const sessionReply = await handleSessionKeyword(userId, message);
+  if (sessionReply) return sessionReply;
 
   const reply = await generateHealthReply({ message, userId });
 
@@ -90,6 +94,42 @@ async function handleConsentKeyword(kakaoId: string | undefined, message: string
   return updated
     ? '광고성 메시지 수신에 동의해 주셔서 감사합니다. 뉴스레터와 혜택 소식을 보내드릴게요.'
     : '수신동의 처리를 확인하지 못했습니다. 정주희 ABO에게 문의해 주세요.';
+}
+
+const SESSION_RE = /^(마이페이지|내\s*정보|내정보)$/;
+
+// 챗봇 "내 정보" 발화 → 서명된 세션 토큰을 웹뷰 URL에 붙여 전달한다 (SEC-04).
+async function handleSessionKeyword(kakaoId: string | undefined, message: string) {
+  if (!SESSION_RE.test(message.trim())) return null;
+
+  const user = kakaoId ? await prisma.user.findFirst({ where: { kakaoId } }) : null;
+  if (!user) {
+    return {
+      version: '2.0',
+      template: {
+        outputs: [
+          { simpleText: { text: '등록된 회원 정보를 찾지 못했습니다. 정주희 ABO에게 문의해 주세요.' } },
+        ],
+      },
+    };
+  }
+
+  const base = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',')[0].trim();
+  const url = `${base}/session?t=${createUserToken(user.id)}`;
+  return {
+    version: '2.0',
+    template: {
+      outputs: [
+        { simpleText: { text: '아래 버튼을 눌러 내 리마인더와 세미나 신청 내역을 확인해 보세요. (링크는 2시간 동안 유효합니다)' } },
+        {
+          basicCard: {
+            title: '내 정보',
+            buttons: [{ label: '내 정보 열기', action: 'webLink', webLinkUrl: url }],
+          },
+        },
+      ],
+    },
+  };
 }
 
 export async function sendFriendTalk(userId: string, message: string, _templateCode?: string) {

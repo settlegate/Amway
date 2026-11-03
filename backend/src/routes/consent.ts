@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
+import { requireUser } from '../lib/auth';
 
 const router = Router();
 
+router.use(requireUser);
+
 router.post('/agree', async (req, res) => {
-  const { userId, channel = 'KAKAO' } = req.body;
-  if (!userId) {
-    res.status(400).json({ error: 'userId가 필요합니다.' });
-    return;
-  }
+  const userId = (req as any).userId as string;
+  const { channel = 'KAKAO' } = req.body;
   try {
     const ops = [
       prisma.consent.upsert({
@@ -34,11 +34,8 @@ router.post('/agree', async (req, res) => {
 });
 
 router.post('/withdraw', async (req, res) => {
-  const { userId, channel = 'KAKAO' } = req.body;
-  if (!userId) {
-    res.status(400).json({ error: 'userId가 필요합니다.' });
-    return;
-  }
+  const userId = (req as any).userId as string;
+  const { channel = 'KAKAO' } = req.body;
   try {
     const ops = [
       prisma.consent.upsert({

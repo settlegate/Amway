@@ -3,9 +3,12 @@ import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import chatRoutes from '../../src/routes/chat';
 import { analyzeBodyImage, generateHealthReply } from '../../src/lib/ai';
+import { createUserToken } from '../../src/lib/auth';
 import { buildApp } from '../helpers/app';
 
 vi.mock('../../src/lib/ai', () => ({ analyzeBodyImage: vi.fn(), generateHealthReply: vi.fn() }));
+
+process.env.ADMIN_SESSION_SECRET = 'test-secret';
 
 const analyze = vi.mocked(analyzeBodyImage);
 const reply = vi.mocked(generateHealthReply);
@@ -27,8 +30,20 @@ describe('POST /', () => {
     const res = await request(app).post('/').send({ message: '  피곤해요 ', userId: 'u1', history, bodyMetrics });
 
     expect(analyze).not.toHaveBeenCalled();
-    expect(reply).toHaveBeenCalledWith({ message: '피곤해요', userId: 'u1', history, bodyMetrics });
+    // 본문의 userId는 신뢰하지 않고 세션 토큰만 사용한다 (없으면 undefined)
+    expect(reply).toHaveBeenCalledWith({ message: '피곤해요', userId: undefined, history, bodyMetrics });
     expect(res.body).toEqual({ text: '답변', products: [], source: 'mock', bodyResult: bodyMetrics });
+  });
+
+  it('세션 토큰이 있으면 본문 userId 대신 세션의 userId를 사용한다', async () => {
+    reply.mockResolvedValue({ text: '답변', products: [], source: 'mock' });
+
+    await request(app)
+      .post('/')
+      .set('Authorization', `Bearer ${createUserToken('u1')}`)
+      .send({ message: '피곤해요', userId: 'victim' });
+
+    expect(reply.mock.calls[0][0].userId).toBe('u1');
   });
 
   it('이미지가 있으면 체성분을 분석하고 기본 질문으로 답변한다', async () => {

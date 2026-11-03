@@ -111,6 +111,31 @@ describe('handleKakaoWebhook', () => {
       expect(result.template.outputs[0].simpleText.text).toContain('확인하지 못했습니다');
     });
   });
+
+  describe('내 정보 세션 키워드', () => {
+    it.each(['내 정보', '내정보', '마이페이지'])('"%s"는 서명된 세션 링크 카드를 반환한다', async (utterance) => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'u1', kakaoId: 'k1' } as any);
+      const { handleKakaoWebhook } = await load({ ADMIN_SESSION_SECRET: 's3cret', FRONTEND_URL: 'https://web.test' });
+
+      const result = await handleKakaoWebhook({ userRequest: { user: { id: 'k1' }, utterance } });
+
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({ where: { kakaoId: 'k1' } });
+      const card = result.template.outputs[1].basicCard;
+      expect(card.buttons[0].action).toBe('webLink');
+      expect(card.buttons[0].webLinkUrl).toMatch(/^https:\/\/web\.test\/session\?t=u1\.\d+\.[0-9a-f]{64}$/);
+      expect(reply).not.toHaveBeenCalled();
+    });
+
+    it('미등록 사용자에게는 안내 메시지를 보낸다', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      const { handleKakaoWebhook } = await load();
+
+      const result = await handleKakaoWebhook({ userRequest: { user: { id: 'ghost' }, utterance: '내 정보' } });
+
+      expect(result.template.outputs[0].simpleText.text).toContain('찾지 못했습니다');
+      expect(reply).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe('sendFriendTalk', () => {

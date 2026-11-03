@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { analyzeBodyImage, generateHealthReply } from '../lib/ai';
+import { optionalUser } from '../lib/auth';
 
 const router = Router();
 
@@ -7,8 +8,9 @@ const MAX_MESSAGE_LEN = 2000;
 const MAX_IMAGE_BASE64_LEN = 8_000_000; // base64 문자열 약 8MB (바이너리 ~6MB)
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
-router.post('/', async (req, res) => {
-  const { message, userId, history, imageBase64, mimeType, bodyMetrics } = req.body;
+router.post('/', optionalUser, async (req, res) => {
+  const userId = (req as any).userId as string | undefined;
+  const { message, history, imageBase64, mimeType, bodyMetrics } = req.body;
 
   let payloadMessage = typeof message === 'string' ? message.trim() : '';
   let metrics = bodyMetrics;

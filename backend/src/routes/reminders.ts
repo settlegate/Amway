@@ -1,14 +1,13 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
+import { requireUser } from '../lib/auth';
 
 const router = Router();
 
+router.use(requireUser);
+
 router.get('/', async (req, res) => {
-  const userId = req.query.userId as string;
-  if (!userId) {
-    res.status(400).json({ error: 'userId가 필요합니다.' });
-    return;
-  }
+  const userId = (req as any).userId as string;
   try {
     const reminders = await prisma.reminder.findMany({
       where: { userId },
@@ -22,9 +21,10 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { userId, productId, productName, dosage, intakeTime, cycleDays } = req.body;
-  if (!userId || !productName || !intakeTime) {
-    res.status(400).json({ error: 'userId, productName, intakeTime가 필요합니다.' });
+  const userId = (req as any).userId as string;
+  const { productId, productName, dosage, intakeTime, cycleDays } = req.body;
+  if (!productName || !intakeTime) {
+    res.status(400).json({ error: 'productName, intakeTime이 필요합니다.' });
     return;
   }
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(intakeTime)) {

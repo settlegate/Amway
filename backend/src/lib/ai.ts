@@ -72,13 +72,12 @@ function buildMockReply(message: string, products: any[]) {
   return text;
 }
 
-function buildUserPrompt(message: string, products: any[], userId?: string, bodyMetrics?: BodyMetrics) {
-  const userContext = userId ? `사용자 ID: ${userId}\n` : '';
+function buildUserPrompt(message: string, products: any[], _userId?: string, bodyMetrics?: BodyMetrics) {
   const bodyContext = buildBodyMetricsContext(bodyMetrics);
   const productSection = products.length
     ? `추천 가능한 제품 (사용자의 건강 고민과 직접 관련된 경우 언급):\n${productContext(products)}\n\n`
     : '추천 가능한 제품: 없습니다. 제품 언급은 하지 마세요.\n\n';
-  return `${userContext}${bodyContext}사용자: ${message}\n\n` +
+  return `${bodyContext}사용자: ${message}\n\n` +
     `${productSection}` +
     `지침:\n` +
     `- 사용자 말에 먼저 공감하고 직접 답변하세요.\n` +
@@ -235,7 +234,6 @@ export async function generateHealthReply({
 export async function analyzeBodyImage({
   imageBase64,
   mimeType = 'image/png',
-  userId,
 }: {
   imageBase64: string;
   mimeType?: string;
@@ -275,8 +273,6 @@ export async function analyzeBodyImage({
     '\n' +
     'Return only valid JSON. Do not wrap in markdown code blocks or add extra explanation.';
 
-  const userContext = userId ? `사용자 ID: ${userId}\n` : '';
-
   try {
     const completion = await openai.chat.completions.create({
       model: CHAT_MODEL,
@@ -285,7 +281,7 @@ export async function analyzeBodyImage({
         {
           role: 'user',
           content: [
-            { type: 'text', text: `${userContext}${BODY_ANALYSIS_PROMPT}` },
+            { type: 'text', text: BODY_ANALYSIS_PROMPT },
             { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}` } },
           ] as any,
         },

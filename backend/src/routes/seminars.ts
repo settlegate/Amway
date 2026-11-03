@@ -2,13 +2,13 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/db';
 import { encrypt } from '../lib/crypto';
+import { optionalUser } from '../lib/auth';
 
 const router = Router();
 
 const PHONE_RE = /^0\d{1,2}-?\d{3,4}-?\d{4}$/;
 
 const applySchema = z.object({
-  userId: z.string().max(100).optional(),
   name: z.string().trim().min(1, 'name이 필요합니다.').max(50),
   phone: z.string().regex(PHONE_RE, '전화번호 형식이 올바르지 않습니다.'),
 });
@@ -25,14 +25,15 @@ router.get('/', async (_req, res) => {
   }
 });
 
-router.post('/:id/apply', async (req, res) => {
+router.post('/:id/apply', optionalUser, async (req, res) => {
   const { id } = req.params;
   const parsed = applySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || '입력값이 올바르지 않습니다.' });
     return;
   }
-  const { userId, name, phone } = parsed.data;
+  const userId = (req as any).userId as string | undefined;
+  const { name, phone } = parsed.data;
   try {
     const result = await prisma.$transaction(async (tx) => {
       const seminar = await tx.seminar.findUnique({ where: { id } });

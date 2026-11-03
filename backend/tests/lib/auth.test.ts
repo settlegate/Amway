@@ -1,7 +1,15 @@
 import express from 'express';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { adminLogin, createAdminToken, requireAdmin, resetLoginAttempts } from '../../src/lib/auth';
+import {
+  adminLogin,
+  createAdminToken,
+  createUserToken,
+  optionalUser,
+  requireAdmin,
+  requireUser,
+  resetLoginAttempts,
+} from '../../src/lib/auth';
 
 function buildApp() {
   const app = express();
@@ -86,5 +94,73 @@ describe('관리자 인증', () => {
       .set('Authorization', `Bearer ${createAdminToken()}`);
 
     expect(res.status).toBe(401);
+  });
+});
+
+describe('사용자 세션 (카카오 웹뷰)', () => {
+  beforeEach(() => {
+    process.env.ADMIN_SESSION_SECRET = 'test-secret';
+  });
+
+  afterEach(() => {
+    delete process.env.ADMIN_SESSION_SECRET;
+    delete process.env.USER_SESSION_SECRET;
+  });
+
+  function userApp() {
+    const app = express();
+    app.use(express.json());
+    app.get('/me', requireUser, (req, res) => res.json({ userId: (req as any).userId }));
+    app.get('/opt', optionalUser, (req, res) => res.json({ userId: (req as any).userId ?? null }));
+    return app;
+  }
+
+  it('발급된 사용자 토큰으로 접근하면 세션 userId가 설정된다', async () => {
+    const res = await request(userApp())
+      .get('/me')
+      .set('Authorization', `Bearer ${createUserToken('u1')}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.userId).toBe('u1');
+  });
+
+  it('토큰이 없거나 변조되면 401을 반환한다', async () => {
+    const app = userApp();
+
+    expect((await request(app).get('/me')).status).toBe(401);
+    expect(
+      (
+        await request(app)
+          .get('/me')
+          .set('Authorization', `Bearer ${createUserToken('u1')}00`)
+      ).status
+    ).toBe(401);
+  });
+
+  it('관리자 토큰은 사용자 토큰으로 인정되지 않는다', async () => {
+    const res = await request(userApp())
+      .get('/me')
+      .set('Authorization', `Bearer ${createAdminToken()}`);
+
+    expect(res.status).toBe(401);
+  });
+
+  it('만료된 사용자 토큰은 401을 반환한다', async () => {
+    const expired = createUserToken('u1', Date.now() - 3 * 60 * 60 * 1000);
+    const res = await request(userApp())
+      .get('/me')
+      .set('Authorization', `Bearer ${expired}`);
+
+    expect(res.status).toBe(401);
+  });
+
+  it('optionalUser는 토큰이 없어도 통과하고, 있으면 userId를 채운다', async () => {
+    const app = userApp();
+
+    expect((await request(app).get('/opt')).body.userId).toBeNull();
+    const res = await request(app)
+      .get('/opt')
+      .set('Authorization', `Bearer ${createUserToken('u2')}`);
+    expect(res.body.userId).toBe('u2');
   });
 });

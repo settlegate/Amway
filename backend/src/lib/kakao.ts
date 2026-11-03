@@ -1,4 +1,5 @@
 import { generateHealthReply } from './ai';
+import { isAmwayUrl } from './amwayProduct';
 
 const KAKAO_API_BASE = process.env.KAKAO_API_BASE || 'https://kapi.kakao.com';
 const KAKAO_CHANNEL_TOKEN = process.env.KAKAO_CHANNEL_TOKEN;
@@ -31,7 +32,7 @@ export async function handleKakaoWebhook(payload: any) {
           {
             label: 'a-clic 바로 구매',
             action: 'webLink',
-            webLinkUrl: p.purchaseUrl || p.aClicUrl || 'https://www.amway.co.kr',
+            webLinkUrl: p.purchaseUrl || (isAmwayUrl(p.aClicUrl || '') ? p.aClicUrl : null) || 'https://www.amway.co.kr',
           },
         ],
       },

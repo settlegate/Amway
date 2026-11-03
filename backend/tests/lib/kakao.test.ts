@@ -29,7 +29,7 @@ describe('handleKakaoWebhook', () => {
       source: 'openai',
       products: [
         { id: '1', name: 'A', description: '설명', imageUrl: 'a.jpg', purchaseUrl: 'https://buy/a', aClicUrl: 'https://aclic/a' },
-        { id: '2', name: 'B', benefits: ['면역', '피로'], aClicUrl: 'https://aclic/b' },
+        { id: '2', name: 'B', benefits: ['면역', '피로'], aClicUrl: 'https://www.amway.co.kr/shop/p/B2' },
         { id: '3', name: 'C', benefits: '눈 건강' },
         { id: '4', name: 'D' },
       ],
@@ -48,7 +48,7 @@ describe('handleKakaoWebhook', () => {
       buttons: [{ label: 'a-clic 바로 구매', action: 'webLink', webLinkUrl: 'https://buy/a' }],
     });
     expect(b.basicCard.description).toBe('면역, 피로');
-    expect(b.basicCard.buttons[0].webLinkUrl).toBe('https://aclic/b');
+    expect(b.basicCard.buttons[0].webLinkUrl).toBe('https://www.amway.co.kr/shop/p/B2');
     expect(b.basicCard.thumbnail.imageUrl).toBe('https://via.placeholder.com/300');
     expect(c.basicCard.description).toBe('눈 건강');
     expect(d.basicCard.description).toBe('');

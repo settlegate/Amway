@@ -1,5 +1,34 @@
 import { prisma } from './db';
 
+const AMWAY_HOSTS = new Set(['www.amway.co.kr', 'api.amway.co.kr']);
+
+export function isAmwayUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && AMWAY_HOSTS.has(u.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function assertAmwayProductUrl(raw: string): void {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    throw new Error('유효한 URL이 아닙니다.');
+  }
+  if (u.protocol !== 'https:') {
+    throw new Error('https URL만 허용합니다.');
+  }
+  if (!AMWAY_HOSTS.has(u.hostname)) {
+    throw new Error('암웨이 상품 URL만 허용합니다.');
+  }
+  if (!/\/p\/[A-Za-z0-9]+/.test(u.pathname)) {
+    throw new Error('암웨이 상품 페이지 URL이 아닙니다.');
+  }
+}
+
 export interface SyncProductResult {
   productId: string;
   name: string;
@@ -173,9 +202,7 @@ export async function syncProductFromUrl(
   url: string,
   options: { code?: string; category?: string } = {}
 ): Promise<SyncProductResult> {
-  if (!url.startsWith('http')) {
-    throw new Error('URL은 http/https로 시작해야 합니다.');
-  }
+  assertAmwayProductUrl(url);
 
   const text = await fetchAmwayText(url);
   if (!text) {
@@ -195,6 +222,12 @@ export async function syncProductFromUrl(
   }
   if (!product && options.code) {
     product = await prisma.product.findUnique({ where: { code: options.code } });
+    if (product?.aClicUrl) {
+      const existingSku = skuFromUrl(product.aClicUrl);
+      if (existingSku && parsed.sku && existingSku !== parsed.sku) {
+        throw new Error('URL의 상품이 해당 제품 코드와 일치하지 않습니다.');
+      }
+    }
   }
 
   const isNew = !product;

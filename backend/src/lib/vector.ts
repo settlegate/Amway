@@ -1,6 +1,7 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { openai, createEmbedding } from './openai';
 import { prisma } from './db';
+import { isAmwayUrl } from './amwayProduct';
 import type { Product } from './types';
 
 const pineconeKey = process.env.PINECONE_API_KEY;
@@ -15,7 +16,7 @@ const NUTRILITE_BRAND_URL =
   'https://www.amway.co.kr/shop/brand-shop/nutrition-brand/nutrilite/c/nutrilite';
 
 function purchaseUrlOrFallback(row: any) {
-  if (row.aClicUrl && row.aClicUrl !== '#') return row.aClicUrl;
+  if (row.aClicUrl && row.aClicUrl !== '#' && isAmwayUrl(row.aClicUrl)) return row.aClicUrl;
   return NUTRILITE_BRAND_URL;
 }
 

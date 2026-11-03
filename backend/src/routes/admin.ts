@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
-import { syncProductFromUrl, syncAllProducts } from '../lib/amwayProduct';
+import { syncProductFromUrl, syncAllProducts, assertAmwayProductUrl } from '../lib/amwayProduct';
 import homePromotionAdmin from './homePromotionAdmin';
 
 const router = Router();
@@ -50,6 +50,12 @@ router.post('/products/sync', async (req, res) => {
   const { url, code, category } = req.body;
   if (!url) {
     res.status(400).json({ error: 'url이 필요합니다.' });
+    return;
+  }
+  try {
+    assertAmwayProductUrl(url);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
     return;
   }
   try {

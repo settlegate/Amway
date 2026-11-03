@@ -7,7 +7,11 @@ import type { PrismaMock } from '../helpers/prismaMock';
 import { buildApp, prismaError } from '../helpers/app';
 
 vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
-vi.mock('../../src/lib/amwayProduct', () => ({ syncProductFromUrl: vi.fn(), syncAllProducts: vi.fn() }));
+vi.mock('../../src/lib/amwayProduct', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../src/lib/amwayProduct')>()),
+  syncProductFromUrl: vi.fn(),
+  syncAllProducts: vi.fn(),
+}));
 vi.mock('../../src/lib/upload', () => ({
   uploadPromo: { single: () => (_req: any, _res: any, next: any) => next() },
 }));
@@ -69,10 +73,19 @@ describe('제품 동기화', () => {
   it('POST /products/sync 는 단일 URL을 동기화한다', async () => {
     vi.mocked(syncProductFromUrl).mockResolvedValue({ name: '더블엑스' } as any);
 
-    const res = await request(app).post('/products/sync').send({ url: 'https://a', code: 'C', category: '비타민' });
+    const url = 'https://www.amway.co.kr/shop/p/120843K';
+    const res = await request(app).post('/products/sync').send({ url, code: 'C', category: '비타민' });
 
     expect(res.body).toEqual({ name: '더블엑스' });
-    expect(syncProductFromUrl).toHaveBeenCalledWith('https://a', { code: 'C', category: '비타민' });
+    expect(syncProductFromUrl).toHaveBeenCalledWith(url, { code: 'C', category: '비타민' });
+  });
+
+  it('POST /products/sync 는 암웨이 도메인이 아니면 400이고 동기화하지 않는다', async () => {
+    const res = await request(app).post('/products/sync').send({ url: 'https://evil.example.com/p/1' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('암웨이');
+    expect(syncProductFromUrl).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -81,7 +94,7 @@ describe('제품 동기화', () => {
   ])('POST /products/sync 오류는 500과 메시지를 반환한다', async (error, message) => {
     vi.mocked(syncProductFromUrl).mockRejectedValue(error);
 
-    const res = await request(app).post('/products/sync').send({ url: 'https://a' });
+    const res = await request(app).post('/products/sync').send({ url: 'https://www.amway.co.kr/shop/p/120843K' });
 
     expect(res.status).toBe(500);
     expect(res.body.error).toBe(message);

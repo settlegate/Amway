@@ -28,6 +28,7 @@ const PAGE = [
 const DETAIL_PAGE = [
   'Title: 뉴트리 오메가 제품 상세정보',
   '# 뉴트리 오메가',
+  'VPS : 1 SKU : OM9',
   '혈행 건강을 위한 오메가-3',
   '[링크](http://x)',
   '- 목록 항목',
@@ -53,8 +54,33 @@ beforeEach(() => {
 });
 
 describe('syncProductFromUrl', () => {
-  it('http로 시작하지 않는 URL은 거부한다', async () => {
-    await expect(syncProductFromUrl('ftp://amway')).rejects.toThrow('http/https');
+  it('https가 아닌 URL은 거부한다', async () => {
+    await expect(syncProductFromUrl('ftp://amway')).rejects.toThrow('https URL만');
+    await expect(syncProductFromUrl('http://www.amway.co.kr/p/120843K')).rejects.toThrow('https URL만');
+  });
+
+  it('암웨이 도메인이 아니면 가져오지 않고 거부한다', async () => {
+    const fetch = mockFetch(() => ({ body: PAGE }));
+
+    await expect(syncProductFromUrl('https://evil.example.com/p/120843K')).rejects.toThrow('암웨이 상품 URL만');
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(prisma.product.create).not.toHaveBeenCalled();
+  });
+
+  it('암웨이라도 상품 페이지(/p/코드)가 아니면 거부한다', async () => {
+    await expect(syncProductFromUrl('https://www.amway.co.kr/shop/c/nutrition')).rejects.toThrow('상품 페이지 URL이 아닙니다');
+  });
+
+  it('제품 코드로 덮어쓸 때 저장된 구매 링크의 SKU와 다르면 거부한다', async () => {
+    mockFetch(() => ({ body: PAGE }));
+    prisma.product.findUnique.mockResolvedValue({
+      id: 'p1', price: 1, aClicUrl: 'https://www.amway.co.kr/shop/p/999999K',
+    });
+
+    await expect(syncProductFromUrl(AMWAY_URL, { code: 'OTHER' })).rejects.toThrow('일치하지 않습니다');
+
+    expect(prisma.product.update).not.toHaveBeenCalled();
   });
 
   it('신규 상품이면 페이지 정보를 파싱해 생성한다', async () => {
@@ -116,14 +142,15 @@ describe('syncProductFromUrl', () => {
     });
     prisma.product.update.mockImplementation(async ({ data }: any) => ({ id: 'p1', ...data, isPurchasable: undefined }));
 
-    const result = await syncProductFromUrl('https://example.com/product/omega', { code: 'OMEGA' });
+    const result = await syncProductFromUrl('https://www.amway.co.kr/shop/p/OM9', { code: 'OMEGA' });
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(prisma.product.findFirst).not.toHaveBeenCalled();
+    expect(prisma.product.findFirst).toHaveBeenCalledWith({ where: { aClicUrl: { contains: 'OM9' } } });
     expect(prisma.product.findUnique).toHaveBeenCalledWith({ where: { code: 'OMEGA' } });
-    expect(prisma.product.update.mock.calls[0][0].data).toMatchObject({
+    const updateData = prisma.product.update.mock.calls[0][0].data;
+    expect(updateData).not.toHaveProperty('description');
+    expect(updateData).toMatchObject({
       name: '뉴트리 오메가',
-      description: '혈행 건강을 위한 오메가-3 품절',
       price: 50000,
       pv: 10,
       bv: 20,
@@ -135,13 +162,13 @@ describe('syncProductFromUrl', () => {
     expect(result).toMatchObject({ productId: 'p1', isNew: false, isPurchasable: true });
   });
 
-  it('SKU와 코드가 모두 없으면 제목 기반 코드로 생성한다', async () => {
+  it('페이지에 SKU 라인이 없으면 URL의 상품 코드를 사용한다', async () => {
     mockFetch(() => ({ body: DETAIL_PAGE }));
 
-    await syncProductFromUrl('https://example.com/product/omega', { category: '오메가' });
+    await syncProductFromUrl('https://www.amway.co.kr/shop/p/OM9', { category: '오메가' });
 
     expect(prisma.product.create.mock.calls[0][0].data).toMatchObject({
-      code: 'sku-뉴트리 오메가',
+      code: 'OM9',
       category: '오메가',
       price: 0,
       imageUrl: null,
@@ -151,7 +178,7 @@ describe('syncProductFromUrl', () => {
   it('SKU 라인이 없으면 문서 처음부터 파싱하고 구매 불가 여부를 판단한다', async () => {
     mockFetch(() => ({ body: 'Title: 테스트 상품\n가격 12,345원\n구매 불가' }));
 
-    const result = await syncProductFromUrl('https://example.com/p/999');
+    const result = await syncProductFromUrl('https://www.amway.co.kr/shop/p/999');
 
     expect(prisma.product.create.mock.calls[0][0].data).toMatchObject({
       code: '999',
@@ -166,7 +193,7 @@ describe('syncProductFromUrl', () => {
     const filler = Array.from({ length: 16 }, (_, i) => `요약 ${i}`);
     mockFetch(() => ({ body: ['Title: 요약 상품', 'SKU : 111', ...filler, 'SKU : 111', '10,000원'].join('\n') }));
 
-    await syncProductFromUrl('https://example.com/item');
+    await syncProductFromUrl('https://www.amway.co.kr/shop/p/111');
 
     expect(prisma.product.findFirst).toHaveBeenCalledWith({ where: { aClicUrl: { contains: '111' } } });
     expect(prisma.product.create.mock.calls[0][0].data.price).toBe(10000);
@@ -175,15 +202,15 @@ describe('syncProductFromUrl', () => {
   it('가격 정보가 없는 SKU만 있으면 첫 번째 위치를 사용한다', async () => {
     mockFetch(() => ({ body: 'Title: 가격 없음\nSKU : 222\n설명' }));
 
-    await syncProductFromUrl('https://example.com/item');
+    await syncProductFromUrl('https://www.amway.co.kr/shop/p/222');
 
     expect(prisma.product.create.mock.calls[0][0].data).toMatchObject({ code: '222', price: 0 });
   });
 
   it('긴 설명은 400자로 자른다', async () => {
-    mockFetch(() => ({ body: `Title: 긴 설명\n# 긴 설명\n${'가'.repeat(450)}` }));
+    mockFetch(() => ({ body: `Title: 긴 설명\n${'가'.repeat(450)}` }));
 
-    await syncProductFromUrl('https://example.com/item');
+    await syncProductFromUrl('https://www.amway.co.kr/shop/p/999');
 
     const { description } = prisma.product.create.mock.calls[0][0].data;
     expect(description).toHaveLength(403);
@@ -197,7 +224,7 @@ describe('syncProductFromUrl', () => {
   ])('이미지 URL 패턴 %s 를 추출한다', async (image) => {
     mockFetch(() => ({ body: `Title: 이미지\nSKU : 444\n1,000원\n![](${image})` }));
 
-    const result = await syncProductFromUrl('https://example.com/p/444');
+    const result = await syncProductFromUrl('https://www.amway.co.kr/shop/p/444');
 
     expect(result.imageUrl).toBe(image);
   });
@@ -207,7 +234,7 @@ describe('syncProductFromUrl', () => {
       body: 'Title: 글루타치온 프로모션\n# 글루타치온 프로모션\nSKU : 333\n20,000원\n프로모션 종료일 : 2026년 9월 30일',
     }));
 
-    const result = await syncProductFromUrl('https://example.com/p/333');
+    const result = await syncProductFromUrl('https://www.amway.co.kr/shop/p/333');
 
     expect(result.promotion).toBe('글루타치온 프로모션');
     expect(prisma.promotion.findFirst).toHaveBeenCalledWith({
@@ -227,7 +254,7 @@ describe('syncProductFromUrl', () => {
     mockFetch(() => ({ body: 'Title: Summer Promotion\nSKU : 555\n1,000원' }));
     prisma.promotion.findFirst.mockResolvedValue({ id: 'promo' });
 
-    await syncProductFromUrl('https://example.com/p/555');
+    await syncProductFromUrl('https://www.amway.co.kr/shop/p/555');
 
     expect(prisma.promotion.create).not.toHaveBeenCalled();
   });
@@ -246,20 +273,20 @@ describe('syncProductFromUrl', () => {
 
   it('페이지를 가져오지 못하면 오류를 던진다', async () => {
     mockFetch(() => ({ ok: false }));
-    await expect(syncProductFromUrl('https://example.com/p/1')).rejects.toThrow('가져오지 못했습니다');
+    await expect(syncProductFromUrl('https://www.amway.co.kr/shop/p/1')).rejects.toThrow('가져오지 못했습니다');
   });
 
   it('제목을 파싱하지 못하면 오류를 던진다', async () => {
     mockFetch(() => ({ body: '제목 없는 페이지' }));
-    await expect(syncProductFromUrl('https://example.com/p/1')).rejects.toThrow('파싱에 실패');
+    await expect(syncProductFromUrl('https://www.amway.co.kr/shop/p/1')).rejects.toThrow('파싱에 실패');
   });
 });
 
 describe('syncAllProducts', () => {
   it('URL이 있는 제품을 순서대로 동기화하고 실패한 제품은 건너뛴다', async () => {
     prisma.product.findMany.mockResolvedValue([
-      { name: 'ok', code: 'OK', aClicUrl: 'https://example.com/p/1' },
-      { name: 'fail', code: 'FAIL', aClicUrl: 'https://example.com/p/2' },
+      { name: 'ok', code: 'OK', aClicUrl: 'https://www.amway.co.kr/shop/p/1' },
+      { name: 'fail', code: 'FAIL', aClicUrl: 'https://www.amway.co.kr/shop/p/2' },
     ]);
     prisma.product.findUnique.mockResolvedValue({ id: 'p', price: 0 });
     mockFetch((url) => (url.endsWith('/p/1') ? { body: 'Title: 성공\nSKU : 1\n1,000원' } : { body: '' }));

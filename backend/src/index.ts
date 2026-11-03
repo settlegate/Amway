@@ -31,7 +31,7 @@ app.use('/api/chat', express.json({ limit: '10mb' }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-app.use('/uploads', express.static(path.resolve(process.cwd(), 'public', 'uploads')));
+app.use('/uploads', express.static(process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'public', 'uploads')));
 
 app.use('/api', routes);
 

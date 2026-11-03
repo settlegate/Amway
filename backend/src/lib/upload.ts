@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import multer from 'multer'
 
-const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'public', 'uploads')
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 }

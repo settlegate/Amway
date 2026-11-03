@@ -1,6 +1,7 @@
 import request from 'supertest';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import homePromotionAdmin from '../../src/routes/homePromotionAdmin';
+import { isAllowedImageFile } from '../../src/lib/upload';
 import { prisma as prismaImport } from '../../src/lib/db';
 import type { PrismaMock } from '../helpers/prismaMock';
 import { buildApp, prismaError } from '../helpers/app';
@@ -11,14 +12,20 @@ vi.mock('../../src/lib/upload', () => ({
   uploadPromo: {
     single: () => (req: any, _res: any, next: any) => {
       const filename = req.headers['x-mock-file'];
-      if (filename) req.file = { filename };
+      if (filename) req.file = { filename, path: `/tmp/${filename}` };
       next();
     },
   },
+  isAllowedImageFile: vi.fn(),
 }));
 
 const prisma = prismaImport as unknown as PrismaMock;
 const app = buildApp(homePromotionAdmin);
+const verifyImage = vi.mocked(isAllowedImageFile);
+
+beforeEach(() => {
+  verifyImage.mockResolvedValue(true);
+});
 
 describe('GET /', () => {
   it('홈 프로모션 목록을 반환한다', async () => {
@@ -50,6 +57,32 @@ describe('POST /', () => {
     expect(res.status).toBe(200);
     expect(res.body.imageUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/uploads\/promo-1\.png$/);
     expect(res.body).toMatchObject({ targetUrl: 'https://amway/promo', alt: '추석', isActive: true });
+  });
+
+  it('매직 바이트 검증에 실패하면 400을 반환하고 저장하지 않는다', async () => {
+    verifyImage.mockResolvedValue(false);
+
+    const res = await request(app)
+      .post('/')
+      .set('x-mock-file', 'promo-evil.png')
+      .send({ targetUrl: 'https://amway/promo' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('이미지 파일');
+    expect(prisma.homePromotion.create).not.toHaveBeenCalled();
+  });
+
+  it('PUBLIC_API_URL이 설정되면 Host 대신 그 주소로 이미지 URL을 만든다', async () => {
+    vi.stubEnv('PUBLIC_API_URL', 'https://api.example.com');
+    prisma.homePromotion.create.mockImplementation(async ({ data }: any) => ({ id: 'h1', ...data }));
+
+    const res = await request(app)
+      .post('/')
+      .set('x-mock-file', 'promo-1.png')
+      .set('host', 'evil.example.com')
+      .send({ targetUrl: 'https://amway/promo' });
+
+    expect(res.body.imageUrl).toBe('https://api.example.com/uploads/promo-1.png');
   });
 
   it('파일이 없으면 본문의 imageUrl을 사용한다', async () => {

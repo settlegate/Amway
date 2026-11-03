@@ -1,12 +1,16 @@
+import fs from 'fs';
 import { Router } from 'express';
 import { prisma } from '../lib/db';
-import { uploadPromo } from '../lib/upload';
+import { isAllowedImageFile, uploadPromo } from '../lib/upload';
 
 const router = Router();
 
 const toBool = (v: any) => v === true || v === 'true' || v === '1' || v === 'on';
 
 const buildImageUrl = (req: any, filename: string) => {
+  if (process.env.PUBLIC_API_URL) {
+    return `${process.env.PUBLIC_API_URL}/uploads/${filename}`;
+  }
   const protocol = req.protocol || 'http';
   const host = req.get('host') || 'localhost:3001';
   return `${protocol}://${host}/uploads/${filename}`;
@@ -25,6 +29,11 @@ router.get('/', async (_req, res) => {
 });
 
 router.post('/', uploadPromo.single('image'), async (req: any, res) => {
+  if (req.file && !(await isAllowedImageFile(req.file.path))) {
+    await fs.promises.unlink(req.file.path).catch(() => {});
+    res.status(400).json({ error: '실제 이미지 파일이 아닙니다.' });
+    return;
+  }
   const { targetUrl, alt } = req.body;
   const imageUrl = req.file ? buildImageUrl(req, req.file.filename) : (req.body.imageUrl || '');
 

@@ -66,6 +66,16 @@ describe('uploadPromo', () => {
     expect(res.body.file.filename).toMatch(/\.png$/);
   });
 
+  it('원본 파일명 확장자가 아니라 MIME 타입으로 확장자를 정한다', async () => {
+    const app = await buildApp();
+
+    const res = await request(app)
+      .post('/upload')
+      .attach('image', Buffer.from('png'), { filename: 'evil.html', contentType: 'image/png' });
+
+    expect(res.body.file.filename).toMatch(/\.png$/);
+  });
+
   it('허용되지 않은 MIME 타입은 저장하지 않는다', async () => {
     const app = await buildApp();
 
@@ -85,5 +95,41 @@ describe('uploadPromo', () => {
 
     expect(res.status).toBe(413);
     expect(res.body.error).toBe('LIMIT_FILE_SIZE');
+  });
+});
+
+describe('isAllowedImageFile', () => {
+  const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
+  const JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const WEBP = Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBP')]);
+  const GIF = Buffer.concat([Buffer.from('GIF89a'), Buffer.alloc(6)]);
+
+  async function sniff(content: Buffer) {
+    const { isAllowedImageFile } = await load();
+    const file = path.join(uploadDir, 'sniff.bin');
+    fs.writeFileSync(file, content);
+    return isAllowedImageFile(file);
+  }
+
+  it.each([
+    ['PNG', PNG],
+    ['JPEG', JPEG],
+    ['WebP', WEBP],
+    ['GIF', GIF],
+  ])('%s 매직 바이트를 허용한다', async (_name, content) => {
+    await expect(sniff(content)).resolves.toBe(true);
+  });
+
+  it.each([
+    ['HTML', Buffer.from('<html><script>1</script></html>')],
+    ['텍스트', Buffer.from('just text')],
+    ['빈 파일', Buffer.alloc(0)],
+  ])('%s는 거부한다', async (_name, content) => {
+    await expect(sniff(content)).resolves.toBe(false);
+  });
+
+  it('없는 파일은 거부한다', async () => {
+    const { isAllowedImageFile } = await load();
+    await expect(isAllowedImageFile(path.join(uploadDir, 'no-such.bin'))).resolves.toBe(false);
   });
 });

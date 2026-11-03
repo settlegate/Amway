@@ -2,9 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 const KEY = 'a'.repeat(64);
 
-async function load(key?: string) {
+async function load(key?: string, nodeEnv?: string) {
   vi.resetModules();
   if (key !== undefined) vi.stubEnv('ENCRYPTION_KEY', key);
+  if (nodeEnv !== undefined) vi.stubEnv('NODE_ENV', nodeEnv);
   return import('../../src/lib/crypto');
 }
 
@@ -24,6 +25,14 @@ describe('crypto (키 없음)', () => {
     const { encrypt } = await load('abcd');
     expect(encrypt('plain')).toBe('plain');
   });
+
+  it('운영 환경에서 키가 없으면 시작 시 오류를 던진다', async () => {
+    await expect(load(undefined, 'production')).rejects.toThrow('ENCRYPTION_KEY');
+  });
+
+  it('운영 환경에서 키가 64자가 아니면 시작 시 오류를 던진다', async () => {
+    await expect(load('abcd', 'production')).rejects.toThrow('ENCRYPTION_KEY');
+  });
 });
 
 describe('crypto (AES-256 키 설정)', () => {
@@ -31,7 +40,7 @@ describe('crypto (AES-256 키 설정)', () => {
     const { encrypt, decrypt } = await load(KEY);
     const cipher = encrypt('010-1234-5678');
 
-    expect(cipher).toMatch(/^[0-9a-f]{32}:[0-9a-f]+$/);
+    expect(cipher).toMatch(/^v1:[0-9a-f]{24}:[0-9a-f]{32}:[0-9a-f]+$/);
     expect(cipher).not.toContain('010');
     expect(decrypt(cipher)).toBe('010-1234-5678');
   });
@@ -41,8 +50,16 @@ describe('crypto (AES-256 키 설정)', () => {
     expect(encrypt('same')).not.toBe(encrypt('same'));
   });
 
-  it.each(['no-separator', 'abc:', ':abc'])('형식이 잘못된 암호문 "%s"는 그대로 반환한다', async (value) => {
+  it.each(['no-separator', 'abc:', ':abc', 'v0:aa:bb:cc'])('v1 형식이 아닌 값 "%s"는 그대로 반환한다', async (value) => {
     const { decrypt } = await load(KEY);
     expect(decrypt(value)).toBe(value);
+  });
+
+  it('v1 형식이지만 변조된 암호문은 오류를 던진다', async () => {
+    const { encrypt, decrypt } = await load(KEY);
+    const [v, iv, tag, ct] = encrypt('010').split(':');
+    const tampered = `${v}:${iv}:${tag}:${ct.slice(0, -2)}00`;
+
+    expect(() => decrypt(tampered)).toThrow();
   });
 });

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
+import { encrypt } from '../lib/crypto';
 
 const router = Router();
 
@@ -27,12 +28,12 @@ router.post('/:id/apply', async (req, res) => {
       data: {
         userId: userId || null,
         seminarId: id,
-        name,
-        phone,
+        name: encrypt(name),
+        phone: encrypt(phone),
         status: 'PENDING',
       },
     });
-    res.json(application);
+    res.json({ ...application, name, phone });
   } catch (err) {
     console.error('세미나 신청 오류:', err);
     res.status(500).json({ error: '세미나 신청 중 오류가 발생했습니다.' });

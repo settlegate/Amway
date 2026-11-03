@@ -6,6 +6,10 @@ import type { PrismaMock } from '../helpers/prismaMock';
 import { buildApp } from '../helpers/app';
 
 vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
+vi.mock('../../src/lib/crypto', () => ({
+  encrypt: (v: string) => `enc:${v}`,
+  decrypt: (v: string) => v,
+}));
 
 const prisma = prismaImport as unknown as PrismaMock;
 const app = buildApp(seminarRoutes);
@@ -36,10 +40,21 @@ describe('POST /:id/apply', () => {
 
     const res = await request(app).post('/s1/apply').send({ name: '홍길동', phone: '010' });
 
-    expect(res.body).toEqual({ id: 'a1' });
+    expect(res.body).toMatchObject({ id: 'a1', name: '홍길동', phone: '010' });
     expect(prisma.seminarApplication.create).toHaveBeenCalledWith({
-      data: { userId: null, seminarId: 's1', name: '홍길동', phone: '010', status: 'PENDING' },
+      data: { userId: null, seminarId: 's1', name: 'enc:홍길동', phone: 'enc:010', status: 'PENDING' },
     });
+  });
+
+  it('이름과 연락처는 암호화 함수를 거쳐 저장하고 응답에는 평문을 돌려준다', async () => {
+    prisma.seminarApplication.create.mockResolvedValue({ id: 'a2' });
+
+    const res = await request(app).post('/s1/apply').send({ name: '홍길동', phone: '010' });
+
+    const { name, phone } = prisma.seminarApplication.create.mock.calls[0][0].data;
+    expect(name).toBe('enc:홍길동');
+    expect(phone).toBe('enc:010');
+    expect(res.body).toMatchObject({ id: 'a2', name: '홍길동', phone: '010' });
   });
 
   it('회원 신청은 userId를 함께 저장한다', async () => {

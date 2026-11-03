@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { openai, CHAT_MODEL } from './openai';
 import { searchProducts } from './vector';
-import { isSafeText, GUARD_MESSAGE } from './guard';
+import { isBlockedInput, isSafeText, GUARD_MESSAGE } from './guard';
 import { enrichWithNutrientInfo } from './nutrients';
 
 type Turn = { role: 'user' | 'ai'; text: string };
@@ -173,8 +173,14 @@ export async function generateHealthReply({
   history?: Turn[];
   bodyMetrics?: BodyMetrics;
 }) {
-  const guard = isSafeText(message);
+  const guard = isBlockedInput(message);
   if (!guard.safe) return { text: GUARD_MESSAGE, products: [], source: 'guard' };
+
+  // 클라이언트가 보낸 이력은 위조될 수 있으므로 금지어 검사를 먼저 적용
+  const safeHistory = (Array.isArray(history) ? history : []).slice(-10);
+  if (safeHistory.some((h) => !isBlockedInput(String(h?.text ?? '')).safe)) {
+    return { text: GUARD_MESSAGE, products: [], source: 'guard' };
+  }
 
   const keywords = bodyMetrics ? bodyToKeywords(bodyMetrics) : [];
   const [messageProducts, ...bodyProducts] = await Promise.all([
@@ -190,12 +196,11 @@ export async function generateHealthReply({
     return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'mock' };
   }
 
-  const conversation = (Array.isArray(history) ? history : [])
-    .slice(-10)
-    .map((h) => ({
-      role: h.role === 'ai' ? ('assistant' as const) : ('user' as const),
-      content: String(h.text ?? '').slice(0, 2000),
-    }));
+  // 클라이언트가 보낸 이력은 assistant 역할로 위조될 수 있으므로 전부 user로 강등하고 인용 표시
+  const conversation = safeHistory.map((h) => ({
+    role: 'user' as const,
+    content: `${h?.role === 'ai' ? '[이전 상담 답변] ' : ''}${String(h?.text ?? '').slice(0, 2000)}`,
+  }));
 
   try {
     const completion = await openai.chat.completions.create({

@@ -44,6 +44,18 @@ describe('generateHealthReply (공통)', () => {
     expect(search).not.toHaveBeenCalled();
   });
 
+  it('대화 이력에 과대광고 표현이 섞여 있으면 차단한다', async () => {
+    const history = [
+      { role: 'user' as const, text: '안녕' },
+      { role: 'ai' as const, text: '이 제품으로 완치된다고 했죠' },
+    ];
+
+    const result = await generateHealthReply({ message: '맞아요', history });
+
+    expect(result).toEqual({ text: GUARD_MESSAGE, products: [], source: 'guard' });
+    expect(search).not.toHaveBeenCalled();
+  });
+
   it('공백 메시지는 제품 검색을 건너뛰고 일반 조언을 준다', async () => {
     const result = await generateHealthReply({ message: '   ' });
 
@@ -138,7 +150,8 @@ describe('generateHealthReply (OpenAI 설정)', () => {
     expect(messages).toHaveLength(12);
     expect(messages[0].role).toBe('system');
     expect(messages[1]).toEqual({ role: 'user', content: 'turn-2' });
-    expect(messages[2]).toEqual({ role: 'assistant', content: 'turn-3' });
+    // 클라이언트가 보낸 ai 역할은 위조 가능하므로 user로 강등하고 인용 표시를 붙인다
+    expect(messages[2]).toEqual({ role: 'user', content: '[이전 상담 답변] turn-3' });
     const prompt = messages[11].content;
     expect(prompt).toContain('사용자 ID: u1');
     expect(prompt).toContain('[1] 제품p1 (10,000원)');

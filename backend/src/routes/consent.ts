@@ -10,16 +10,22 @@ router.post('/agree', async (req, res) => {
     return;
   }
   try {
-    const consent = await prisma.consent.upsert({
-      where: { userId_channel: { userId, channel } },
-      update: { isAgreed: true, agreedAt: new Date(), revokedAt: null },
-      create: {
-        userId,
-        channel,
-        isAgreed: true,
-        agreedAt: new Date(),
-      },
-    });
+    const ops = [
+      prisma.consent.upsert({
+        where: { userId_channel: { userId, channel } },
+        update: { isAgreed: true, agreedAt: new Date(), revokedAt: null },
+        create: {
+          userId,
+          channel,
+          isAgreed: true,
+          agreedAt: new Date(),
+        },
+      }),
+    ];
+    if (channel === 'KAKAO') {
+      ops.push(prisma.user.update({ where: { id: userId }, data: { isAgreed: true } }) as any);
+    }
+    const [consent] = await prisma.$transaction(ops);
     res.json({ ok: true, consent });
   } catch (err) {
     console.error('동의 처리 오류:', err);
@@ -34,15 +40,21 @@ router.post('/withdraw', async (req, res) => {
     return;
   }
   try {
-    const consent = await prisma.consent.upsert({
-      where: { userId_channel: { userId, channel } },
-      update: { isAgreed: false, revokedAt: new Date() },
-      create: {
-        userId,
-        channel,
-        isAgreed: false,
-      },
-    });
+    const ops = [
+      prisma.consent.upsert({
+        where: { userId_channel: { userId, channel } },
+        update: { isAgreed: false, revokedAt: new Date() },
+        create: {
+          userId,
+          channel,
+          isAgreed: false,
+        },
+      }),
+    ];
+    if (channel === 'KAKAO') {
+      ops.push(prisma.user.update({ where: { id: userId }, data: { isAgreed: false } }) as any);
+    }
+    const [consent] = await prisma.$transaction(ops);
     res.json({ ok: true, consent });
   } catch (err) {
     console.error('수신거부 처리 오류:', err);

@@ -13,6 +13,7 @@ const model = () => ({
 
 // `vi.mock('.../src/lib/db', () => import('../helpers/prismaMock'))` 형태로 사용
 export const prisma = {
+  $transaction: vi.fn((ops: any) => (Array.isArray(ops) ? Promise.all(ops) : ops(prisma))),
   user: model(),
   consent: model(),
   product: model(),

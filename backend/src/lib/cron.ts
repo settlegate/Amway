@@ -14,12 +14,13 @@ export function initCronJobs() {
       const newsletterText = await generateNewsletter(month);
 
       const subscribers = await prisma.user.findMany({
-        where: { isAgreed: true },
+        where: { consents: { some: { channel: 'KAKAO', isAgreed: true } } },
       });
 
+      const message = `(광고) 주희의 뉴스레터\n\n${newsletterText}\n\n※ 수신거부는 채팅창에 "수신거부"를 입력해 주세요.`;
       for (const user of subscribers) {
         if (user.kakaoId) {
-          await sendFriendTalk(user.kakaoId, newsletterText, 'monthly-newsletter');
+          await sendFriendTalk(user.kakaoId, message, 'monthly-newsletter');
         }
       }
       console.log(`[cron] ${month} 뉴스레터 발송 완료 (대상 ${subscribers.length}명)`);

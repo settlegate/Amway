@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { generateHealthReply } from '../../src/lib/ai';
+import { prisma as prismaImport } from '../../src/lib/db';
+import type { PrismaMock } from '../helpers/prismaMock';
 
 vi.mock('../../src/lib/ai', () => ({ generateHealthReply: vi.fn() }));
+vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
 
 const reply = vi.mocked(generateHealthReply);
+const prisma = prismaImport as unknown as PrismaMock;
 
 async function load(env: Record<string, string> = {}) {
   vi.resetModules();
@@ -63,6 +67,49 @@ describe('handleKakaoWebhook', () => {
     const result = await handleKakaoWebhook({ userRequest: { utterance: '안녕' } });
 
     expect(result.template.outputs).toHaveLength(1);
+  });
+
+  describe('수신 동의 키워드', () => {
+    it.each(['수신거부', '수신 거부', '광고거부', '구독취소'])('"%s"는 KAKAO 동의를 철회하고 확인 메시지를 보낸다', async (utterance) => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'u1', kakaoId: 'k1' } as any);
+      const { handleKakaoWebhook } = await load();
+
+      const result = await handleKakaoWebhook({ userRequest: { user: { id: 'k1' }, utterance } });
+
+      expect(prisma.consent.upsert).toHaveBeenCalledWith({
+        where: { userId_channel: { userId: 'u1', channel: 'KAKAO' } },
+        update: { isAgreed: false, revokedAt: expect.any(Date) },
+        create: { userId: 'u1', channel: 'KAKAO', isAgreed: false },
+      });
+      expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { isAgreed: false } });
+      expect(result.template.outputs[0].simpleText.text).toContain('수신이 거부');
+      expect(reply).not.toHaveBeenCalled();
+    });
+
+    it('"수신동의"는 KAKAO 동의를 저장한다', async () => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'u1', kakaoId: 'k1' } as any);
+      const { handleKakaoWebhook } = await load();
+
+      const result = await handleKakaoWebhook({ userRequest: { user: { id: 'k1' }, utterance: '수신동의' } });
+
+      expect(prisma.consent.upsert).toHaveBeenCalledWith({
+        where: { userId_channel: { userId: 'u1', channel: 'KAKAO' } },
+        update: { isAgreed: true, agreedAt: expect.any(Date), revokedAt: null },
+        create: { userId: 'u1', channel: 'KAKAO', isAgreed: true, agreedAt: expect.any(Date) },
+      });
+      expect(result.template.outputs[0].simpleText.text).toContain('동의');
+      expect(reply).not.toHaveBeenCalled();
+    });
+
+    it('등록되지 않은 카카오 사용자의 수신거부는 안내 메시지를 보낸다', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      const { handleKakaoWebhook } = await load();
+
+      const result = await handleKakaoWebhook({ userRequest: { user: { id: 'ghost' }, utterance: '수신거부' } });
+
+      expect(prisma.consent.upsert).not.toHaveBeenCalled();
+      expect(result.template.outputs[0].simpleText.text).toContain('확인하지 못했습니다');
+    });
   });
 });
 

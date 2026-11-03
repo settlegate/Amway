@@ -28,30 +28,48 @@ describe.each(['/agree', '/withdraw'])('POST %s', (path) => {
 });
 
 describe('POST /agree', () => {
-  it('기본 채널(KAKAO)로 수신 동의를 저장한다', async () => {
+  it('기본 채널(KAKAO)로 수신 동의를 저장하고 User.isAgreed를 동기화한다', async () => {
     prisma.consent.upsert.mockResolvedValue({ id: 'c1' });
 
     const res = await request(app).post('/agree').send({ userId: 'u1' });
 
     expect(res.body).toEqual({ ok: true, consent: { id: 'c1' } });
+    expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.consent.upsert).toHaveBeenCalledWith({
       where: { userId_channel: { userId: 'u1', channel: 'KAKAO' } },
       update: { isAgreed: true, agreedAt: expect.any(Date), revokedAt: null },
       create: { userId: 'u1', channel: 'KAKAO', isAgreed: true, agreedAt: expect.any(Date) },
     });
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: { isAgreed: true },
+    });
   });
 });
 
 describe('POST /withdraw', () => {
-  it('지정한 채널의 수신 동의를 철회한다', async () => {
+  it('지정한 채널의 수신 동의를 철회하고 User.isAgreed를 동기화한다', async () => {
     prisma.consent.upsert.mockResolvedValue({ id: 'c1' });
 
     await request(app).post('/withdraw').send({ userId: 'u1', channel: 'SMS' });
 
+    expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.consent.upsert).toHaveBeenCalledWith({
       where: { userId_channel: { userId: 'u1', channel: 'SMS' } },
       update: { isAgreed: false, revokedAt: expect.any(Date) },
       create: { userId: 'u1', channel: 'SMS', isAgreed: false },
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('KAKAO 채널 철회 시 User.isAgreed를 false로 동기화한다', async () => {
+    prisma.consent.upsert.mockResolvedValue({ id: 'c1' });
+
+    await request(app).post('/withdraw').send({ userId: 'u1' });
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: { isAgreed: false },
     });
   });
 });

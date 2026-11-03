@@ -49,9 +49,15 @@ describe('initCronJobs', () => {
       await newsletter();
 
       expect(generateNewsletter).toHaveBeenCalledWith('2026-03');
-      expect(prisma.user.findMany).toHaveBeenCalledWith({ where: { isAgreed: true } });
+      expect(prisma.user.findMany).toHaveBeenCalledWith({
+        where: { consents: { some: { channel: 'KAKAO', isAgreed: true } } },
+      });
       expect(sendFriendTalk).toHaveBeenCalledTimes(1);
-      expect(sendFriendTalk).toHaveBeenCalledWith('k1', '3월 소식', 'monthly-newsletter');
+      expect(sendFriendTalk).toHaveBeenCalledWith(
+        'k1',
+        '(광고) 주희의 뉴스레터\n\n3월 소식\n\n※ 수신거부는 채팅창에 "수신거부"를 입력해 주세요.',
+        'monthly-newsletter',
+      );
     });
 
     it('오류가 나도 예외를 던지지 않고 로그를 남긴다', async () => {

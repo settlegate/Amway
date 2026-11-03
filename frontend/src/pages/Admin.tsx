@@ -39,8 +39,18 @@ const emptyPromotionForm = {
   isActive: true,
 }
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  product: '제품',
+  promotion: '프로모션',
+  recommend: '추천 제품',
+  highlight: '하이라이트',
+  seminar: '일정',
+  banner: '홈 배너',
+}
+
 export default function Admin() {
   const [data, setData] = useState<any>(null)
+  const [analytics, setAnalytics] = useState<any>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [promotions, setPromotions] = useState<Promotion[]>([])
   const [syncUrl, setSyncUrl] = useState('')
@@ -74,6 +84,8 @@ export default function Admin() {
     api.get('/api/admin/promotions').then((res) => setPromotions(res.data))
   const loadHomePromotions = () =>
     api.get('/api/admin/home-promotions').then((res) => setHomePromotions(res.data))
+  const loadAnalytics = () =>
+    api.get('/api/admin/analytics').then((res) => setAnalytics(res.data))
 
   useEffect(() => {
     if (!authed) return
@@ -84,6 +96,7 @@ export default function Admin() {
     loadProducts().catch(on401)
     loadPromotions().catch(on401)
     loadHomePromotions().catch(on401)
+    loadAnalytics().catch(on401)
   }, [authed])
 
   const login = async (e: React.FormEvent) => {
@@ -272,6 +285,125 @@ export default function Admin() {
   return (
     <div className="page">
       <h2>ABO 관리자</h2>
+
+      <section className="card" aria-labelledby="analytics-title" style={{ marginBottom: 20 }}>
+        <h3 id="analytics-title" style={{ marginTop: 0 }}>
+          방문자 통계
+        </h3>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+            gap: 10,
+            marginBottom: 16,
+          }}
+        >
+          {[
+            ['오늘 방문자 (UV)', analytics?.uv?.today, '명'],
+            ['오늘 페이지뷰 (PV)', analytics?.pv?.today, '회'],
+            ['DAU', analytics?.dau, '명'],
+            ['WAU', analytics?.wau, '명'],
+            ['MAU', analytics?.mau, '명'],
+            ['누적 방문자 (UV)', analytics?.uv?.total, '명'],
+            ['누적 페이지뷰 (PV)', analytics?.pv?.total, '회'],
+          ].map(([label, value, unit]) => (
+            <div
+              key={String(label)}
+              style={{
+                background: 'var(--surface-soft)',
+                borderRadius: 10,
+                padding: '10px 12px',
+              }}
+            >
+              <div style={{ fontSize: 12, color: 'var(--text-soft)' }}>{label}</div>
+              <div style={{ fontSize: 18, fontWeight: 700 }}>
+                {typeof value === 'number' ? value.toLocaleString('ko-KR') : 0}
+                {unit}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h4 style={{ margin: '16px 0 8px' }}>콘텐츠별 조회수</h4>
+        {analytics?.topContents?.length ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: 'var(--text-soft)' }}>
+                <th style={{ padding: '4px 6px' }}>구분</th>
+                <th style={{ padding: '4px 6px' }}>콘텐츠</th>
+                <th style={{ padding: '4px 6px' }}>조회수</th>
+                <th style={{ padding: '4px 6px' }}>방문자</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics.topContents.map((c: any) => (
+                <tr key={`${c.contentType}-${c.contentId}`} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '4px 6px' }}>
+                    {CONTENT_TYPE_LABELS[c.contentType] ?? c.contentType}
+                  </td>
+                  <td style={{ padding: '4px 6px' }}>{c.contentName || c.contentId}</td>
+                  <td style={{ padding: '4px 6px' }}>{c.views.toLocaleString('ko-KR')}</td>
+                  <td style={{ padding: '4px 6px' }}>{c.visitors.toLocaleString('ko-KR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+            아직 집계된 콘텐츠 조회가 없습니다.
+          </p>
+        )}
+
+        <h4 style={{ margin: '16px 0 8px' }}>페이지별 조회수</h4>
+        {analytics?.topPages?.length ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: 'var(--text-soft)' }}>
+                <th style={{ padding: '4px 6px' }}>경로</th>
+                <th style={{ padding: '4px 6px' }}>조회수</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics.topPages.map((p: any) => (
+                <tr key={p.path} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '4px 6px' }}>{p.path}</td>
+                  <td style={{ padding: '4px 6px' }}>{p.views.toLocaleString('ko-KR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+            아직 집계된 페이지 조회가 없습니다.
+          </p>
+        )}
+
+        <h4 style={{ margin: '16px 0 8px' }}>최근 14일 추이</h4>
+        {analytics?.daily?.length ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: 'var(--text-soft)' }}>
+                <th style={{ padding: '4px 6px' }}>날짜</th>
+                <th style={{ padding: '4px 6px' }}>PV</th>
+                <th style={{ padding: '4px 6px' }}>UV</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics.daily.map((d: any) => (
+                <tr key={d.day} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '4px 6px' }}>{d.day}</td>
+                  <td style={{ padding: '4px 6px' }}>{d.pv.toLocaleString('ko-KR')}</td>
+                  <td style={{ padding: '4px 6px' }}>{d.uv.toLocaleString('ko-KR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+            아직 집계된 방문 데이터가 없습니다.
+          </p>
+        )}
+      </section>
 
       <SeminarAdmin />
 

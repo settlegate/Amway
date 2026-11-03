@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/api'
+import { trackContentView } from '../lib/analytics'
 
 interface CalendarEvent {
   id: string
@@ -170,6 +171,7 @@ export default function EventCalendar() {
                           rel='noopener noreferrer'
                           className='kakao-cta'
                           aria-label={`${e.title} 카카오톡 오픈채팅으로 문의하기`}
+                          onClick={() => trackContentView('seminar', e.id, e.title)}
                         >
                           <svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true' focusable='false'>
                             <path

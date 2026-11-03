@@ -25,6 +25,7 @@ describe('API 라우터', () => {
     ['get', '/api/seminars', 200],
     ['get', '/api/business/stp', 200],
     ['get', '/api/home-promotion', 200],
+    ['post', '/api/analytics/track', 400],
     ['post', '/api/kakao/webhook', 200],
   ] as const)('%s %s 경로가 인증 없이 연결되어 있다', async (method, path, status) => {
     const res = await request(app)[method](path).send({});
@@ -55,6 +56,7 @@ describe('API 라우터', () => {
     ['get', '/api/admin/products'],
     ['post', '/api/admin/products/sync'],
     ['get', '/api/admin/home-promotions'],
+    ['get', '/api/admin/analytics'],
     ['post', '/api/kakao/send'],
   ] as const)('%s %s 는 인증 없이 401을 반환한다', async (method, path) => {
     const res = await request(app)[method](path).send({});

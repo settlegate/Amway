@@ -22,6 +22,7 @@ model User {
   seminarApplications SeminarApplication[]
   leads               Lead[]
   chatLogs            ChatLog[]
+  pageViews           PageView[]
 }
 
 model Consent {
@@ -139,6 +140,25 @@ model NewsletterSubscriber {
   isActive   Boolean   @default(true)
   lastSentAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+model PageView {
+  id          String   @id @default(cuid())
+  visitorId   String
+  userId      String?
+  type        String   @default("pageview")
+  day         String
+  path        String
+  contentType String?
+  contentId   String?
+  contentName String?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([day])
+  @@index([visitorId, day])
+  @@index([type, day])
+  @@index([contentType, contentId])
 }
 
 model HomePromotion {

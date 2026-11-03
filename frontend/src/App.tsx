@@ -9,10 +9,12 @@ import Admin from './pages/Admin'
 import Session from './pages/Session'
 import Design from './pages/Design'
 import Footer from './components/Footer'
+import PageTracker from './components/PageTracker'
 
 function App() {
   return (
     <div className="app">
+      <PageTracker />
       <main id="main-content">
         <Routes>
           <Route path="/" element={<Home />} />

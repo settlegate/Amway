@@ -10,8 +10,9 @@ import consentRoutes from './consent';
 import adminRoutes from './admin';
 import kakaoRoutes from './kakao';
 import homePromotionRoutes from './homePromotion';
+import analyticsRoutes from './analytics';
 import { adminLogin, requireAdmin } from '../lib/auth';
-import { chatLimiter, imageChatLimiter, kakaoWebhookLimiter } from '../lib/rateLimit';
+import { analyticsLimiter, chatLimiter, imageChatLimiter, kakaoWebhookLimiter } from '../lib/rateLimit';
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use('/kakao/send', requireAdmin);
 router.use('/kakao/webhook', kakaoWebhookLimiter);
 router.use('/kakao', kakaoRoutes);
 router.use('/home-promotion', homePromotionRoutes);
+router.use('/analytics', analyticsLimiter, analyticsRoutes);
 
 export default router;

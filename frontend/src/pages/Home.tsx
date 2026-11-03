@@ -63,6 +63,16 @@ export default function Home() {
                     <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496304&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
                   </div>
                 </article>
+                <article className='promotion-card'>
+                  <div className='promotion-visual'>
+                    <img src='/promo-atmosphere.png' alt='환승에어 필터 패키지 프로모션' />
+                  </div>
+                  <div className='promotion-content'>
+                    <h3>[홈리빙] 환승에어 필터 패키지 프로모션</h3>
+                    <p>엣모스피어·스카이·블루 공기청정기의 필터를 패키지로 구성해 특별 프로모션가로 만나는 환승에어 필터 교체 프로모션입니다.</p>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                  </div>
+                </article>
               </CardCarousel>
             </div>
           </section>

@@ -24,7 +24,7 @@ describe('Home', () => {
     renderRoute('/', <Home />)
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('이달의 웰니스 뉴스레터')
-    expect(screen.getAllByRole('link', { name: '프로모션 자세히 보기' })).toHaveLength(3)
+    expect(screen.getAllByRole('link', { name: '프로모션 자세히 보기' })).toHaveLength(4)
     expect(screen.getByRole('heading', { name: currentMonthLabel() })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '주희의 추천템' })).toBeInTheDocument()
     expect(document.querySelector('.home-sidebar')).toBeInTheDocument()

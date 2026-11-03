@@ -1,3 +1,4 @@
+import express from 'express';
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import chatRoutes from '../../src/routes/chat';
@@ -68,6 +69,32 @@ describe('POST /', () => {
 
     expect(analyze).toHaveBeenCalledWith({ imageBase64: 'BASE64', mimeType: 'image/jpeg' });
     expect(reply.mock.calls[0][0].message).toBe('분석해줘');
+  });
+
+  it('2,000자를 넘는 메시지는 400을 반환한다', async () => {
+    const res = await request(app).post('/').send({ message: '가'.repeat(2001) });
+
+    expect(res.status).toBe(400);
+    expect(reply).not.toHaveBeenCalled();
+  });
+
+  it('지원하지 않는 이미지 형식은 400을 반환한다', async () => {
+    const res = await request(app).post('/').send({ imageBase64: 'BASE64', mimeType: 'image/svg+xml' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('이미지 형식');
+    expect(analyze).not.toHaveBeenCalled();
+  });
+
+  it('지나치게 큰 이미지는 400을 반환한다', async () => {
+    const bigApp = express();
+    bigApp.use(express.json({ limit: '10mb' }));
+    bigApp.use(chatRoutes);
+
+    const res = await request(bigApp).post('/').send({ imageBase64: 'A'.repeat(8_000_001) });
+
+    expect(res.status).toBe(400);
+    expect(analyze).not.toHaveBeenCalled();
   });
 
   it('답변 생성 중 오류가 나면 500을 반환한다', async () => {

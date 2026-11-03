@@ -190,11 +190,11 @@ export async function generateHealthReply({
     return { text: withABOFooter(buildMockReply(message, selected)), products: selected, source: 'mock' };
   }
 
-  const conversation = (history || [])
+  const conversation = (Array.isArray(history) ? history : [])
     .slice(-10)
     .map((h) => ({
       role: h.role === 'ai' ? ('assistant' as const) : ('user' as const),
-      content: h.text,
+      content: String(h.text ?? '').slice(0, 2000),
     }));
 
   try {

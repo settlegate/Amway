@@ -22,6 +22,33 @@ describe('POST /webhook', () => {
     vi.mocked(handleKakaoWebhook).mockRejectedValue(new Error('fail'));
     expect((await request(app).post('/webhook').send({})).status).toBe(500);
   });
+
+  describe('출처 검증', () => {
+    it('비밀값이 설정되면 헤더가 없거나 틀린 요청을 403으로 거부한다', async () => {
+      vi.stubEnv('KAKAO_WEBHOOK_SECRET', 's3cret');
+
+      expect((await request(app).post('/webhook').send({})).status).toBe(403);
+      expect((await request(app).post('/webhook').set('x-kakao-secret', 'wrong').send({})).status).toBe(403);
+      expect(handleKakaoWebhook).not.toHaveBeenCalled();
+    });
+
+    it('비밀값이 맞으면 웹훅을 처리한다', async () => {
+      vi.stubEnv('KAKAO_WEBHOOK_SECRET', 's3cret');
+      vi.mocked(handleKakaoWebhook).mockResolvedValue({ version: '2.0' } as any);
+
+      const res = await request(app).post('/webhook').set('x-kakao-secret', 's3cret').send({});
+
+      expect(res.status).toBe(200);
+      expect(handleKakaoWebhook).toHaveBeenCalled();
+    });
+
+    it('비밀값 없이 운영 모드면 503으로 거부한다', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      vi.stubEnv('KAKAO_WEBHOOK_SECRET', '');
+
+      expect((await request(app).post('/webhook').send({})).status).toBe(503);
+    });
+  });
 });
 
 describe('POST /send', () => {

@@ -3,13 +3,30 @@ import { analyzeBodyImage, generateHealthReply } from '../lib/ai';
 
 const router = Router();
 
+const MAX_MESSAGE_LEN = 2000;
+const MAX_IMAGE_BASE64_LEN = 8_000_000; // base64 문자열 약 8MB (바이너리 ~6MB)
+const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+
 router.post('/', async (req, res) => {
   const { message, userId, history, imageBase64, mimeType, bodyMetrics } = req.body;
 
   let payloadMessage = typeof message === 'string' ? message.trim() : '';
   let metrics = bodyMetrics;
 
+  if (payloadMessage.length > MAX_MESSAGE_LEN) {
+    res.status(400).json({ error: '메시지는 2,000자 이내로 입력해 주세요.' });
+    return;
+  }
+
   if (imageBase64 && typeof imageBase64 === 'string') {
+    if (mimeType && !ALLOWED_MIME_TYPES.has(mimeType)) {
+      res.status(400).json({ error: '지원하지 않는 이미지 형식입니다. (PNG·JPEG·WebP만 가능)' });
+      return;
+    }
+    if (imageBase64.length > MAX_IMAGE_BASE64_LEN) {
+      res.status(400).json({ error: '이미지 크기가 너무 큽니다.' });
+      return;
+    }
     const analysis = await analyzeBodyImage({ imageBase64, mimeType: mimeType || 'image/png' });
     metrics = {
       skeletalMuscleKg: analysis.skeletalMuscleKg,

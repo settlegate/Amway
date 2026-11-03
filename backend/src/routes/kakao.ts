@@ -3,7 +3,19 @@ import { handleKakaoWebhook, sendFriendTalk } from '../lib/kakao';
 
 const router = Router();
 
-router.post('/webhook', async (req, res) => {
+router.post('/webhook', (req, res, next) => {
+  const secret = process.env.KAKAO_WEBHOOK_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      res.status(503).json({ error: '웹훅이 설정되지 않았습니다.' });
+      return;
+    }
+  } else if (req.get('x-kakao-secret') !== secret) {
+    res.status(403).json({ error: '웹훅 인증에 실패했습니다.' });
+    return;
+  }
+  next();
+}, async (req, res) => {
   try {
     const result = await handleKakaoWebhook(req.body);
     res.json(result);

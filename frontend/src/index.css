@@ -189,6 +189,13 @@ select:focus-visible,
   padding: 24px 24px calc(48px + env(safe-area-inset-bottom));
 }
 
+@media (min-width: 1024px) {
+  .page {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
 .skip-link {
   position: absolute;
   left: -9999px;

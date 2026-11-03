@@ -9,6 +9,7 @@ const model = () => ({
   upsert: vi.fn(),
   delete: vi.fn(),
   count: vi.fn(),
+  groupBy: vi.fn(),
 });
 
 // `vi.mock('.../src/lib/db', () => import('../helpers/prismaMock'))` 형태로 사용
@@ -23,6 +24,7 @@ export const prisma = {
   seminarApplication: model(),
   lead: model(),
   homePromotion: model(),
+  pageView: model(),
 };
 
 export type PrismaMock = typeof prisma;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { openProductWindow } from '../lib/open'
+import { trackContentView } from '../lib/analytics'
 
 export default function Products() {
   const [query, setQuery] = useState('')
@@ -37,7 +38,10 @@ export default function Products() {
           )}
           <button
             type="button"
-            onClick={() => openProductWindow(p.purchaseUrl || p.aClicUrl)}
+            onClick={() => {
+              trackContentView('product', String(p.code || p.id), p.name)
+              openProductWindow(p.purchaseUrl || p.aClicUrl)
+            }}
           >
             새창에서 제품 보기
           </button>

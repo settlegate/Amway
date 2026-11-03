@@ -22,6 +22,16 @@ export const imageChatLimiter = rateLimit({
   message: { error: '이미지 분석 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.' },
 });
 
+// 방문자 추적: IP당 분당 120회
+export const analyticsLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 120,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  skip: skipInTest,
+  message: { error: '요청이 너무 많습니다.' },
+});
+
 // 카카오 웹훅: IP당 분당 30회
 export const kakaoWebhookLimiter = rateLimit({
   windowMs: 60_000,

@@ -3,6 +3,7 @@ import PageLayout from '../components/PageLayout'
 import ExternalLink from "../components/ExternalLink"
 import EventCalendar from '../components/EventCalendar'
 import CardCarousel from '../components/CardCarousel'
+import { trackContentView } from '../lib/analytics'
 
 export default function Home() {
   // AI 챗봇 히어로 입력 — 나중에 다시 활용할 예정으로 비활성
@@ -21,6 +22,10 @@ export default function Home() {
   // }
 
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const openHighlight = (src: string, id: string, name: string) => {
+    trackContentView('highlight', id, name)
+    setLightboxSrc(src)
+  }
   const kstMonth = new Date(
     new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' })
   ).getMonth() + 1
@@ -40,7 +45,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[홈리빙] 옵티미스트 안심촉촉 프로모션</h3>
                     <p>안심은 깊게, 촉촉함은 길게, 세균 걱정 없는 안심 가습, 옵티미스트로 다가오는 건조한 겨울을 준비하세요.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496303&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496303&amp;noticeType=PROMOTION' className='btn btn-primary' ariaLabel='프로모션 자세히 보기' track={{ contentType: 'promotion', contentId: 'promo-optimist', contentName: '옵티미스트 안심촉촉 프로모션' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
@@ -50,7 +55,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[영양건강] 밀크씨슬 이엑스 프로모션</h3>
                     <p>소중한 분께 건강을 전할 수 있도록 뉴트리라이트 밀크씨슬을 특별한 기프트 패키지로 만나보세요.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00497301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00497301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기' track={{ contentType: 'promotion', contentId: 'promo-milkthistle', contentName: '밀크씨슬 이엑스 프로모션' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
@@ -60,7 +65,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[퍼스널 케어] 새티니크 클린 스캘프 프로모션</h3>
                     <p>식물 기반 과학으로 완성한 새티니크 스캘프 뉴트리션과 인텐시브 리페어 라인을 특별한 혜택으로 만나보세요.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496304&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496304&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기' track={{ contentType: 'promotion', contentId: 'promo-satinique', contentName: '새티니크 클린 스캘프 프로모션' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
@@ -70,7 +75,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[홈리빙] 환승에어 필터 패키지 프로모션</h3>
                     <p>엣모스피어·스카이·블루 공기청정기의 필터를 패키지로 구성해 특별 프로모션가로 만나는 환승에어 필터 교체 프로모션입니다.</p>
-                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/notifications/promotion/detail?notificationCode=00496301&noticeType=PROMOTION&searchPromotionStatus=progress&page=0' className='btn btn-primary' ariaLabel='프로모션 자세히 보기' track={{ contentType: 'promotion', contentId: 'promo-atmosphere-filter', contentName: '환승에어 필터 패키지 프로모션' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
               </CardCarousel>
@@ -98,7 +103,7 @@ export default function Home() {
                   <button
                     type='button'
                     className='promotion-visual highlight-visual'
-                    onClick={() => setLightboxSrc('/highlight-autumn-trip.jpg')}
+                    onClick={() => openHighlight('/highlight-autumn-trip.jpg', 'highlight-autumn-trip', '리더스 그룹 가을 나들이')}
                     aria-label='사진 크게 보기'
                   >
                     <img src='/highlight-autumn-trip.jpg' alt='리더스 그룹 가을 나들이 단체 사진' />
@@ -112,7 +117,7 @@ export default function Home() {
                   <button
                     type='button'
                     className='promotion-visual highlight-visual'
-                    onClick={() => setLightboxSrc('/highlight-abc-day.jpg')}
+                    onClick={() => openHighlight('/highlight-abc-day.jpg', 'highlight-abc-day', '강서 ABC 소비자데이')}
                     aria-label='사진 크게 보기'
                   >
                     <img src='/highlight-abc-day.jpg' alt='강서 암웨이 ABC 소비자데이' />
@@ -126,7 +131,7 @@ export default function Home() {
                   <button
                     type='button'
                     className='promotion-visual highlight-visual'
-                    onClick={() => setLightboxSrc('/highlight-halloween.jpg')}
+                    onClick={() => openHighlight('/highlight-halloween.jpg', 'highlight-halloween', '할로윈 연합 홈미팅')}
                     aria-label='사진 크게 보기'
                   >
                     <img src='/highlight-halloween.jpg' alt='할로윈 컨셉 연합 홈미팅 음식' />
@@ -140,7 +145,7 @@ export default function Home() {
                   <button
                     type='button'
                     className='promotion-visual highlight-visual'
-                    onClick={() => setLightboxSrc('/highlight-chef-cooking.jpg')}
+                    onClick={() => openHighlight('/highlight-chef-cooking.jpg', 'highlight-chef-cooking', '쉐프님께 배운 가을 요리')}
                     aria-label='사진 크게 보기'
                   >
                     <img src='/highlight-chef-cooking.jpg' alt='얼큰 채소 전골과 연두부 샐러드' />
@@ -168,7 +173,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[아티스트리] 스킨 뉴트리션 오메가 드롭스</h3>
                     <p>뉴트리라이트 농장에서 자란 화이트 치아씨드의 오메가 3·6·7·9가 피부 장벽을 채워 24시간 촉촉한 광채 피부로 가꿔주는 99% 식물 유래 페이셜 오일 세럼입니다.</p>
-                    <ExternalLink href='https://www.amway.co.kr/shop/beauty/skin-care/skin-care-serum-ample/p/128047K' className='btn btn-primary' ariaLabel='제품 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/shop/beauty/skin-care/skin-care-serum-ample/p/128047K' className='btn btn-primary' ariaLabel='제품 자세히 보기' track={{ contentType: 'recommend', contentId: '128047K', contentName: '아티스트리 스킨 뉴트리션 오메가 드롭스' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
@@ -178,7 +183,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[뉴트리라이트] 앨로케어</h3>
                     <p>피카오 프레토·아세로라·계피 세 가지 식물을 배합한 복합물이 콧물, 재채기, 코막힘 등 코 과민반응 개선에 도움을 주는 개별인정형 건강기능식품입니다.</p>
-                    <ExternalLink href='https://www.amway.co.kr/shop/nutrition/functional/p/110860K' className='btn btn-primary' ariaLabel='제품 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/shop/nutrition/functional/p/110860K' className='btn btn-primary' ariaLabel='제품 자세히 보기' track={{ contentType: 'recommend', contentId: '110860K', contentName: '뉴트리라이트 앨로케어' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
                 <article className='promotion-card'>
@@ -188,7 +193,7 @@ export default function Home() {
                   <div className='promotion-content'>
                     <h3>[g&amp;h] 너리쉬 아토 크림</h3>
                     <p>건성·민감성 피부의 피부장벽 강화를 돕는 저자극 포뮬러로 영유아부터 성인까지 온 가족이 함께 쓸 수 있는 바디 크림입니다.</p>
-                    <ExternalLink href='https://www.amway.co.kr/shop/personal-care/body-care/body-moisturizer/p/319578K' className='btn btn-primary' ariaLabel='제품 자세히 보기'>자세히 보기</ExternalLink>
+                    <ExternalLink href='https://www.amway.co.kr/shop/personal-care/body-care/body-moisturizer/p/319578K' className='btn btn-primary' ariaLabel='제품 자세히 보기' track={{ contentType: 'recommend', contentId: '319578K', contentName: 'g&h 너리쉬 아토 크림' }}>자세히 보기</ExternalLink>
                   </div>
                 </article>
               </div>

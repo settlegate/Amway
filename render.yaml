@@ -1,0 +1,63 @@
+# Render Blueprint — 백엔드 API 서버 (Express + Prisma + node-cron)
+# Render 대시보드 → New → Blueprint → 이 저장소 선택 시 이 파일로 서비스가 생성된다.
+#
+# 주의: 디스크는 Starter 플랜 이상에서만 지원된다.
+# 무료 플랜으로 쓰려면 disk 블록을 지우고 DATABASE_URL을 `file:./dev.db`로 바꿔야 하지만,
+# 컨테이너 파일시스템이 휘발성이라 재시작·재배포 때마다 DB(방문자 지표 포함)가 초기화된다.
+
+services:
+  - type: web
+    name: joohee-newsletter-api
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: backend
+    branch: main
+    buildCommand: npm install --include=dev && npm run build && npx prisma generate
+    startCommand: npx prisma db push && node dist/index.js
+    healthCheckPath: /health
+    disk:
+      name: joohee-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/var/data/dev.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: FRONTEND_URL
+        value: https://joohee-newsletter-roan.vercel.app
+      - key: PUBLIC_API_URL
+        value: https://joohee-newsletter-api.onrender.com
+      - key: OPENAI_CHAT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_EMBEDDING_MODEL
+        value: text-embedding-3-small
+      # 아래 항목은 Blueprint 생성 후 Render 대시보드에서 직접 값을 입력한다.
+      # 로컬 .env의 값을 그대로 옮기면 된다. (sync:false = 값을 저장소에 커밋하지 않음)
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        sync: false
+      - key: USER_SESSION_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: KAKAO_CHANNEL_TOKEN
+        sync: false
+      - key: KAKAO_API_KEY
+        sync: false
+      - key: KAKAO_WEBHOOK_SECRET
+        sync: false
+      - key: A_CLIC_SPONSOR_ID
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX
+        sync: false

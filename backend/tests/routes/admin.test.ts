@@ -48,6 +48,50 @@ describe('GET /dashboard', () => {
   });
 });
 
+describe('GET /analytics', () => {
+  it('방문자 지표를 집계해 반환한다', async () => {
+    prisma.pageView.count
+      .mockResolvedValueOnce(100)
+      .mockResolvedValueOnce(5);
+    prisma.pageView.findMany
+      .mockResolvedValueOnce([{ visitorId: 'a' }, { visitorId: 'b' }])
+      .mockResolvedValueOnce([{ visitorId: 'a' }])
+      .mockResolvedValueOnce([{ visitorId: 'a' }, { visitorId: 'b' }])
+      .mockResolvedValueOnce([{ visitorId: 'a' }, { visitorId: 'b' }, { visitorId: 'c' }]);
+    prisma.pageView.groupBy
+      .mockResolvedValueOnce([{ day: '2026-11-03', _count: { _all: 5 } }])
+      .mockResolvedValueOnce([{ day: '2026-11-03', visitorId: 'a' }])
+      .mockResolvedValueOnce([
+        { contentType: 'product', contentId: 'p1', contentName: '더블엑스', _count: { _all: 7 } },
+      ])
+      .mockResolvedValueOnce([{ contentType: 'product', contentId: 'p1', visitorId: 'a' }])
+      .mockResolvedValueOnce([{ path: '/', _count: { _all: 40 } }]);
+
+    const res = await request(app).get('/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pv).toEqual({ today: 5, total: 100 });
+    expect(res.body.uv).toEqual({ today: 1, total: 2 });
+    expect(res.body.dau).toBe(1);
+    expect(res.body.wau).toBe(2);
+    expect(res.body.mau).toBe(3);
+    expect(res.body.daily).toHaveLength(14);
+    expect(res.body.topContents[0]).toEqual({
+      contentType: 'product',
+      contentId: 'p1',
+      contentName: '더블엑스',
+      views: 7,
+      visitors: 1,
+    });
+    expect(res.body.topPages).toEqual([{ path: '/', views: 40 }]);
+  });
+
+  it('DB 오류는 500을 반환한다', async () => {
+    prisma.pageView.count.mockRejectedValue(new Error('db'));
+    expect((await request(app).get('/analytics')).status).toBe(500);
+  });
+});
+
 describe('제품 동기화', () => {
   it('GET /products 는 활성 프로모션을 포함한 제품 목록을 반환한다', async () => {
     prisma.product.findMany.mockResolvedValue([{ id: 'p1' }]);

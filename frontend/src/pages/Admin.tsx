@@ -389,13 +389,15 @@ export default function Admin() {
               </tr>
             </thead>
             <tbody>
-              {analytics.daily.map((d: any) => (
-                <tr key={d.day} style={{ borderTop: '1px solid var(--border)' }}>
-                  <td style={{ padding: '4px 6px' }}>{d.day}</td>
-                  <td style={{ padding: '4px 6px' }}>{d.pv.toLocaleString('ko-KR')}</td>
-                  <td style={{ padding: '4px 6px' }}>{d.uv.toLocaleString('ko-KR')}</td>
-                </tr>
-              ))}
+              {[...analytics.daily]
+                .sort((a: any, b: any) => b.day.localeCompare(a.day))
+                .map((d: any) => (
+                  <tr key={d.day} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={{ padding: '4px 6px' }}>{d.day}</td>
+                    <td style={{ padding: '4px 6px' }}>{d.pv.toLocaleString('ko-KR')}</td>
+                    <td style={{ padding: '4px 6px' }}>{d.uv.toLocaleString('ko-KR')}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         ) : (

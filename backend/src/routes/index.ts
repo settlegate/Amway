@@ -10,17 +10,21 @@ import consentRoutes from './consent';
 import adminRoutes from './admin';
 import kakaoRoutes from './kakao';
 import homePromotionRoutes from './homePromotion';
+import { adminLogin, requireAdmin } from '../lib/auth';
 
 const router = Router();
+
+router.post('/admin/login', adminLogin);
 
 router.use('/chat', chatRoutes);
 router.use('/products', productRoutes);
 router.use('/reminders', reminderRoutes);
 router.use('/seminars', seminarRoutes);
 router.use('/business', businessRoutes);
-router.use('/leads', leadRoutes);
+router.use('/leads', requireAdmin, leadRoutes);
 router.use('/consent', consentRoutes);
-router.use('/admin', adminRoutes);
+router.use('/admin', requireAdmin, adminRoutes);
+router.use('/kakao/send', requireAdmin);
 router.use('/kakao', kakaoRoutes);
 router.use('/home-promotion', homePromotionRoutes);
 

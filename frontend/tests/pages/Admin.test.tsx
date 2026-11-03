@@ -50,6 +50,7 @@ async function renderAdmin(overrides?: Record<string, unknown>) {
 }
 
 beforeEach(() => {
+  sessionStorage.setItem('adminToken', 'test-token')
   mockApiDefaults()
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
 })

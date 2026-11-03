@@ -1,7 +1,11 @@
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import routes from '../../src/routes';
+import { createAdminToken } from '../../src/lib/auth';
 import { buildApp } from '../helpers/app';
+
+process.env.ADMIN_SESSION_SECRET = 'test-secret';
+process.env.ADMIN_PASSWORD = 'test-password';
 
 vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
 vi.mock('../../src/lib/ai', () => ({ analyzeBodyImage: vi.fn(), generateHealthReply: vi.fn() }));
@@ -21,13 +25,35 @@ describe('API 라우터', () => {
     ['get', '/api/reminders', 400],
     ['get', '/api/seminars', 200],
     ['get', '/api/business/stp', 200],
-    ['get', '/api/leads', 200],
     ['post', '/api/consent/agree', 400],
+    ['get', '/api/home-promotion', 200],
+    ['post', '/api/kakao/webhook', 200],
+  ] as const)('%s %s 경로가 인증 없이 연결되어 있다', async (method, path, status) => {
+    const res = await request(app)[method](path).send({});
+    expect(res.status).toBe(status);
+  });
+
+  it.each([
+    ['get', '/api/leads'],
+    ['patch', '/api/leads/l1'],
+    ['get', '/api/admin/dashboard'],
+    ['get', '/api/admin/products'],
+    ['post', '/api/admin/products/sync'],
+    ['get', '/api/admin/home-promotions'],
+    ['post', '/api/kakao/send'],
+  ] as const)('%s %s 는 인증 없이 401을 반환한다', async (method, path) => {
+    const res = await request(app)[method](path).send({});
+    expect(res.status).toBe(401);
+  });
+
+  it.each([
+    ['get', '/api/leads', 200],
     ['get', '/api/admin/dashboard', 200],
     ['post', '/api/kakao/send', 400],
-    ['get', '/api/home-promotion', 200],
-  ] as const)('%s %s 경로가 연결되어 있다', async (method, path, status) => {
-    const res = await request(app)[method](path).send({});
+  ] as const)('%s %s 는 유효한 토큰으로 접근된다', async (method, path, status) => {
+    const res = await request(app)[method](path)
+      .set('Authorization', `Bearer ${createAdminToken()}`)
+      .send({});
     expect(res.status).toBe(status);
   });
 });

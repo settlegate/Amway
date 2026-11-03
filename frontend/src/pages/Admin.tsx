@@ -61,6 +61,11 @@ export default function Admin() {
   const [homePromoMessage, setHomePromoMessage] = useState('')
   const [homePromoSaving, setHomePromoSaving] = useState(false)
 
+  const [authed, setAuthed] = useState(() => !!sessionStorage.getItem('adminToken'))
+  const [password, setPassword] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [loginError, setLoginError] = useState('')
+
   const loadDashboard = () =>
     api.get('/api/admin/dashboard').then((res) => setData(res.data))
   const loadProducts = () =>
@@ -71,11 +76,53 @@ export default function Admin() {
     api.get('/api/admin/home-promotions').then((res) => setHomePromotions(res.data))
 
   useEffect(() => {
-    loadDashboard()
-    loadProducts()
-    loadPromotions()
-    loadHomePromotions()
-  }, [])
+    if (!authed) return
+    const on401 = (err: any) => {
+      if (err?.response?.status === 401) setAuthed(false)
+    }
+    loadDashboard().catch(on401)
+    loadProducts().catch(on401)
+    loadPromotions().catch(on401)
+    loadHomePromotions().catch(on401)
+  }, [authed])
+
+  const login = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoginLoading(true)
+    setLoginError('')
+    try {
+      const res = await api.post('/api/admin/login', { password })
+      sessionStorage.setItem('adminToken', res.data.token)
+      setAuthed(true)
+    } catch (err: any) {
+      setLoginError(err?.response?.data?.error || '로그인에 실패했습니다.')
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  if (!authed) {
+    return (
+      <div style={{ maxWidth: 360, margin: '120px auto', padding: 24 }}>
+        <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+          <h2 style={{ marginTop: 0 }}>관리자 로그인</h2>
+          <form onSubmit={login} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호"
+              autoFocus
+            />
+            <button type="submit" className="btn btn-primary" disabled={loginLoading}>
+              {loginLoading ? '확인 중…' : '로그인'}
+            </button>
+          </form>
+          {loginError && <p style={{ color: '#c0392b', marginBottom: 0 }}>{loginError}</p>}
+        </div>
+      </div>
+    )
+  }
 
   const syncSingle = async () => {
     if (!syncUrl) {

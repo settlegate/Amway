@@ -6,3 +6,14 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+api.interceptors.request.use((config) => {
+  const token = sessionStorage.getItem('adminToken')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+api.interceptors.response.use(undefined, (err) => {
+  if (err.response?.status === 401) sessionStorage.removeItem('adminToken')
+  return Promise.reject(err)
+})

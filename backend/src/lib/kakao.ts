@@ -94,7 +94,9 @@ async function handleConsentKeyword(kakaoId: string | undefined, message: string
 
 export async function sendFriendTalk(userId: string, message: string, _templateCode?: string) {
   if (!KAKAO_CHANNEL_TOKEN || !KAKAO_API_KEY) {
-    console.log('[kakao] 카카오 토큰/키 없음: mock 발송', { userId, message });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[kakao] 카카오 토큰/키 없음: mock 발송', { userId });
+    }
     return { ok: true, mock: true };
   }
 

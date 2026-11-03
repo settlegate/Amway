@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
+import { UserFacingError } from '../lib/errors';
 import { syncProductFromUrl, syncAllProducts, assertAmwayProductUrl } from '../lib/amwayProduct';
 import homePromotionAdmin from './homePromotionAdmin';
 
@@ -63,7 +64,11 @@ router.post('/products/sync', async (req, res) => {
     res.json(result);
   } catch (err: any) {
     console.error('제품 동기화 오류:', err);
-    res.status(500).json({ error: err.message || '제품 동기화 중 오류가 발생했습니다.' });
+    if (err instanceof UserFacingError) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.status(500).json({ error: '제품 동기화 중 오류가 발생했습니다.' });
   }
 });
 
@@ -73,7 +78,7 @@ router.post('/products/sync-all', async (_req, res) => {
     res.json({ synced: results.length, results });
   } catch (err: any) {
     console.error('전체 제품 동기화 오류:', err);
-    res.status(500).json({ error: err.message || '전체 제품 동기화 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: '전체 제품 동기화 중 오류가 발생했습니다.' });
   }
 });
 
@@ -182,6 +187,10 @@ router.post('/seminars', async (req, res) => {
   const { title, description, date, location, maxAttendees } = req.body;
   if (!title || !date) {
     res.status(400).json({ error: 'title and date are required' });
+    return;
+  }
+  if (Number.isNaN(Date.parse(date))) {
+    res.status(400).json({ error: 'date 형식이 올바르지 않습니다.' });
     return;
   }
   try {

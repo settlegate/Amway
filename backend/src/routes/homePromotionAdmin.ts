@@ -1,9 +1,22 @@
 import fs from 'fs';
 import { Router } from 'express';
+import { z } from 'zod';
 import { prisma } from '../lib/db';
 import { isAllowedImageFile, uploadPromo } from '../lib/upload';
 
 const router = Router();
+
+const isHttpsUrl = (v: string) => {
+  try {
+    return new URL(v).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+const httpsUrl = z.string().refine(isHttpsUrl, 'https URL만 허용합니다.');
+const imageSource = z
+  .string()
+  .refine((v) => v.startsWith('/uploads/') || isHttpsUrl(v), 'https 이미지 URL만 허용합니다.');
 
 const toBool = (v: any) => v === true || v === 'true' || v === '1' || v === 'on';
 
@@ -45,6 +58,17 @@ router.post('/', uploadPromo.single('image'), async (req: any, res) => {
     res.status(400).json({ error: '프로모션 링크 URL이 필요합니다.' });
     return;
   }
+  const parsed = z
+    .object({
+      targetUrl: httpsUrl,
+      imageUrl: req.file ? z.string().optional() : imageSource,
+      alt: z.string().max(200).optional(),
+    })
+    .safeParse({ targetUrl, imageUrl, alt });
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || '입력값이 올바르지 않습니다.' });
+    return;
+  }
 
   try {
     const promo = await prisma.homePromotion.create({
@@ -65,6 +89,18 @@ router.post('/', uploadPromo.single('image'), async (req: any, res) => {
 router.put('/:id', async (req: any, res) => {
   const { id } = req.params;
   const { targetUrl, alt, imageUrl } = req.body;
+
+  const parsed = z
+    .object({
+      targetUrl: httpsUrl.optional(),
+      imageUrl: imageSource.optional(),
+      alt: z.string().max(200).optional(),
+    })
+    .safeParse({ targetUrl, imageUrl, alt });
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || '입력값이 올바르지 않습니다.' });
+    return;
+  }
 
   const updateData: any = {};
   if (imageUrl !== undefined) updateData.imageUrl = imageUrl;

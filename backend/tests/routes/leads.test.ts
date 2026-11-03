@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import leadRoutes from '../../src/routes/leads';
 import { prisma as prismaImport } from '../../src/lib/db';
 import type { PrismaMock } from '../helpers/prismaMock';
-import { buildApp } from '../helpers/app';
+import { buildApp, prismaError } from '../helpers/app';
 
 vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
 
@@ -49,6 +49,23 @@ describe('PATCH /:id', () => {
     await request(app).patch('/l1').send({ status: 'DONE' });
 
     expect(prisma.lead.update.mock.calls[0][0].data.followUpAt).toBeUndefined();
+  });
+
+  it.each([
+    { status: '임의값' },
+    { notes: '가'.repeat(2001) },
+    { followUpAt: 'not-a-date' },
+    { status: 'DONE', unknown: '필드' },
+  ])('잘못된 입력은 400을 반환한다 (%o)', async (body) => {
+    const res = await request(app).patch('/l1').send(body);
+
+    expect(res.status).toBe(400);
+    expect(prisma.lead.update).not.toHaveBeenCalled();
+  });
+
+  it('없는 리드면 404를 반환한다', async () => {
+    prisma.lead.update.mockRejectedValue(prismaError('P2025'));
+    expect((await request(app).patch('/none').send({ status: 'DONE' })).status).toBe(404);
   });
 
   it('DB 오류가 나면 500을 반환한다', async () => {

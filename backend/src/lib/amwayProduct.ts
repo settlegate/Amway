@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { UserFacingError } from './errors';
 
 const AMWAY_HOSTS = new Set(['www.amway.co.kr', 'api.amway.co.kr']);
 
@@ -16,16 +17,16 @@ export function assertAmwayProductUrl(raw: string): void {
   try {
     u = new URL(raw);
   } catch {
-    throw new Error('유효한 URL이 아닙니다.');
+    throw new UserFacingError('유효한 URL이 아닙니다.');
   }
   if (u.protocol !== 'https:') {
-    throw new Error('https URL만 허용합니다.');
+    throw new UserFacingError('https URL만 허용합니다.');
   }
   if (!AMWAY_HOSTS.has(u.hostname)) {
-    throw new Error('암웨이 상품 URL만 허용합니다.');
+    throw new UserFacingError('암웨이 상품 URL만 허용합니다.');
   }
   if (!/\/p\/[A-Za-z0-9]+/.test(u.pathname)) {
-    throw new Error('암웨이 상품 페이지 URL이 아닙니다.');
+    throw new UserFacingError('암웨이 상품 페이지 URL이 아닙니다.');
   }
 }
 
@@ -206,12 +207,12 @@ export async function syncProductFromUrl(
 
   const text = await fetchAmwayText(url);
   if (!text) {
-    throw new Error('암웨이 상품 페이지를 가져오지 못했습니다.');
+    throw new UserFacingError('암웨이 상품 페이지를 가져오지 못했습니다.');
   }
 
   const parsed = parseAmwayProductPage(text, url);
   if (!parsed.title) {
-    throw new Error('상품 정보 파싱에 실패했습니다.');
+    throw new UserFacingError('상품 정보 파싱에 실패했습니다.');
   }
 
   let product = null;
@@ -225,7 +226,7 @@ export async function syncProductFromUrl(
     if (product?.aClicUrl) {
       const existingSku = skuFromUrl(product.aClicUrl);
       if (existingSku && parsed.sku && existingSku !== parsed.sku) {
-        throw new Error('URL의 상품이 해당 제품 코드와 일치하지 않습니다.');
+        throw new UserFacingError('URL의 상품이 해당 제품 코드와 일치하지 않습니다.');
       }
     }
   }

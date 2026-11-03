@@ -27,6 +27,10 @@ router.post('/', async (req, res) => {
     res.status(400).json({ error: 'userId, productName, intakeTime가 필요합니다.' });
     return;
   }
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(intakeTime)) {
+    res.status(400).json({ error: 'intakeTime은 HH:MM 형식이어야 합니다.' });
+    return;
+  }
   try {
     const reminder = await prisma.reminder.create({
       data: {

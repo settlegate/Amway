@@ -5,7 +5,11 @@ import { initCronJobs } from '../src/lib/cron';
 
 vi.mock('../src/env', () => ({}));
 vi.mock('../src/lib/cron', () => ({ initCronJobs: vi.fn() }));
-vi.mock('morgan', () => ({ default: () => (_req: any, _res: any, next: any) => next() }));
+vi.mock('morgan', () => {
+  const morganFn: any = () => (_req: any, _res: any, next: any) => next();
+  morganFn.token = vi.fn();
+  return { default: morganFn };
+});
 vi.mock('../src/routes', async () => {
   const { Router } = await import('express');
   const router = Router();
@@ -92,15 +96,29 @@ describe('server', () => {
   it('운영 환경에서는 FRONTEND_URL만 허용한다', async () => {
     const { app } = await startServer({ NODE_ENV: 'production', FRONTEND_URL: 'https://abo.test' });
 
-    const res = await request(app).get('/health').set('Origin', 'http://evil.test');
+    const ok = await request(app).get('/health').set('Origin', 'https://abo.test');
+    const evil = await request(app).get('/health').set('Origin', 'http://evil.test');
 
-    expect(res.headers['access-control-allow-origin']).toBe('https://abo.test');
+    expect(ok.headers['access-control-allow-origin']).toBe('https://abo.test');
+    expect(evil.headers['access-control-allow-origin']).toBeUndefined();
   });
 
-  it('FRONTEND_URL이 없으면 로컬 Vite 주소를 허용한다', async () => {
-    const { app } = await startServer({ NODE_ENV: 'production' });
+  it('운영 환경에서 FRONTEND_URL이 없으면 시작이 중단된다', async () => {
+    await expect(startServer({ NODE_ENV: 'production' })).rejects.toThrow('FRONTEND_URL');
+  });
 
-    const res = await request(app).get('/health');
+  it('FRONTEND_URL에 쉼표로 여러 origin을 지정할 수 있다', async () => {
+    const { app } = await startServer({ NODE_ENV: 'production', FRONTEND_URL: 'https://a.test, https://b.test' });
+
+    const res = await request(app).get('/health').set('Origin', 'https://b.test');
+
+    expect(res.headers['access-control-allow-origin']).toBe('https://b.test');
+  });
+
+  it('테스트 환경에서는 로컬 Vite 주소를 허용한다', async () => {
+    const { app } = await startServer();
+
+    const res = await request(app).get('/health').set('Origin', 'http://localhost:5173');
 
     expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
   });

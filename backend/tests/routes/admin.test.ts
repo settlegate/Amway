@@ -5,6 +5,7 @@ import { prisma as prismaImport } from '../../src/lib/db';
 import { syncAllProducts, syncProductFromUrl } from '../../src/lib/amwayProduct';
 import type { PrismaMock } from '../helpers/prismaMock';
 import { buildApp, prismaError } from '../helpers/app';
+import { UserFacingError } from '../../src/lib/errors';
 
 vi.mock('../../src/lib/db', () => import('../helpers/prismaMock'));
 vi.mock('../../src/lib/amwayProduct', async (importOriginal) => ({
@@ -88,16 +89,22 @@ describe('제품 동기화', () => {
     expect(syncProductFromUrl).not.toHaveBeenCalled();
   });
 
-  it.each([
-    [new Error('파싱 실패'), '파싱 실패'],
-    [new Error(''), '제품 동기화 중 오류가 발생했습니다.'],
-  ])('POST /products/sync 오류는 500과 메시지를 반환한다', async (error, message) => {
-    vi.mocked(syncProductFromUrl).mockRejectedValue(error);
+  it('POST /products/sync 의 내부 오류는 일반 메시지로 500을 반환한다', async () => {
+    vi.mocked(syncProductFromUrl).mockRejectedValue(new Error('prisma://internal@host timeout'));
 
     const res = await request(app).post('/products/sync').send({ url: 'https://www.amway.co.kr/shop/p/120843K' });
 
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe(message);
+    expect(res.body.error).toBe('제품 동기화 중 오류가 발생했습니다.');
+  });
+
+  it('POST /products/sync 의 UserFacingError는 400으로 메시지를 노출한다', async () => {
+    vi.mocked(syncProductFromUrl).mockRejectedValue(new UserFacingError('URL의 상품이 해당 제품 코드와 일치하지 않습니다.'));
+
+    const res = await request(app).post('/products/sync').send({ url: 'https://www.amway.co.kr/shop/p/120843K' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('URL의 상품이 해당 제품 코드와 일치하지 않습니다.');
   });
 
   it('POST /products/sync-all 은 동기화 건수와 결과를 반환한다', async () => {
@@ -108,16 +115,13 @@ describe('제품 동기화', () => {
     expect(res.body).toEqual({ synced: 2, results: [{ name: 'a' }, { name: 'b' }] });
   });
 
-  it.each([
-    [new Error('timeout'), 'timeout'],
-    [new Error(''), '전체 제품 동기화 중 오류가 발생했습니다.'],
-  ])('POST /products/sync-all 오류는 500과 메시지를 반환한다', async (error, message) => {
-    vi.mocked(syncAllProducts).mockRejectedValue(error);
+  it('POST /products/sync-all 오류는 일반 메시지로 500을 반환한다', async () => {
+    vi.mocked(syncAllProducts).mockRejectedValue(new Error('timeout'));
 
     const res = await request(app).post('/products/sync-all');
 
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe(message);
+    expect(res.body.error).toBe('전체 제품 동기화 중 오류가 발생했습니다.');
   });
 });
 

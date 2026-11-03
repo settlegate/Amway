@@ -42,6 +42,14 @@ describe('POST /', () => {
     expect((await request(app).post('/').send(body)).status).toBe(400);
   });
 
+  it.each(['9:00', '25:00', '0900', 'aa:bb'])('intakeTime이 HH:MM 형식이 아니면 400을 반환한다 (%s)', async (intakeTime) => {
+    const res = await request(app).post('/').send({ userId: 'u1', productName: 'A', intakeTime });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('HH:MM');
+    expect(prisma.reminder.create).not.toHaveBeenCalled();
+  });
+
   it('리마인더를 생성한다', async () => {
     prisma.reminder.create.mockResolvedValue({ id: 'r1' });
 

@@ -15,10 +15,18 @@ const port = process.env.PORT || 3001;
 app.use(helmet());
 
 const isDev = process.env.NODE_ENV === 'development';
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
-app.use(cors({ origin: isDev ? true : allowedOrigin }));
+if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+  throw new Error('운영 환경에서는 FRONTEND_URL을 설정해야 합니다.');
+}
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(cors({ origin: isDev ? true : allowedOrigins }));
 
-app.use(morgan('dev'));
+// 쿼리스트링(userId 등)이 로그에 남지 않도록 경로만 기록
+morgan.token('safe-path', (req: any) => (req.originalUrl || req.url || '').split('?')[0]);
+app.use(morgan(isDev ? 'dev' : ':remote-addr :method :safe-path :status :response-time ms'));
 app.use('/api/chat', express.json({ limit: '10mb' }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));

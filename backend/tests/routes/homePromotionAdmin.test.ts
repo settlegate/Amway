@@ -103,10 +103,22 @@ describe('POST /', () => {
     expect(res.body.error).toBe(error);
   });
 
+  it.each([
+    [{ imageUrl: 'https://img/a.png', targetUrl: 'javascript:alert(1)' }],
+    [{ imageUrl: 'https://img/a.png', targetUrl: 'http://insecure.example.com' }],
+    [{ imageUrl: 'http://img/a.png', targetUrl: 'https://t' }],
+  ])('https가 아닌 URL은 400을 반환한다 (%o)', async (body) => {
+    const res = await request(app).post('/').send(body);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain('https');
+    expect(prisma.homePromotion.create).not.toHaveBeenCalled();
+  });
+
   it('DB 오류가 나면 500을 반환한다', async () => {
     prisma.homePromotion.create.mockRejectedValue(new Error('db'));
 
-    const res = await request(app).post('/').send({ imageUrl: 'a', targetUrl: 'b' });
+    const res = await request(app).post('/').send({ imageUrl: 'https://img/a.png', targetUrl: 'https://t' });
 
     expect(res.status).toBe(500);
   });
@@ -130,13 +142,20 @@ describe('PUT /:id', () => {
 
     const res = await request(app)
       .put('/h1')
-      .send({ imageUrl: 'img', targetUrl: 'url', alt: '', isActive });
+      .send({ imageUrl: 'https://img/x.png', targetUrl: 'https://t', alt: '', isActive });
 
     expect(res.body).toEqual({ id: 'h1' });
     expect(prisma.homePromotion.update).toHaveBeenCalledWith({
       where: { id: 'h1' },
-      data: { imageUrl: 'img', targetUrl: 'url', alt: null, isActive: expected },
+      data: { imageUrl: 'https://img/x.png', targetUrl: 'https://t', alt: null, isActive: expected },
     });
+  });
+
+  it('https가 아닌 targetUrl은 400을 반환한다', async () => {
+    const res = await request(app).put('/h1').send({ targetUrl: 'javascript:alert(1)' });
+
+    expect(res.status).toBe(400);
+    expect(prisma.homePromotion.update).not.toHaveBeenCalled();
   });
 
   it('일부 필드만 전달하면 해당 필드만 수정한다', async () => {

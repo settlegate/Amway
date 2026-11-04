@@ -92,6 +92,62 @@ describe('GET /analytics', () => {
   });
 });
 
+describe('GET /analytics/day/:day', () => {
+  it('해당 일자의 상세 지표와 방문 기록을 반환한다', async () => {
+    prisma.pageView.count.mockResolvedValueOnce(5);
+    prisma.pageView.findMany
+      .mockResolvedValueOnce([{ visitorId: 'a' }, { visitorId: 'b' }])
+      .mockResolvedValueOnce([
+        {
+          createdAt: new Date('2026-11-03T05:30:00Z'),
+          type: 'pageview',
+          path: '/',
+          contentType: null,
+          contentId: null,
+          contentName: null,
+          visitorId: 'visitor-abc-123',
+        },
+      ]);
+    prisma.pageView.groupBy
+      .mockResolvedValueOnce([{ path: '/', _count: { _all: 5 } }])
+      .mockResolvedValueOnce([
+        { contentType: 'product', contentId: 'p1', contentName: '더블엑스', _count: { _all: 2 } },
+      ])
+      .mockResolvedValueOnce([{ contentType: 'product', contentId: 'p1', visitorId: 'a' }]);
+
+    const res = await request(app).get('/analytics/day/2026-11-03');
+
+    expect(res.status).toBe(200);
+    expect(res.body.day).toBe('2026-11-03');
+    expect(res.body.pv).toBe(5);
+    expect(res.body.uv).toBe(2);
+    expect(res.body.pages).toEqual([{ path: '/', views: 5 }]);
+    expect(res.body.contents[0]).toEqual({
+      contentType: 'product',
+      contentId: 'p1',
+      contentName: '더블엑스',
+      views: 2,
+      visitors: 1,
+    });
+    expect(res.body.events).toHaveLength(1);
+    expect(res.body.events[0]).toMatchObject({
+      type: 'pageview',
+      path: '/',
+      visitorId: 'visitor-abc-123',
+    });
+    expect(res.body.events[0].time).toMatch(/^\d{2}:\d{2}$/);
+  });
+
+  it('day 형식이 잘못되면 400을 반환한다', async () => {
+    expect((await request(app).get('/analytics/day/20261103')).status).toBe(400);
+  });
+
+  it('DB 오류는 500을 반환한다', async () => {
+    prisma.pageView.count.mockRejectedValue(new Error('db'));
+    expect((await request(app).get('/analytics/day/2026-11-03')).status).toBe(500);
+  });
+});
+
 describe('제품 동기화', () => {
   it('GET /products 는 활성 프로모션을 포함한 제품 목록을 반환한다', async () => {
     prisma.product.findMany.mockResolvedValue([{ id: 'p1' }]);

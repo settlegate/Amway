@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { UserFacingError } from '../lib/errors';
 import { syncProductFromUrl, syncAllProducts, assertAmwayProductUrl } from '../lib/amwayProduct';
-import { getAnalyticsSummary } from '../lib/analytics';
+import { getAnalyticsSummary, getDayDetail } from '../lib/analytics';
 import homePromotionAdmin from './homePromotionAdmin';
 
 const router = Router();
@@ -38,6 +38,20 @@ router.get('/analytics', async (_req, res) => {
   } catch (err) {
     console.error('방문자 통계 조회 오류:', err);
     res.status(500).json({ error: '방문자 통계 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+router.get('/analytics/day/:day', async (req, res) => {
+  const { day } = req.params;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    res.status(400).json({ error: 'day는 YYYY-MM-DD 형식이어야 합니다.' });
+    return;
+  }
+  try {
+    res.json(await getDayDetail(day));
+  } catch (err) {
+    console.error('일별 방문자 통계 조회 오류:', err);
+    res.status(500).json({ error: '일별 방문자 통계 조회 중 오류가 발생했습니다.' });
   }
 });
 

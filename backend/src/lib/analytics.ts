@@ -111,3 +111,80 @@ export async function getAnalyticsSummary() {
     topPages: pageViews.map((r) => ({ path: r.path, views: r._count._all })),
   };
 }
+
+export async function getDayDetail(day: string) {
+  const [pv, visitors, pageGroups, contentViews, contentVisitors, events] =
+    await Promise.all([
+      prisma.pageView.count({ where: { type: 'pageview', day } }),
+      prisma.pageView.findMany({
+        where: { day },
+        select: { visitorId: true },
+        distinct: ['visitorId'],
+      }),
+      prisma.pageView.groupBy({
+        by: ['path'],
+        where: { type: 'pageview', day },
+        _count: { _all: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 20,
+      }),
+      prisma.pageView.groupBy({
+        by: ['contentType', 'contentId', 'contentName'],
+        where: { type: 'content', day },
+        _count: { _all: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 20,
+      }),
+      prisma.pageView.groupBy({
+        by: ['contentType', 'contentId', 'visitorId'],
+        where: { type: 'content', day },
+      }),
+      prisma.pageView.findMany({
+        where: { day },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+        select: {
+          createdAt: true,
+          type: true,
+          path: true,
+          contentType: true,
+          contentId: true,
+          contentName: true,
+          visitorId: true,
+        },
+      }),
+    ]);
+
+  const visitorsByContent = new Map<string, number>();
+  for (const row of contentVisitors) {
+    const key = `${row.contentType}|${row.contentId}`;
+    visitorsByContent.set(key, (visitorsByContent.get(key) ?? 0) + 1);
+  }
+
+  return {
+    day,
+    pv,
+    uv: visitors.length,
+    pages: pageGroups.map((r) => ({ path: r.path, views: r._count._all })),
+    contents: contentViews.map((r) => ({
+      contentType: r.contentType,
+      contentId: r.contentId,
+      contentName: r.contentName,
+      views: r._count._all,
+      visitors: visitorsByContent.get(`${r.contentType}|${r.contentId}`) ?? 0,
+    })),
+    events: events.map((e) => ({
+      time: e.createdAt.toLocaleTimeString('sv-SE', {
+        timeZone: 'Asia/Seoul',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      type: e.type,
+      path: e.path,
+      contentType: e.contentType,
+      contentId: e.contentId,
+      contentName: e.contentName,
+      visitorId: e.visitorId,
+    })),
+  };
+}

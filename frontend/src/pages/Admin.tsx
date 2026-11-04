@@ -76,6 +76,10 @@ export default function Admin() {
   const [loginLoading, setLoginLoading] = useState(false)
   const [loginError, setLoginError] = useState('')
 
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [dayDetail, setDayDetail] = useState<any>(null)
+  const [dayDetailLoading, setDayDetailLoading] = useState(false)
+
   const loadDashboard = () =>
     api.get('/api/admin/dashboard').then((res) => setData(res.data))
   const loadProducts = () =>
@@ -86,6 +90,22 @@ export default function Admin() {
     api.get('/api/admin/home-promotions').then((res) => setHomePromotions(res.data))
   const loadAnalytics = () =>
     api.get('/api/admin/analytics').then((res) => setAnalytics(res.data))
+
+  const toggleDayDetail = (day: string) => {
+    if (selectedDay === day) {
+      setSelectedDay(null)
+      setDayDetail(null)
+      return
+    }
+    setSelectedDay(day)
+    setDayDetail(null)
+    setDayDetailLoading(true)
+    api
+      .get(`/api/admin/analytics/day/${day}`)
+      .then((res) => setDayDetail(res.data))
+      .catch(() => setDayDetail(null))
+      .finally(() => setDayDetailLoading(false))
+  }
 
   useEffect(() => {
     if (!authed) return
@@ -393,7 +413,21 @@ export default function Admin() {
                 .sort((a: any, b: any) => b.day.localeCompare(a.day))
                 .map((d: any) => (
                   <tr key={d.day} style={{ borderTop: '1px solid var(--border)' }}>
-                    <td style={{ padding: '4px 6px' }}>{d.day}</td>
+                    <td style={{ padding: '4px 6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => toggleDayDetail(d.day)}
+                        style={{
+                          all: 'unset',
+                          cursor: 'pointer',
+                          color: 'var(--brand)',
+                          textDecoration: 'underline',
+                          fontWeight: selectedDay === d.day ? 700 : 400,
+                        }}
+                      >
+                        {d.day}
+                      </button>
+                    </td>
                     <td style={{ padding: '4px 6px' }}>{d.pv.toLocaleString('ko-KR')}</td>
                     <td style={{ padding: '4px 6px' }}>{d.uv.toLocaleString('ko-KR')}</td>
                   </tr>
@@ -404,6 +438,146 @@ export default function Admin() {
           <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
             아직 집계된 방문 데이터가 없습니다.
           </p>
+        )}
+
+        {selectedDay && (
+          <div
+            style={{
+              marginTop: 12,
+              border: '1px solid var(--border)',
+              borderRadius: 10,
+              padding: '12px 14px',
+              background: 'var(--surface-soft)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}
+            >
+              <strong style={{ fontSize: 14 }}>{selectedDay} 상세</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDay(null)
+                  setDayDetail(null)
+                }}
+                style={{
+                  all: 'unset',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  color: 'var(--text-soft)',
+                }}
+              >
+                닫기 ✕
+              </button>
+            </div>
+
+            {dayDetailLoading ? (
+              <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+                불러오는 중…
+              </p>
+            ) : !dayDetail ? (
+              <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+                상세 정보를 불러오지 못했습니다.
+              </p>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, margin: '0 0 10px' }}>
+                  PV {dayDetail.pv.toLocaleString('ko-KR')}회 · 방문자{' '}
+                  {dayDetail.uv.toLocaleString('ko-KR')}명
+                </p>
+
+                {dayDetail.pages?.length > 0 && (
+                  <>
+                    <h5 style={{ margin: '10px 0 4px', fontSize: 13 }}>페이지별 조회수</h5>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <tbody>
+                        {dayDetail.pages.map((p: any) => (
+                          <tr key={p.path} style={{ borderTop: '1px solid var(--border)' }}>
+                            <td style={{ padding: '3px 6px' }}>{p.path}</td>
+                            <td style={{ padding: '3px 6px', width: 70 }}>
+                              {p.views.toLocaleString('ko-KR')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {dayDetail.contents?.length > 0 && (
+                  <>
+                    <h5 style={{ margin: '10px 0 4px', fontSize: 13 }}>콘텐츠별 조회수</h5>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <tbody>
+                        {dayDetail.contents.map((c: any) => (
+                          <tr
+                            key={`${c.contentType}-${c.contentId}`}
+                            style={{ borderTop: '1px solid var(--border)' }}
+                          >
+                            <td style={{ padding: '3px 6px' }}>
+                              {CONTENT_TYPE_LABELS[c.contentType] ?? c.contentType} ·{' '}
+                              {c.contentName || c.contentId}
+                            </td>
+                            <td style={{ padding: '3px 6px', width: 70 }}>
+                              {c.views.toLocaleString('ko-KR')}
+                            </td>
+                            <td style={{ padding: '3px 6px', width: 70 }}>
+                              {c.visitors.toLocaleString('ko-KR')}명
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {dayDetail.events?.length > 0 && (
+                  <>
+                    <h5 style={{ margin: '10px 0 4px', fontSize: 13 }}>방문 기록 (최신순)</h5>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ textAlign: 'left', color: 'var(--text-soft)' }}>
+                          <th style={{ padding: '3px 6px' }}>시각</th>
+                          <th style={{ padding: '3px 6px' }}>구분</th>
+                          <th style={{ padding: '3px 6px' }}>대상</th>
+                          <th style={{ padding: '3px 6px' }}>방문자</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dayDetail.events.map((e: any, i: number) => (
+                          <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
+                            <td style={{ padding: '3px 6px', whiteSpace: 'nowrap' }}>{e.time}</td>
+                            <td style={{ padding: '3px 6px' }}>
+                              {e.type === 'content' ? '콘텐츠' : '페이지'}
+                            </td>
+                            <td style={{ padding: '3px 6px', wordBreak: 'break-all' }}>
+                              {e.type === 'content'
+                                ? `${CONTENT_TYPE_LABELS[e.contentType] ?? e.contentType} · ${e.contentName || e.contentId}`
+                                : e.path}
+                            </td>
+                            <td style={{ padding: '3px 6px', color: 'var(--text-soft)' }}>
+                              {e.visitorId?.slice(0, 8)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {!dayDetail.events?.length && (
+                  <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0' }}>
+                    이 날짜의 방문 기록이 없습니다.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
         )}
       </section>
 
